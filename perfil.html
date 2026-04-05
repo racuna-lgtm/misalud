@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MiSalud — Mi perfil</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --verde: #22C55E; --verde-claro: #DCFCE7; --verde-texto: #15803D;
+  --verde-oscuro: #16A34A; --rojo: #FEE2E2; --rojo-texto: #991B1B;
+  --azul: #EFF6FF; --azul-texto: #1D4ED8;
+  --gris-bg: #F8FAFC; --gris-borde: #E2E8F0;
+  --gris-texto: #64748B; --gris-muted: #94A3B8; --negro: #0F172A;
+  --radio: 16px; --radio-sm: 10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Nunito Sans', sans-serif; background: var(--gris-bg); color: var(--negro); min-height: 100vh; max-width: 480px; margin: 0 auto; padding-bottom: 100px; }
+
+.header { background: #fff; padding: 18px 22px; border-bottom: 1px solid var(--gris-borde); display: flex; align-items: center; gap: 14px; }
+.btn-back { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--gris-borde); background: var(--gris-bg); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; flex-shrink: 0; }
+.header-titulo { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 17px; }
+.header-sub { font-size: 12px; color: var(--gris-texto); margin-top: 2px; }
+
+.body { padding: 18px 16px; }
+
+.avatar-wrap { text-align: center; padding: 24px 0 16px; }
+.avatar-grande { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 28px; margin: 0 auto 12px; }
+.perfil-nombre { font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 22px; }
+.perfil-relacion { font-size: 14px; color: var(--gris-texto); margin-top: 4px; }
+
+.card { background: #fff; border-radius: var(--radio); border: 1px solid var(--gris-borde); padding: 16px 18px; margin-bottom: 14px; }
+.card-titulo { font-size: 11px; font-weight: 700; color: var(--gris-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+.dato-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 0.5px solid var(--gris-borde); }
+.dato-row:last-child { border-bottom: none; padding-bottom: 0; }
+.dato-label { font-size: 13px; color: var(--gris-texto); }
+.dato-valor { font-size: 13px; font-weight: 600; color: var(--negro); text-align: right; }
+
+.condiciones-lista { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 4px; }
+.cond-tag { font-size: 12px; font-weight: 600; background: var(--azul); color: var(--azul-texto); padding: 4px 11px; border-radius: 20px; }
+
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.stat { text-align: center; padding: 12px 8px; background: var(--gris-bg); border-radius: var(--radio-sm); }
+.stat-num { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 24px; color: var(--verde-texto); }
+.stat-label { font-size: 11px; color: var(--gris-muted); font-weight: 600; margin-top: 3px; }
+
+.nota-box { background: var(--gris-bg); border-radius: var(--radio-sm); padding: 12px 14px; font-size: 13px; color: var(--gris-texto); line-height: 1.6; margin-top: 4px; }
+
+.btn-accion { width: 100%; padding: 15px; border-radius: var(--radio-sm); border: none; font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 15px; cursor: pointer; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.15s; }
+.btn-exportar { background: var(--verde-claro); color: var(--verde-texto); border: 1.5px solid var(--verde); }
+.btn-cerrar { background: var(--gris-bg); color: var(--gris-texto); border: 1.5px solid var(--gris-borde); }
+.btn-peligro { background: var(--rojo); color: var(--rojo-texto); border: 1.5px solid #FECACA; }
+
+.privacidad-nota { background: var(--verde-claro); border: 1px solid #86EFAC; border-radius: var(--radio-sm); padding: 12px 14px; font-size: 13px; color: var(--verde-texto); line-height: 1.6; margin-bottom: 14px; display: flex; gap: 8px; align-items: flex-start; }
+
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--negro); color: #fff; padding: 14px 22px; border-radius: 14px; font-size: 14px; font-weight: 600; opacity: 0; transition: all 0.3s; z-index: 200; white-space: nowrap; }
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.toast.verde { background: var(--verde-oscuro); }
+
+@media (min-width: 480px) { body { border-left: 1px solid var(--gris-borde); border-right: 1px solid var(--gris-borde); } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="btn-back" onclick="window.location.href='home.html'">←</div>
+  <div>
+    <div class="header-titulo">Mi perfil</div>
+    <div class="header-sub">Tus datos y configuración</div>
+  </div>
+</div>
+
+<div class="body" id="body"></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const perfil = JSON.parse(localStorage.getItem('misalud_usuario_actual') || 'null');
+if (!perfil) window.location.href = 'index.html';
+
+const COLORES_AVATAR = [
+  ['#DBEAFE','#1D4ED8'],['#DCFCE7','#15803D'],['#FCE7F3','#9D174D'],
+  ['#FEF9C3','#854D0E'],['#EDE9FE','#5B21B6'],['#FFEDD5','#9A3412']
+];
+const perfiles = JSON.parse(localStorage.getItem('misalud_perfiles') || '[]');
+const idx = Math.max(0, perfiles.findIndex(p => p.id === perfil.id));
+const [bgAv, textAv] = COLORES_AVATAR[idx % COLORES_AVATAR.length];
+
+function iniciales(n) { return n.split(' ').map(p=>p[0]).join('').substring(0,2).toUpperCase(); }
+
+function getStats() {
+  const key = 'misalud_registros_' + perfil.id;
+  const regs = JSON.parse(localStorage.getItem(key) || '[]');
+  const hoy = new Date();
+  const hace7 = new Date(); hace7.setDate(hace7.getDate() - 7);
+  const regs7 = regs.filter(r => new Date(r.fecha) >= hace7);
+  const fechas = [...new Set(regs.map(r => r.fecha))];
+  return { total: regs.length, ultimos7: regs7.length, diasConRegistro: fechas.length };
+}
+
+function exportarDatos() {
+  const key = 'misalud_registros_' + perfil.id;
+  const regs = JSON.parse(localStorage.getItem(key) || '[]');
+  const datos = { perfil, registros: regs, exportado: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(datos, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'misalud_' + perfil.nombre.replace(/ /g,'_') + '_' + new Date().toLocaleDateString('es-CL').replace(/\//g,'-') + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  mostrarToast('✓ Datos exportados', true);
+}
+
+function cerrarSesion() {
+  if (confirm('¿Cerrar sesión?')) {
+    localStorage.removeItem('misalud_usuario_actual');
+    window.location.href = 'index.html';
+  }
+}
+
+function borrarMisRegistros() {
+  if (confirm('¿Borrar TODOS tus registros? Esta acción no se puede deshacer.')) {
+    if (confirm('¿Estás segura? Se borrarán todos tus registros de salud.')) {
+      localStorage.removeItem('misalud_registros_' + perfil.id);
+      mostrarToast('Registros eliminados', false);
+      setTimeout(renderPerfil, 1000);
+    }
+  }
+}
+
+function mostrarToast(msg, ok) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (ok ? ' verde' : '') + ' show';
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function renderPerfil() {
+  const stats = getStats();
+  const sexoLabel = perfil.sexo === 'f' ? '♀ Mujer' : '♂ Hombre';
+  const condiciones = perfil.condiciones || [];
+
+  document.getElementById('body').innerHTML = `
+    <div class="avatar-wrap">
+      <div class="avatar-grande" style="background:${bgAv};color:${textAv}">${iniciales(perfil.nombre)}</div>
+      <div class="perfil-nombre">${perfil.nombre}</div>
+      <div class="perfil-relacion">${perfil.relacion || ''} · ${perfil.edad} años · ${sexoLabel}</div>
+    </div>
+
+    <div class="privacidad-nota">
+      🔒 <span>Tus registros son <strong>completamente privados</strong>. Solo tú y tu médico pueden verlos. Nadie más tiene acceso.</span>
+    </div>
+
+    <div class="card">
+      <div class="card-titulo">Mis datos</div>
+      <div class="dato-row">
+        <span class="dato-label">Nombre</span>
+        <span class="dato-valor">${perfil.nombre}</span>
+      </div>
+      <div class="dato-row">
+        <span class="dato-label">Edad</span>
+        <span class="dato-valor">${perfil.edad} años</span>
+      </div>
+      <div class="dato-row">
+        <span class="dato-label">Sexo biológico</span>
+        <span class="dato-valor">${sexoLabel}</span>
+      </div>
+      <div class="dato-row">
+        <span class="dato-label">Código de acceso</span>
+        <span class="dato-valor" style="font-family:monospace;letter-spacing:2px;">${perfil.codigo}</span>
+      </div>
+      <div class="dato-row">
+        <span class="dato-label">Miembro desde</span>
+        <span class="dato-valor">${perfil.creado || 'Hoy'}</span>
+      </div>
+    </div>
+
+    ${condiciones.length > 0 ? `
+    <div class="card">
+      <div class="card-titulo">Mis condiciones de salud</div>
+      <div class="condiciones-lista">
+        ${condiciones.map(c => `<span class="cond-tag">${c}</span>`).join('')}
+      </div>
+    </div>` : ''}
+
+    ${perfil.notas ? `
+    <div class="card">
+      <div class="card-titulo">Notas para el médico</div>
+      <div class="nota-box">${perfil.notas}</div>
+    </div>` : ''}
+
+    <div class="card">
+      <div class="card-titulo">Mi actividad</div>
+      <div class="stats-grid">
+        <div class="stat">
+          <div class="stat-num">${stats.total}</div>
+          <div class="stat-label">Registros totales</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">${stats.ultimos7}</div>
+          <div class="stat-label">Esta semana</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">${stats.diasConRegistro}</div>
+          <div class="stat-label">Días con registro</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-titulo">Opciones</div>
+      <button class="btn-accion btn-exportar" onclick="exportarDatos()">
+        💾 Exportar mis datos
+      </button>
+      <button class="btn-accion btn-cerrar" onclick="cerrarSesion()">
+        🚪 Cerrar sesión
+      </button>
+      <button class="btn-accion btn-peligro" onclick="borrarMisRegistros()">
+        🗑 Borrar todos mis registros
+      </button>
+    </div>
+
+    <div style="text-align:center;font-size:11px;color:var(--gris-muted);padding:8px 0 24px;">
+      MiSalud · Tu compañero de salud familiar<br>
+      Si tienes problemas con la app, escríbele a Natalia.
+    </div>
+  `;
+}
+
+renderPerfil();
+</script>
+</body>
+</html>
