@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MiSalud — Calendario</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --verde: #22C55E;
+  --verde-claro: #DCFCE7;
+  --verde-texto: #15803D;
+  --verde-mid: #BBF7D0;
+  --amarillo: #FEF9C3;
+  --amarillo-texto: #854D0E;
+  --naranja: #FED7AA;
+  --naranja-texto: #9A3412;
+  --rojo: #FEE2E2;
+  --rojo-texto: #991B1B;
+  --gris-bg: #F8FAFC;
+  --gris-card: #FFFFFF;
+  --gris-borde: #E2E8F0;
+  --gris-texto: #64748B;
+  --gris-muted: #94A3B8;
+  --gris-dia: #F1F5F9;
+  --negro: #0F172A;
+  --radio: 16px;
+  --radio-sm: 10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: 'Nunito Sans', sans-serif;
+  background: var(--gris-bg);
+  color: var(--negro);
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  padding-bottom: 100px;
+}
+
+/* HEADER */
+.header {
+  background: #fff;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--gris-borde);
+  display: flex; align-items: center; gap: 14px;
+  position: sticky; top: 0; z-index: 50;
+}
+.btn-back {
+  width: 40px; height: 40px; border-radius: 12px;
+  border: 1px solid var(--gris-borde); background: var(--gris-bg);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 18px; flex-shrink: 0;
+}
+.header-titulo { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 17px; }
+.header-sub { font-size: 12px; color: var(--gris-texto); margin-top: 2px; }
+
+/* NAVEGACIÓN MES */
+.mes-nav {
+  background: #fff;
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--gris-borde);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.mes-nombre {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800; font-size: 20px; color: var(--negro);
+  text-transform: capitalize;
+}
+.mes-btns { display: flex; gap: 8px; }
+.mes-btn {
+  width: 36px; height: 36px; border-radius: 10px;
+  border: 1px solid var(--gris-borde); background: var(--gris-bg);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 16px; font-weight: 700;
+  color: var(--negro); transition: all 0.15s;
+}
+.mes-btn:hover { background: var(--verde-claro); border-color: var(--verde); }
+
+/* LEYENDA */
+.leyenda {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  padding: 12px 22px;
+  background: #fff;
+  border-bottom: 1px solid var(--gris-borde);
+}
+.leyenda-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--gris-texto); font-weight: 600; }
+.leyenda-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+
+/* CALENDARIO */
+.cal-wrap { padding: 16px 16px 0; }
+.cal-dias-semana {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 8px;
+}
+.cal-dia-label {
+  text-align: center; font-size: 11px; font-weight: 700;
+  color: var(--gris-muted); text-transform: uppercase;
+  padding: 4px 0;
+}
+.cal-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+}
+.cal-dia {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+  min-height: 44px;
+}
+.cal-dia:active { transform: scale(0.92); }
+.cal-dia.vacio { cursor: default; background: transparent; }
+.cal-dia.futuro { background: transparent; }
+.cal-dia-num {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700; font-size: 14px;
+}
+.cal-dia.vacio .cal-dia-num,
+.cal-dia.futuro .cal-dia-num { color: #CBD5E1; }
+
+.cal-dia.sin-registro { background: var(--gris-dia); }
+.cal-dia.sin-registro .cal-dia-num { color: var(--gris-muted); }
+
+.cal-dia.verde { background: var(--verde-claro); }
+.cal-dia.verde .cal-dia-num { color: var(--verde-texto); }
+.cal-dia.verde-mid { background: var(--verde-mid); }
+.cal-dia.verde-mid .cal-dia-num { color: var(--verde-texto); }
+.cal-dia.amarillo { background: var(--amarillo); }
+.cal-dia.amarillo .cal-dia-num { color: var(--amarillo-texto); }
+.cal-dia.naranja { background: var(--naranja); }
+.cal-dia.naranja .cal-dia-num { color: var(--naranja-texto); }
+.cal-dia.rojo { background: var(--rojo); }
+.cal-dia.rojo .cal-dia-num { color: var(--rojo-texto); }
+
+.cal-dia.hoy {
+  outline: 2.5px solid var(--verde);
+  outline-offset: 1px;
+}
+.cal-dia.hoy .cal-dia-num { font-weight: 900; }
+
+.cal-dia-punto {
+  width: 4px; height: 4px; border-radius: 50%;
+  margin-top: 2px; opacity: 0.6;
+}
+.verde .cal-dia-punto { background: var(--verde-texto); }
+.verde-mid .cal-dia-punto { background: var(--verde-texto); }
+.amarillo .cal-dia-punto { background: var(--amarillo-texto); }
+.naranja .cal-dia-punto { background: var(--naranja-texto); }
+.rojo .cal-dia-punto { background: var(--rojo-texto); }
+
+/* ESTADÍSTICAS MES */
+.stats-mes {
+  margin: 16px 16px 0;
+  background: #fff;
+  border-radius: var(--radio);
+  border: 1px solid var(--gris-borde);
+  padding: 16px;
+}
+.stats-titulo {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700; font-size: 14px;
+  color: var(--negro); margin-bottom: 12px;
+}
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.stat-item { text-align: center; }
+.stat-num {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800; font-size: 22px;
+}
+.stat-label { font-size: 10px; color: var(--gris-muted); font-weight: 600; margin-top: 2px; }
+.stat-verde .stat-num { color: var(--verde-texto); }
+.stat-amarillo .stat-num { color: var(--amarillo-texto); }
+.stat-naranja .stat-num { color: var(--naranja-texto); }
+.stat-rojo .stat-num { color: var(--rojo-texto); }
+
+/* PANEL DETALLE DÍA */
+.detalle-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(15,23,42,0.5);
+  z-index: 100;
+  align-items: flex-end;
+  justify-content: center;
+}
+.detalle-overlay.open { display: flex; }
+.detalle-panel {
+  background: #fff;
+  border-radius: 24px 24px 0 0;
+  width: 100%; max-width: 480px;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease;
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.detalle-handle {
+  width: 40px; height: 4px;
+  background: var(--gris-borde);
+  border-radius: 10px;
+  margin: 12px auto 0;
+}
+.detalle-header {
+  padding: 16px 22px 14px;
+  border-bottom: 1px solid var(--gris-borde);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.detalle-fecha {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800; font-size: 17px;
+}
+.detalle-estado {
+  font-size: 12px; font-weight: 700;
+  padding: 4px 12px; border-radius: 20px;
+}
+.detalle-body { padding: 16px 22px 32px; }
+.detalle-vacio {
+  text-align: center; padding: 32px 0;
+  color: var(--gris-muted); font-size: 14px;
+}
+.reg-item {
+  background: var(--gris-bg);
+  border-radius: var(--radio-sm);
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  border: 1px solid var(--gris-borde);
+}
+.reg-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.reg-hora { font-size: 11px; color: var(--gris-muted); font-weight: 700; }
+.reg-tipo-badge {
+  font-size: 10px; font-weight: 700;
+  padding: 2px 7px; border-radius: 8px;
+  background: var(--gris-dia); color: var(--gris-texto);
+}
+.reg-texto { font-size: 14px; color: var(--negro); line-height: 1.5; margin-bottom: 8px; }
+.reg-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.reg-tag { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 10px; }
+.tag-sueno { background: #EDE9FE; color: #5B21B6; }
+.tag-dolor { background: #FEE2E2; color: #991B1B; }
+.tag-animo { background: #FCE7F3; color: #9D174D; }
+.tag-med { background: #DCFCE7; color: #15803D; }
+.tag-presion { background: #FEF9C3; color: #854D0E; }
+.tag-alim { background: #E0F2FE; color: #075985; }
+.tag-mov { background: #F1F5F9; color: #475569; }
+.tag-visita { background: #FED7AA; color: #9A3412; }
+
+.btn-cerrar-detalle {
+  width: 100%; padding: 14px;
+  border-radius: var(--radio-sm);
+  border: 1.5px solid var(--gris-borde);
+  background: #fff; color: var(--gris-texto);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700; font-size: 15px;
+  cursor: pointer; margin-top: 8px;
+}
+
+/* NAV BOTTOM */
+.nav-bottom {
+  position: fixed; bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 100%; max-width: 480px;
+  background: #fff; border-top: 1px solid var(--gris-borde);
+  display: flex; padding: 10px 0 20px; z-index: 50;
+}
+.nav-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; gap: 4px; cursor: pointer;
+  padding: 4px 0; font-size: 11px; color: var(--gris-muted); font-weight: 600;
+}
+.nav-item.activo { color: var(--verde); }
+.nav-icono { font-size: 22px; }
+
+@media (min-width: 480px) {
+  body { border-left: 1px solid var(--gris-borde); border-right: 1px solid var(--gris-borde); }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="btn-back" onclick="window.location.href='home.html'">←</div>
+  <div>
+    <div class="header-titulo">Mi calendario</div>
+    <div class="header-sub">Toca un día para ver el detalle</div>
+  </div>
+</div>
+
+<div class="mes-nav">
+  <div class="mes-nombre" id="mes-nombre"></div>
+  <div class="mes-btns">
+    <div class="mes-btn" onclick="cambiarMes(-1)">‹</div>
+    <div class="mes-btn" onclick="cambiarMes(1)">›</div>
+  </div>
+</div>
+
+<div class="leyenda">
+  <div class="leyenda-item"><div class="leyenda-dot" style="background:#BBF7D0;"></div>Muy bien</div>
+  <div class="leyenda-item"><div class="leyenda-dot" style="background:#FEF9C3;"></div>Regular</div>
+  <div class="leyenda-item"><div class="leyenda-dot" style="background:#FED7AA;"></div>Mal</div>
+  <div class="leyenda-item"><div class="leyenda-dot" style="background:#FEE2E2;"></div>Muy mal</div>
+  <div class="leyenda-item"><div class="leyenda-dot" style="background:#F1F5F9;border:1px solid #E2E8F0;"></div>Sin registro</div>
+</div>
+
+<div class="cal-wrap">
+  <div class="cal-dias-semana">
+    <div class="cal-dia-label">Lu</div>
+    <div class="cal-dia-label">Ma</div>
+    <div class="cal-dia-label">Mi</div>
+    <div class="cal-dia-label">Ju</div>
+    <div class="cal-dia-label">Vi</div>
+    <div class="cal-dia-label">Sa</div>
+    <div class="cal-dia-label">Do</div>
+  </div>
+  <div class="cal-grid" id="cal-grid"></div>
+</div>
+
+<div class="stats-mes" id="stats-mes"></div>
+
+<!-- DETALLE DÍA -->
+<div class="detalle-overlay" id="detalle-overlay" onclick="cerrarDetalle(event)">
+  <div class="detalle-panel" id="detalle-panel">
+    <div class="detalle-handle"></div>
+    <div class="detalle-header">
+      <div class="detalle-fecha" id="detalle-fecha"></div>
+      <div class="detalle-estado" id="detalle-estado"></div>
+    </div>
+    <div class="detalle-body" id="detalle-body"></div>
+  </div>
+</div>
+
+<!-- NAV BOTTOM -->
+<div class="nav-bottom">
+  <div class="nav-item" onclick="window.location.href='home.html'">
+    <div class="nav-icono">🏠</div><span>Inicio</span>
+  </div>
+  <div class="nav-item activo">
+    <div class="nav-icono">📅</div><span>Calendario</span>
+  </div>
+  <div class="nav-item" onclick="window.location.href='historial.html'">
+    <div class="nav-icono">📋</div><span>Historial</span>
+  </div>
+  <div class="nav-item" onclick="window.location.href='reporte.html'">
+    <div class="nav-icono">📄</div><span>Reporte</span>
+  </div>
+</div>
+
+<script>
+const perfil = JSON.parse(localStorage.getItem('misalud_usuario_actual') || 'null');
+if (!perfil) window.location.href = 'index.html';
+
+const NOMBRES_CAT = {
+  sueno: { label: '🌙 Sueño', clase: 'tag-sueno' },
+  dolor: { label: '⚡ Dolor', clase: 'tag-dolor' },
+  animo: { label: '💙 Ánimo', clase: 'tag-animo' },
+  med: { label: '💊 Medicamentos', clase: 'tag-med' },
+  presion: { label: '📊 Presión', clase: 'tag-presion' },
+  alim: { label: '🥗 Alimentación', clase: 'tag-alim' },
+  mov: { label: '🚶 Movilidad', clase: 'tag-mov' },
+  visita: { label: '🩺 Visita médica', clase: 'tag-visita' }
+};
+
+const COLORES_ESTADO = {
+  verde: { label: '😊 Muy bien', bg: '#DCFCE7', color: '#15803D' },
+  'verde-mid': { label: '🙂 Bien', bg: '#BBF7D0', color: '#15803D' },
+  amarillo: { label: '😐 Regular', bg: '#FEF9C3', color: '#854D0E' },
+  naranja: { label: '😣 Mal', bg: '#FED7AA', color: '#9A3412' },
+  rojo: { label: '😢 Muy mal', bg: '#FEE2E2', color: '#991B1B' },
+  'sin-registro': { label: '— Sin registro', bg: '#F1F5F9', color: '#94A3B8' }
+};
+
+let mesActual = new Date().getMonth();
+let anioActual = new Date().getFullYear();
+const hoy = new Date();
+
+function cambiarMes(delta) {
+  mesActual += delta;
+  if (mesActual > 11) { mesActual = 0; anioActual++; }
+  if (mesActual < 0) { mesActual = 11; anioActual--; }
+  renderCalendario();
+}
+
+function getColorDia(fecha) {
+  const key = 'misalud_dia_' + perfil.id + '_' + fecha.toDateString();
+  return localStorage.getItem(key) || null;
+}
+
+function getRegistrosDia(fecha) {
+  const key = 'misalud_registros_' + perfil.id;
+  const todos = JSON.parse(localStorage.getItem(key) || '[]');
+  return todos.filter(r => r.fecha === fecha.toDateString());
+}
+
+function renderCalendario() {
+  const primerDia = new Date(anioActual, mesActual, 1);
+  const ultimoDia = new Date(anioActual, mesActual + 1, 0);
+  const nombreMes = primerDia.toLocaleDateString('es-CL', { month: 'long', year: 'numeric' });
+  document.getElementById('mes-nombre').textContent = nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1);
+
+  // día de semana del primer día (lunes=0)
+  let inicio = primerDia.getDay() - 1;
+  if (inicio < 0) inicio = 6;
+
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+
+  // celdas vacías antes
+  for (let i = 0; i < inicio; i++) {
+    const vacio = document.createElement('div');
+    vacio.className = 'cal-dia vacio';
+    grid.appendChild(vacio);
+  }
+
+  let stats = { verde: 0, amarillo: 0, naranja: 0, rojo: 0 };
+
+  for (let d = 1; d <= ultimoDia.getDate(); d++) {
+    const fecha = new Date(anioActual, mesActual, d);
+    const esHoy = fecha.toDateString() === hoy.toDateString();
+    const esFuturo = fecha > hoy;
+
+    const celda = document.createElement('div');
+    celda.className = 'cal-dia';
+
+    if (esFuturo) {
+      celda.classList.add('futuro');
+    } else {
+      const color = getColorDia(fecha);
+      const regs = getRegistrosDia(fecha);
+      if (color) {
+        celda.classList.add(color);
+        if (color === 'verde' || color === 'verde-mid') stats.verde++;
+        else if (color === 'amarillo') stats.amarillo++;
+        else if (color === 'naranja') stats.naranja++;
+        else if (color === 'rojo') stats.rojo++;
+      } else {
+        celda.classList.add('sin-registro');
+      }
+      if (regs.length > 0) {
+        const punto = document.createElement('div');
+        punto.className = 'cal-dia-punto';
+        celda.appendChild(punto);
+      }
+      celda.onclick = () => abrirDetalle(fecha);
+    }
+
+    if (esHoy) celda.classList.add('hoy');
+
+    const num = document.createElement('div');
+    num.className = 'cal-dia-num';
+    num.textContent = d;
+    celda.insertBefore(num, celda.firstChild);
+    grid.appendChild(celda);
+  }
+
+  // Stats del mes
+  const diasConRegistro = stats.verde + stats.amarillo + stats.naranja + stats.rojo;
+  document.getElementById('stats-mes').innerHTML = `
+    <div class="stats-titulo">Resumen del mes</div>
+    <div class="stats-grid">
+      <div class="stat-item stat-verde">
+        <div class="stat-num">${stats.verde}</div>
+        <div class="stat-label">Días buenos</div>
+      </div>
+      <div class="stat-item stat-amarillo">
+        <div class="stat-num">${stats.amarillo}</div>
+        <div class="stat-label">Días regulares</div>
+      </div>
+      <div class="stat-item stat-naranja">
+        <div class="stat-num">${stats.naranja}</div>
+        <div class="stat-label">Días malos</div>
+      </div>
+      <div class="stat-item stat-rojo">
+        <div class="stat-num">${stats.rojo}</div>
+        <div class="stat-label">Días muy malos</div>
+      </div>
+    </div>
+    ${diasConRegistro > 0 ? `
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--gris-borde);font-size:12px;color:var(--gris-texto);">
+      ${diasConRegistro} días con registro este mes
+      ${stats.verde > diasConRegistro / 2 ? ' · La mayoría de días estuviste bien 💚' : ''}
+      ${stats.rojo >= 3 ? ' · Hubo varios días difíciles este mes' : ''}
+    </div>` : `
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--gris-borde);font-size:12px;color:var(--gris-muted);">
+      Aún no hay registros este mes
+    </div>`}
+  `;
+}
+
+function abrirDetalle(fecha) {
+  const regs = getRegistrosDia(fecha);
+  const color = getColorDia(fecha);
+  const estado = color ? COLORES_ESTADO[color] : COLORES_ESTADO['sin-registro'];
+
+  const nombreFecha = fecha.toLocaleDateString('es-CL', {
+    weekday: 'long', day: 'numeric', month: 'long'
+  });
+  document.getElementById('detalle-fecha').textContent =
+    nombreFecha.charAt(0).toUpperCase() + nombreFecha.slice(1);
+
+  const estadoEl = document.getElementById('detalle-estado');
+  estadoEl.textContent = estado.label;
+  estadoEl.style.background = estado.bg;
+  estadoEl.style.color = estado.color;
+
+  const body = document.getElementById('detalle-body');
+  if (regs.length === 0) {
+    body.innerHTML = `
+      <div class="detalle-vacio">
+        <div style="font-size:36px;margin-bottom:10px;">📭</div>
+        No hay registros para este día
+      </div>
+      <button class="btn-cerrar-detalle" onclick="cerrarDetalle()">Cerrar</button>`;
+  } else {
+    body.innerHTML = regs.map(r => `
+      <div class="reg-item">
+        <div class="reg-meta">
+          <span class="reg-hora">${r.hora}</span>
+          <span class="reg-tipo-badge">${r.tipo === 'checkin' ? '📋 Check-in' : '🎙 Libre'}</span>
+        </div>
+        <div class="reg-texto">"${r.texto}"</div>
+        <div class="reg-tags">
+          ${r.categorias && r.categorias.length > 0
+            ? r.categorias.map(c => `<span class="reg-tag ${NOMBRES_CAT[c]?.clase || ''}">${NOMBRES_CAT[c]?.label || c}</span>`).join('')
+            : '<span style="font-size:12px;color:#94A3B8;">Sin categorías</span>'
+          }
+        </div>
+      </div>
+    `).join('') + `<button class="btn-cerrar-detalle" onclick="cerrarDetalle()">Cerrar</button>`;
+  }
+
+  document.getElementById('detalle-overlay').classList.add('open');
+}
+
+function cerrarDetalle(e) {
+  if (!e || e.target === document.getElementById('detalle-overlay')) {
+    document.getElementById('detalle-overlay').classList.remove('open');
+  }
+}
+
+renderCalendario();
+</script>
+</body>
+</html>
