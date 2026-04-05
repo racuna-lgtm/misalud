@@ -497,8 +497,9 @@ const COLORES_AVATAR = [
   ['#FEF9C3','#854D0E'],['#EDE9FE','#5B21B6'],['#FFEDD5','#9A3412']
 ];
 const perfiles = JSON.parse(localStorage.getItem('misalud_perfiles') || '[]');
-const idxPerfil = perfiles.findIndex(p => p.id === perfil.id);
-const [bgAv, textAv] = COLORES_AVATAR[idxPerfil % COLORES_AVATAR.length];
+const idxPerfil = Array.isArray(perfiles) ? Math.max(0, perfiles.findIndex(p => p.id === perfil.id)) : 0;
+const bgAv = COLORES_AVATAR[idxPerfil % COLORES_AVATAR.length][0];
+const textAv = COLORES_AVATAR[idxPerfil % COLORES_AVATAR.length][1];
 
 function iniciales(n) { return n.split(' ').map(p=>p[0]).join('').substring(0,2).toUpperCase(); }
 
@@ -592,7 +593,7 @@ function iniciarGrabacion() {
   };
 
   recognition.onend = () => {
-    if (grabando) mostrarTranscripcion();
+    if (!grabando) mostrarTranscripcion();
   };
 
   recognition.onerror = (e) => {
@@ -600,7 +601,7 @@ function iniciarGrabacion() {
     resetearMic();
     if (e.error === 'not-allowed') {
       mostrarToast('Debes permitir el acceso al micrófono', false);
-    } else {
+    } else if (e.error !== 'aborted') {
       mostrarToast('Hubo un problema. Intenta de nuevo.', false);
     }
   };
