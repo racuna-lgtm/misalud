@@ -399,7 +399,8 @@ function renderCalendario() {
   const primerDia = new Date(anioActual, mesActual, 1);
   const ultimoDia = new Date(anioActual, mesActual + 1, 0);
   const nombreMes = primerDia.toLocaleDateString('es-CL', { month: 'long', year: 'numeric' });
-  document.getElementById('mes-nombre').textContent = nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1);
+  // Capitalizar solo la primera letra, el resto en minúscula
+  document.getElementById('mes-nombre').textContent = nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1).toLowerCase().replace(/(de)/g, 'de');
 
   // día de semana del primer día (lunes=0)
   let inicio = primerDia.getDay() - 1;
