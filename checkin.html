@@ -105,14 +105,29 @@ body { font-family: 'Nunito Sans', sans-serif; background: var(--gris-bg); color
 <script>
 const perfil = JSON.parse(localStorage.getItem('misalud_usuario_actual') || 'null');
 if (!perfil) window.location.href = 'index.html';
+
+// Si ya hizo check-in hoy Y tiene registros reales, redirigir
+const _hoy = new Date().toDateString();
+const _checkinKey = 'misalud_checkin_' + perfil.id + '_' + _hoy;
+const _regsHoy = JSON.parse(localStorage.getItem('misalud_registros_' + perfil.id) || '[]').filter(r => r.fecha === _hoy && r.tipo === 'checkin');
+if (localStorage.getItem(_checkinKey) && _regsHoy.length > 0) {
+  // Ya lo hizo — mostrar mensaje amigable antes de redirigir
+  document.body.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:32px;text-align:center;font-family:'Nunito Sans',sans-serif;">
+      <div style="font-size:64px;margin-bottom:20px;">✅</div>
+      <div style="font-family:'Nunito',sans-serif;font-weight:900;font-size:24px;color:#0F172A;margin-bottom:8px;">¡Ya hiciste tu check-in hoy!</div>
+      <div style="font-size:15px;color:#64748B;margin-bottom:32px;line-height:1.6;">El check-in es una vez al día.<br>Si quieres contar algo más, usa el micrófono verde.</div>
+      <button onclick="window.location.href='home.html'" style="padding:16px 32px;border-radius:14px;border:none;background:#22C55E;color:#fff;font-family:'Nunito',sans-serif;font-weight:800;font-size:17px;cursor:pointer;">Volver al inicio</button>
+    </div>`;
+}
 const condiciones = (perfil.condiciones || []).map(c => c.toLowerCase());
 const hora = new Date().getHours();
 const esTarde = hora >= 14, esNoche = hora >= 20;
 const nombreCorto = perfil.nombre.split(' ')[0];
 
-let avisoIcono='🌅',avisoTexto='Ideal hacerlo en la mañana',avisoColor='#FFF7ED',avisoTxt='#9A3412',avisoBorde='#FED7AA',saludo='buenos días';
-if(hora>=12&&hora<20){avisoIcono='☀️';avisoTexto='Check-in de la tarde';avisoColor='#EFF6FF';avisoTxt='#1D4ED8';avisoBorde='#BFDBFE';saludo='buenas tardes';}
-else if(hora>=20){avisoIcono='🌙';avisoTexto='Check-in nocturno';avisoColor='#F5F3FF';avisoTxt='#5B21B6';avisoBorde='#DDD6FE';saludo='buenas noches';}
+let avisoIcono='🌅',avisoTexto='Una vez al día · ideal en la mañana',avisoColor='#FFF7ED',avisoTxt='#9A3412',avisoBorde='#FED7AA',saludo='buenos días';
+if(hora>=12&&hora<20){avisoIcono='☀️';avisoTexto='Una vez al día · check-in de la tarde';avisoColor='#EFF6FF';avisoTxt='#1D4ED8';avisoBorde='#BFDBFE';saludo='buenas tardes';}
+else if(hora>=20){avisoIcono='🌙';avisoTexto='Una vez al día · check-in nocturno';avisoColor='#F5F3FF';avisoTxt='#5B21B6';avisoBorde='#DDD6FE';saludo='buenas noches';}
 document.getElementById('header-nombre-sub').textContent = 'Hola '+nombreCorto+', '+saludo;
 const av=document.getElementById('aviso-momento');
 av.style.background=avisoColor;av.style.color=avisoTxt;av.style.borderBottomColor=avisoBorde;
