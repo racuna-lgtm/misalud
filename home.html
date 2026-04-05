@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MiSalud</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --verde: #22C55E;
+  --verde-claro: #DCFCE7;
+  --verde-texto: #15803D;
+  --verde-oscuro: #16A34A;
+  --azul: #3B82F6;
+  --azul-claro: #EFF6FF;
+  --azul-texto: #1D4ED8;
+  --morado: #8B5CF6;
+  --morado-claro: #EDE9FE;
+  --naranja: #F97316;
+  --naranja-claro: #FFF7ED;
+  --gris-bg: #F8FAFC;
+  --gris-card: #FFFFFF;
+  --gris-borde: #E2E8F0;
+  --gris-texto: #64748B;
+  --gris-muted: #94A3B8;
+  --negro: #0F172A;
+  --radio: 20px;
+  --radio-sm: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'Nunito Sans', sans-serif;
+  background: var(--gris-bg);
+  color: var(--negro);
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  padding-bottom: 100px;
+}
+
+/* HEADER */
+.header {
+  background: #fff;
+  padding: 20px 22px 16px;
+  border-bottom: 1px solid var(--gris-borde);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.header-left { display: flex; align-items: center; gap: 12px; }
+.avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800; font-size: 16px;
+}
+.header-texto {}
+.header-saludo { font-size: 13px; color: var(--gris-texto); }
+.header-nombre { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 17px; color: var(--negro); }
+.header-right { display: flex; align-items: center; gap: 8px; }
+.logo-mini {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 900; font-size: 16px; color: var(--verde);
+}
+.btn-salir {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--gris-borde);
+  background: var(--gris-bg);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 16px;
+}
+
+/* CUERPO */
+.body { padding: 20px 18px; }
+
+/* FECHA */
+.fecha-hoy {
+  font-size: 13px; color: var(--gris-muted);
+  margin-bottom: 20px; text-align: center;
+}
+
+/* BOTÓN MICRÓFONO */
+.mic-section { margin-bottom: 24px; }
+.mic-card {
+  background: var(--verde);
+  border-radius: 24px;
+  padding: 28px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.mic-card:active { transform: scale(0.98); }
+.mic-card.grabando { background: #DC2626; }
+.mic-card.procesando { background: #7C3AED; }
+
+.mic-ondas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.onda {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.25);
+  animation: expandir 2s ease-out infinite;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+}
+.onda:nth-child(1) { width: 80px; height: 80px; animation-delay: 0s; }
+.onda:nth-child(2) { width: 120px; height: 120px; animation-delay: 0.4s; }
+.onda:nth-child(3) { width: 160px; height: 160px; animation-delay: 0.8s; }
+@keyframes expandir {
+  0% { opacity: 0.6; transform: translate(-50%,-50%) scale(0.8); }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(1.4); }
+}
+.onda.pausa { animation-play-state: paused; opacity: 0; }
+
+.mic-icono {
+  font-size: 52px;
+  position: relative;
+  z-index: 2;
+  transition: transform 0.2s;
+}
+.mic-card.grabando .mic-icono { animation: pulso 0.6s ease-in-out infinite; }
+@keyframes pulso { 0%,100%{transform:scale(1)} 50%{transform:scale(1.12)} }
+
+.mic-texto {
+  position: relative; z-index: 2;
+}
+.mic-titulo {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800; font-size: 20px; color: #fff;
+}
+.mic-sub { font-size: 13px; color: rgba(255,255,255,0.85); margin-top: 4px; }
+
+/* TRANSCRIPCIÓN */
+.transcripcion-box {
+  display: none;
+  background: #fff;
+  border-radius: var(--radio);
+  border: 2px solid var(--verde);
+  padding: 18px;
+  margin-top: 14px;
+}
+.transcripcion-box.visible { display: block; animation: slideUp 0.3s ease; }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.trans-label { font-size: 12px; font-weight: 700; color: var(--verde-texto); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+.trans-texto {
+  font-size: 16px; color: var(--negro); line-height: 1.6;
+  min-height: 48px;
+  border: none; width: 100%;
+  font-family: 'Nunito Sans', sans-serif;
+  resize: none; outline: none;
+  background: transparent;
+}
+.trans-acciones { display: flex; gap: 10px; margin-top: 14px; }
+.btn-confirmar {
+  flex: 1; padding: 14px;
+  border-radius: var(--radio-sm); border: none;
+  background: var(--verde); color: #fff;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800; font-size: 16px;
+  cursor: pointer; transition: all 0.15s;
+  min-height: 52px;
+}
+.btn-confirmar:hover { background: var(--verde-oscuro); }
+.btn-cancelar {
+  padding: 14px 18px;
+  border-radius: var(--radio-sm);
+  border: 1.5px solid var(--gris-borde);
+  background: #fff; color: var(--gris-texto);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700; font-size: 15px;
+  cursor: pointer; min-height: 52px;
+}
+
+/* ALTERNATIVA DE TEXTO */
+.alt-texto {
+  text-align: center; margin-top: 10px;
+}
+.link-texto {
+  font-size: 13px; color: var(--gris-muted);
+  cursor: pointer; text-decoration: underline;
+}
+
+/* CHECK-IN */
+.checkin-card {
+  background: var(--azul-claro);
+  border: 1.5px solid #BFDBFE;
+  border-radius: var(--radio);
+  padding: 18px 20px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 72px;
+}
+.checkin-card:active { transform: scale(0.98); }
+.checkin-card.completado {
+  background: var(--verde-claro);
+  border-color: #86EFAC;
+}
+.checkin-icono { font-size: 28px; flex-shrink: 0; }
+.checkin-texto {}
+.checkin-titulo {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800; font-size: 16px; color: var(--azul-texto);
+}
+.checkin-card.completado .checkin-titulo { color: var(--verde-texto); }
+.checkin-sub { font-size: 13px; color: var(--azul-texto); opacity: 0.8; margin-top: 2px; }
+.checkin-card.completado .checkin-sub { color: var(--verde-texto); }
+.checkin-flecha { margin-left: auto; font-size: 20px; color: var(--azul-texto); flex-shrink: 0; }
+.checkin-card.completado .checkin-flecha { color: var(--verde-texto); }
+
+/* ACCESOS RÁPIDOS */
+.accesos-titulo {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800; font-size: 16px;
+  color: var(--negro); margin-bottom: 12px;
+}
+.accesos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+.acceso {
+  background: #fff;
+  border-radius: var(--radio);
+  padding: 18px 16px;
+  border: 1px solid var(--gris-borde);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.acceso:active { transform: scale(0.96); }
+.acceso-icono { font-size: 32px; }
+.acceso-nombre {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700; font-size: 14px; color: var(--negro);
+}
+.acceso-sub { font-size: 11px; color: var(--gris-muted); }
+
+/* REGISTROS RECIENTES */
+.recientes-titulo {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800; font-size: 16px;
+  color: var(--negro); margin-bottom: 12px;
+}
+.registro-item {
+  background: #fff;
+  border-radius: var(--radio-sm);
+  padding: 14px 16px;
+  border: 1px solid var(--gris-borde);
+  margin-bottom: 10px;
+}
+.reg-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.reg-hora { font-size: 11px; color: var(--gris-muted); font-weight: 600; }
+.reg-tipo { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
+.reg-texto { font-size: 14px; color: var(--negro); line-height: 1.5; margin-bottom: 8px; }
+.reg-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.reg-tag {
+  font-size: 11px; font-weight: 600;
+  padding: 3px 9px; border-radius: 10px;
+}
+
+.empty-recientes {
+  text-align: center; padding: 24px;
+  color: var(--gris-muted); font-size: 14px;
+  background: #fff; border-radius: var(--radio-sm);
+  border: 1px solid var(--gris-borde);
+}
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--negro); color: #fff;
+  padding: 14px 22px; border-radius: 14px;
+  font-size: 14px; font-weight: 600;
+  opacity: 0; transition: all 0.3s; z-index: 200;
+  white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.toast.verde { background: var(--verde-oscuro); }
+
+/* NAV BOTTOM */
+.nav-bottom {
+  position: fixed; bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 100%; max-width: 480px;
+  background: #fff;
+  border-top: 1px solid var(--gris-borde);
+  display: flex;
+  padding: 10px 0 20px;
+  z-index: 50;
+}
+.nav-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; gap: 4px;
+  cursor: pointer; padding: 4px 0;
+  font-size: 11px; color: var(--gris-muted);
+  font-weight: 600;
+}
+.nav-item.activo { color: var(--verde); }
+.nav-icono { font-size: 22px; }
+
+/* INPUT TEXTO ALTERNATIVO */
+.input-texto-wrap {
+  display: none;
+  margin-top: 14px;
+}
+.input-texto-wrap.visible { display: block; }
+.input-texto {
+  width: 100%; padding: 14px 16px;
+  border-radius: var(--radio-sm);
+  border: 2px solid var(--gris-borde);
+  font-size: 16px; font-family: 'Nunito Sans', sans-serif;
+  color: var(--negro); resize: none;
+  min-height: 80px;
+}
+.input-texto:focus { outline: none; border-color: var(--verde); }
+.btn-enviar-texto {
+  width: 100%; margin-top: 10px;
+  padding: 14px; border-radius: var(--radio-sm);
+  border: none; background: var(--verde); color: #fff;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800; font-size: 16px;
+  cursor: pointer; min-height: 52px;
+}
+
+/* CATEGORÍAS TAGS COLORS */
+.tag-sueno { background: #EDE9FE; color: #5B21B6; }
+.tag-dolor { background: #FEE2E2; color: #991B1B; }
+.tag-animo { background: #FCE7F3; color: #9D174D; }
+.tag-med { background: #DCFCE7; color: #15803D; }
+.tag-presion { background: #FEF9C3; color: #854D0E; }
+.tag-alim { background: #E0F2FE; color: #075985; }
+.tag-mov { background: #F1F5F9; color: #475569; }
+.tag-visita { background: #FED7AA; color: #9A3412; }
+
+@media (min-width: 480px) {
+  body { border-left: 1px solid var(--gris-borde); border-right: 1px solid var(--gris-borde); }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="avatar" id="header-avatar"></div>
+    <div class="header-texto">
+      <div class="header-saludo" id="header-saludo"></div>
+      <div class="header-nombre" id="header-nombre"></div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="logo-mini">MiSalud</div>
+    <div class="btn-salir" onclick="cerrarSesion()" title="Salir">🚪</div>
+  </div>
+</div>
+
+<!-- CUERPO -->
+<div class="body">
+
+  <div class="fecha-hoy" id="fecha-hoy"></div>
+
+  <!-- MICRÓFONO -->
+  <div class="mic-section">
+    <div class="mic-card" id="mic-card" onclick="toggleMic()">
+      <div class="mic-ondas" id="mic-ondas">
+        <div class="onda pausa"></div>
+        <div class="onda pausa"></div>
+        <div class="onda pausa"></div>
+      </div>
+      <div class="mic-icono" id="mic-icono">🎙️</div>
+      <div class="mic-texto">
+        <div class="mic-titulo" id="mic-titulo">Cuéntame cómo estás</div>
+        <div class="mic-sub" id="mic-sub">Toca aquí y habla</div>
+      </div>
+    </div>
+
+    <!-- TRANSCRIPCIÓN -->
+    <div class="transcripcion-box" id="transcripcion-box">
+      <div class="trans-label">Esto es lo que escuché — ¿está bien?</div>
+      <textarea class="trans-texto" id="trans-texto" rows="3" placeholder="Escribe o corrige aquí si algo salió mal..."></textarea>
+      <div class="trans-acciones">
+        <button class="btn-confirmar" onclick="confirmarRegistro()">✓ Guardar registro</button>
+        <button class="btn-cancelar" onclick="cancelarTranscripcion()">Cancelar</button>
+      </div>
+    </div>
+
+    <!-- INPUT TEXTO ALTERNATIVO -->
+    <div class="input-texto-wrap" id="input-texto-wrap">
+      <textarea class="input-texto" id="input-texto" placeholder="Escribe aquí cómo te sientes hoy..." rows="3"></textarea>
+      <button class="btn-enviar-texto" onclick="enviarTexto()">Guardar registro</button>
+    </div>
+
+    <div class="alt-texto">
+      <span class="link-texto" id="link-alternativo" onclick="toggleAlternativo()">
+        ¿Prefieres escribir en vez de hablar?
+      </span>
+    </div>
+  </div>
+
+  <!-- CHECK-IN -->
+  <div class="checkin-card" id="checkin-card" onclick="irCheckin()">
+    <div class="checkin-icono" id="checkin-icono">📋</div>
+    <div class="checkin-texto">
+      <div class="checkin-titulo" id="checkin-titulo">Check-in de hoy</div>
+      <div class="checkin-sub" id="checkin-sub">4 preguntas rápidas · 2 minutos</div>
+    </div>
+    <div class="checkin-flecha">›</div>
+  </div>
+
+  <!-- ACCESOS RÁPIDOS -->
+  <div class="accesos-titulo">Accesos rápidos</div>
+  <div class="accesos-grid">
+    <div class="acceso" onclick="window.location.href='calendario.html'">
+      <div class="acceso-icono">📅</div>
+      <div class="acceso-nombre">Mi calendario</div>
+      <div class="acceso-sub">Ver historial del mes</div>
+    </div>
+    <div class="acceso" onclick="window.location.href='historial.html'">
+      <div class="acceso-icono">📋</div>
+      <div class="acceso-nombre">Mis registros</div>
+      <div class="acceso-sub">Todo lo que conté</div>
+    </div>
+    <div class="acceso" onclick="window.location.href='reporte.html'">
+      <div class="acceso-icono">📄</div>
+      <div class="acceso-nombre">Reporte médico</div>
+      <div class="acceso-sub">Para mostrar al doctor</div>
+    </div>
+    <div class="acceso" onclick="window.location.href='perfil.html'">
+      <div class="acceso-icono">⚙️</div>
+      <div class="acceso-nombre">Mi perfil</div>
+      <div class="acceso-sub">Ver mis datos</div>
+    </div>
+  </div>
+
+  <!-- REGISTROS RECIENTES -->
+  <div class="recientes-titulo">Registros de hoy</div>
+  <div id="registros-hoy"></div>
+
+</div>
+
+<!-- NAV BOTTOM -->
+<div class="nav-bottom">
+  <div class="nav-item activo">
+    <div class="nav-icono">🏠</div>
+    <span>Inicio</span>
+  </div>
+  <div class="nav-item" onclick="window.location.href='calendario.html'">
+    <div class="nav-icono">📅</div>
+    <span>Calendario</span>
+  </div>
+  <div class="nav-item" onclick="window.location.href='historial.html'">
+    <div class="nav-icono">📋</div>
+    <span>Historial</span>
+  </div>
+  <div class="nav-item" onclick="window.location.href='reporte.html'">
+    <div class="nav-icono">📄</div>
+    <span>Reporte</span>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATOS DE SESIÓN ──────────────────────────────────────────
+const perfil = JSON.parse(localStorage.getItem('misalud_usuario_actual') || 'null');
+if (!perfil) { window.location.href = 'index.html'; }
+
+const COLORES_AVATAR = [
+  ['#DBEAFE','#1D4ED8'],['#DCFCE7','#15803D'],['#FCE7F3','#9D174D'],
+  ['#FEF9C3','#854D0E'],['#EDE9FE','#5B21B6'],['#FFEDD5','#9A3412']
+];
+const perfiles = JSON.parse(localStorage.getItem('misalud_perfiles') || '[]');
+const idxPerfil = perfiles.findIndex(p => p.id === perfil.id);
+const [bgAv, textAv] = COLORES_AVATAR[idxPerfil % COLORES_AVATAR.length];
+
+function iniciales(n) { return n.split(' ').map(p=>p[0]).join('').substring(0,2).toUpperCase(); }
+
+function horaDelDia() {
+  const h = new Date().getHours();
+  if (h >= 6 && h < 12) return 'Buenos días';
+  if (h >= 12 && h < 20) return 'Buenas tardes';
+  return 'Buenas noches';
+}
+
+function fechaLinda() {
+  return new Date().toLocaleDateString('es-CL', {
+    weekday: 'long', day: 'numeric', month: 'long'
+  });
+}
+
+// Inicializar header
+document.getElementById('header-avatar').style.background = bgAv;
+document.getElementById('header-avatar').style.color = textAv;
+document.getElementById('header-avatar').textContent = iniciales(perfil.nombre);
+document.getElementById('header-saludo').textContent = horaDelDia() + ',';
+document.getElementById('header-nombre').textContent = perfil.nombre.split(' ')[0];
+document.getElementById('fecha-hoy').textContent = fechaLinda().charAt(0).toUpperCase() + fechaLinda().slice(1);
+
+// ── CHECK-IN ──────────────────────────────────────────────────
+const hoy = new Date().toDateString();
+const checkinHecho = localStorage.getItem('misalud_checkin_' + perfil.id + '_' + hoy);
+if (checkinHecho) {
+  document.getElementById('checkin-card').classList.add('completado');
+  document.getElementById('checkin-icono').textContent = '✅';
+  document.getElementById('checkin-titulo').textContent = 'Check-in completado';
+  document.getElementById('checkin-sub').textContent = 'Ya registraste cómo amaneciste hoy';
+}
+function irCheckin() { window.location.href = 'checkin.html'; }
+
+// ── MICRÓFONO ─────────────────────────────────────────────────
+let recognition = null;
+let grabando = false;
+let textoTranscrito = '';
+
+const soportaVoz = ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window);
+
+if (!soportaVoz) {
+  document.getElementById('mic-sub').textContent = 'Abre en Chrome para usar el micrófono';
+  document.getElementById('mic-card').style.opacity = '0.7';
+  document.getElementById('link-alternativo').textContent = 'Escribe aquí en cambio →';
+}
+
+function toggleMic() {
+  if (!soportaVoz) {
+    toggleAlternativo();
+    return;
+  }
+  if (grabando) {
+    detenerGrabacion();
+  } else {
+    iniciarGrabacion();
+  }
+}
+
+function iniciarGrabacion() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.lang = 'es-CL';
+  recognition.continuous = true;
+  recognition.interimResults = true;
+
+  recognition.onstart = () => {
+    grabando = true;
+    const card = document.getElementById('mic-card');
+    card.classList.add('grabando');
+    document.getElementById('mic-icono').textContent = '⏹️';
+    document.getElementById('mic-titulo').textContent = 'Escuchando...';
+    document.getElementById('mic-sub').textContent = 'Toca para detener cuando termines';
+    document.querySelectorAll('.onda').forEach(o => o.classList.remove('pausa'));
+    document.getElementById('transcripcion-box').classList.remove('visible');
+    document.getElementById('input-texto-wrap').classList.remove('visible');
+  };
+
+  recognition.onresult = (e) => {
+    let interim = '';
+    let final = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) final += e.results[i][0].transcript;
+      else interim += e.results[i][0].transcript;
+    }
+    textoTranscrito = final || interim;
+    if (textoTranscrito) {
+      document.getElementById('mic-sub').textContent = '"' + textoTranscrito.substring(0, 60) + (textoTranscrito.length > 60 ? '...' : '') + '"';
+    }
+  };
+
+  recognition.onend = () => {
+    if (grabando) mostrarTranscripcion();
+  };
+
+  recognition.onerror = (e) => {
+    grabando = false;
+    resetearMic();
+    if (e.error === 'not-allowed') {
+      mostrarToast('Debes permitir el acceso al micrófono', false);
+    } else {
+      mostrarToast('Hubo un problema. Intenta de nuevo.', false);
+    }
+  };
+
+  recognition.start();
+}
+
+function detenerGrabacion() {
+  grabando = false;
+  if (recognition) recognition.stop();
+}
+
+function mostrarTranscripcion() {
+  resetearMic();
+  if (!textoTranscrito.trim()) {
+    mostrarToast('No escuché nada. Intenta de nuevo.', false);
+    return;
+  }
+  document.getElementById('trans-texto').value = textoTranscrito;
+  document.getElementById('transcripcion-box').classList.add('visible');
+  document.getElementById('trans-texto').focus();
+}
+
+function resetearMic() {
+  const card = document.getElementById('mic-card');
+  card.classList.remove('grabando', 'procesando');
+  document.getElementById('mic-icono').textContent = '🎙️';
+  document.getElementById('mic-titulo').textContent = 'Cuéntame cómo estás';
+  document.getElementById('mic-sub').textContent = 'Toca aquí y habla';
+  document.querySelectorAll('.onda').forEach(o => o.classList.add('pausa'));
+}
+
+function cancelarTranscripcion() {
+  textoTranscrito = '';
+  document.getElementById('transcripcion-box').classList.remove('visible');
+  document.getElementById('trans-texto').value = '';
+}
+
+function toggleAlternativo() {
+  const wrap = document.getElementById('input-texto-wrap');
+  const link = document.getElementById('link-alternativo');
+  const visible = wrap.classList.contains('visible');
+  wrap.classList.toggle('visible', !visible);
+  link.textContent = visible ? '¿Prefieres escribir en vez de hablar?' : 'Cancelar';
+  document.getElementById('transcripcion-box').classList.remove('visible');
+}
+
+function enviarTexto() {
+  const texto = document.getElementById('input-texto').value.trim();
+  if (!texto) return;
+  document.getElementById('trans-texto').value = texto;
+  document.getElementById('input-texto-wrap').classList.remove('visible');
+  document.getElementById('transcripcion-box').classList.add('visible');
+  document.getElementById('link-alternativo').textContent = '¿Prefieres escribir en vez de hablar?';
+}
+
+// ── GUARDAR REGISTRO ──────────────────────────────────────────
+const CATEGORIAS_KEYWORDS = {
+  sueno: ['dormí','dormir','sueño','pesadilla','desperté','insomnio','cansada','descansé','noche','levanté'],
+  dolor: ['duele','dolor','duelen','migraña','jaqueca','cabeza','espalda','rodilla','pecho','cuerpo','ardor','molestia'],
+  animo: ['triste','tristeza','ansiosa','ansiedad','angustia','nerviosa','bien','contenta','mal','deprimida','llorando','alegre'],
+  med: ['remedio','pastilla','medicamento','tomé','olvidé','dosis','cápsula','jarabe'],
+  presion: ['presión','presion','mareo','mareada','zumbido','hipertensión'],
+  alim: ['comí','comer','hambre','apetito','almorzé','desayuné','agua','tomé agua','náusea','vómito'],
+  mov: ['caminar','caminé','ejercicio','moverme','caí','caída','escalera','rigidez','tiesa'],
+  visita: ['médico','doctor','consulta','hospital','clínica','cardiólogo','psiquiatra','psicólogo','enfermera','fui al','me vio','examen','recetaron']
+};
+
+const NOMBRES_CAT = {
+  sueno: { label: '🌙 Sueño', clase: 'tag-sueno' },
+  dolor: { label: '⚡ Dolor', clase: 'tag-dolor' },
+  animo: { label: '💙 Ánimo', clase: 'tag-animo' },
+  med: { label: '💊 Medicamentos', clase: 'tag-med' },
+  presion: { label: '📊 Presión', clase: 'tag-presion' },
+  alim: { label: '🥗 Alimentación', clase: 'tag-alim' },
+  mov: { label: '🚶 Movilidad', clase: 'tag-mov' },
+  visita: { label: '🩺 Visita médica', clase: 'tag-visita' }
+};
+
+function detectarCategorias(texto) {
+  const t = texto.toLowerCase();
+  return Object.entries(CATEGORIAS_KEYWORDS)
+    .filter(([_, kws]) => kws.some(kw => t.includes(kw)))
+    .map(([cat]) => cat);
+}
+
+function evaluarDia(registros) {
+  if (registros.length === 0) return 'gris';
+  const negativos = ['dolor','animo','sueno','presion'];
+  let score = 0;
+  registros.forEach(r => {
+    r.categorias.forEach(c => {
+      if (negativos.includes(c)) score++;
+    });
+  });
+  if (score === 0) return 'verde';
+  if (score <= 2) return 'amarillo';
+  if (score <= 4) return 'naranja';
+  return 'rojo';
+}
+
+function confirmarRegistro() {
+  const texto = document.getElementById('trans-texto').value.trim();
+  if (!texto) return;
+
+  const categorias = detectarCategorias(texto);
+  const registro = {
+    id: Date.now(),
+    texto,
+    categorias,
+    hora: new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' }),
+    fecha: new Date().toDateString(),
+    tipo: 'libre'
+  };
+
+  // Guardar
+  const key = 'misalud_registros_' + perfil.id;
+  const registros = JSON.parse(localStorage.getItem(key) || '[]');
+  registros.push(registro);
+  localStorage.setItem(key, JSON.stringify(registros));
+
+  // Actualizar color del día en calendario
+  const keyDia = 'misalud_dia_' + perfil.id + '_' + registro.fecha;
+  const regsHoy = registros.filter(r => r.fecha === registro.fecha);
+  localStorage.setItem(keyDia, evaluarDia(regsHoy));
+
+  cancelarTranscripcion();
+  mostrarToast('✓ Registro guardado', true);
+  renderRegistrosHoy();
+}
+
+// ── RENDER REGISTROS HOY ──────────────────────────────────────
+function renderRegistrosHoy() {
+  const key = 'misalud_registros_' + perfil.id;
+  const todos = JSON.parse(localStorage.getItem(key) || '[]');
+  const hoyStr = new Date().toDateString();
+  const regsHoy = todos.filter(r => r.fecha === hoyStr).reverse();
+
+  const cont = document.getElementById('registros-hoy');
+  if (regsHoy.length === 0) {
+    cont.innerHTML = `
+      <div class="empty-recientes">
+        Aún no hay registros hoy.<br>
+        <span style="font-size:20px;">💬</span><br>
+        ¡Cuéntame cómo estás!
+      </div>`;
+    return;
+  }
+
+  cont.innerHTML = regsHoy.map(r => `
+    <div class="registro-item">
+      <div class="reg-header">
+        <span class="reg-hora">${r.hora}</span>
+        <span class="reg-tipo" style="background:#F1F5F9;color:#64748B;">${r.tipo === 'checkin' ? '📋 Check-in' : '🎙 Libre'}</span>
+      </div>
+      <div class="reg-texto">"${r.texto}"</div>
+      <div class="reg-tags">
+        ${r.categorias.length > 0
+          ? r.categorias.map(c => `<span class="reg-tag ${NOMBRES_CAT[c]?.clase || ''}">${NOMBRES_CAT[c]?.label || c}</span>`).join('')
+          : '<span style="font-size:12px;color:#94A3B8;">Sin categorías detectadas</span>'
+        }
+      </div>
+    </div>
+  `).join('');
+}
+
+function cerrarSesion() {
+  if (confirm('¿Cerrar sesión?')) {
+    localStorage.removeItem('misalud_usuario_actual');
+    window.location.href = 'index.html';
+  }
+}
+
+function mostrarToast(msg, ok = true) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (ok ? ' verde' : '') + ' show';
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+renderRegistrosHoy();
+</script>
+</body>
+</html>
