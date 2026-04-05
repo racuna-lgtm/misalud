@@ -539,6 +539,7 @@ function irCheckin() { window.location.href = 'checkin.html'; }
 let recognition = null;
 let grabando = false;
 let textoTranscrito = '';
+let textoAcumulado = '';
 
 const soportaVoz = ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window);
 
@@ -549,61 +550,55 @@ if (!soportaVoz) {
 }
 
 function toggleMic() {
-  if (!soportaVoz) {
-    toggleAlternativo();
-    return;
-  }
-  if (grabando) {
-    detenerGrabacion();
-  } else {
-    iniciarGrabacion();
-  }
+  if (!soportaVoz) { toggleAlternativo(); return; }
+  if (grabando) detenerGrabacion();
+  else iniciarGrabacion();
 }
 
 function iniciarGrabacion() {
+  textoTranscrito = '';
+  textoAcumulado = '';
+  grabando = true;
+
+  document.getElementById('mic-card').classList.add('grabando');
+  document.getElementById('mic-icono').textContent = '⏹️';
+  document.getElementById('mic-titulo').textContent = 'Escuchando...';
+  document.getElementById('mic-sub').textContent = 'Toca para detener cuando termines';
+  document.querySelectorAll('.onda').forEach(o => o.classList.remove('pausa'));
+  document.getElementById('transcripcion-box').classList.remove('visible');
+  document.getElementById('input-texto-wrap').classList.remove('visible');
+
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   recognition = new SR();
   recognition.lang = 'es-CL';
-  recognition.continuous = true;
+  recognition.continuous = false;
   recognition.interimResults = true;
-
-  recognition.onstart = () => {
-    grabando = true;
-    const card = document.getElementById('mic-card');
-    card.classList.add('grabando');
-    document.getElementById('mic-icono').textContent = '⏹️';
-    document.getElementById('mic-titulo').textContent = 'Escuchando...';
-    document.getElementById('mic-sub').textContent = 'Toca para detener cuando termines';
-    document.querySelectorAll('.onda').forEach(o => o.classList.remove('pausa'));
-    document.getElementById('transcripcion-box').classList.remove('visible');
-    document.getElementById('input-texto-wrap').classList.remove('visible');
-  };
+  recognition.maxAlternatives = 1;
 
   recognition.onresult = (e) => {
     let interim = '';
-    let final = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
-      if (e.results[i].isFinal) final += e.results[i][0].transcript;
-      else interim += e.results[i][0].transcript;
+      if (e.results[i].isFinal) textoAcumulado += e.results[i][0].transcript + ' ';
+      else interim = e.results[i][0].transcript;
     }
-    textoTranscrito = final || interim;
+    textoTranscrito = (textoAcumulado + interim).trim();
     if (textoTranscrito) {
-      document.getElementById('mic-sub').textContent = '"' + textoTranscrito.substring(0, 60) + (textoTranscrito.length > 60 ? '...' : '') + '"';
+      document.getElementById('mic-sub').textContent = '"' + textoTranscrito.substring(0,60) + (textoTranscrito.length>60?'...':'') + '"';
     }
   };
 
   recognition.onend = () => {
-    if (!grabando) mostrarTranscripcion();
+    if (!grabando) return;
+    grabando = false;
+    resetearMic();
+    mostrarTranscripcion();
   };
 
   recognition.onerror = (e) => {
     grabando = false;
     resetearMic();
-    if (e.error === 'not-allowed') {
-      mostrarToast('Debes permitir el acceso al micrófono', false);
-    } else if (e.error !== 'aborted') {
-      mostrarToast('Hubo un problema. Intenta de nuevo.', false);
-    }
+    if (e.error === 'not-allowed') mostrarToast('Debes permitir el acceso al micrófono', false);
+    else if (e.error !== 'aborted' && e.error !== 'no-speech') mostrarToast('Hubo un problema. Intenta de nuevo.', false);
   };
 
   recognition.start();
@@ -611,7 +606,9 @@ function iniciarGrabacion() {
 
 function detenerGrabacion() {
   grabando = false;
-  if (recognition) recognition.stop();
+  if (recognition) {
+    try { recognition.stop(); } catch(e) {}
+  }
 }
 
 function mostrarTranscripcion() {
