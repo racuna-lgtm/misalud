@@ -436,26 +436,56 @@ function renderReporte() {
   regs.forEach(r => (r.categorias || []).forEach(c => { catConteo[c] = (catConteo[c] || 0) + 1; }));
   const sintomaTop = Object.entries(catConteo).filter(([c]) => ['dolor','sueno','animo'].includes(c)).sort((a,b)=>b[1]-a[1])[0];
 
+  // Calcular adherencia farmacológica
+  const regsMed = regs.filter(r => (r.categorias||[]).includes('med') || (r.detalle && r.detalle.medicamentos));
+  const regsVisita = regs.filter(r => r.tipo === 'visita' || (r.categorias||[]).includes('visita'));
+  const regsConDolor = regs.filter(r => (r.categorias||[]).includes('dolor'));
+
+  // Calcular adherencia: días con medicamentos OK vs días con problemas
+  let diasAdherencia = 0, diasNoAdherencia = 0;
+  for(let i=0;i<totalDias;i++){
+    const f=new Date();f.setDate(f.getDate()-i);
+    const regsD=regs.filter(r=>r.fecha===f.toDateString());
+    const medD=regsD.find(r=>r.detalle&&r.detalle.medicamentos);
+    if(medD){
+      const v=medD.detalle.medicamentos.valor;
+      if(['todos','pendiente_noche','extra'].includes(v)) diasAdherencia++;
+      else if(['algunos','ninguno','sin_remedio'].includes(v)) diasNoAdherencia++;
+    }
+  }
+  const totalMedDias = diasAdherencia + diasNoAdherencia;
+  const pctAdherencia = totalMedDias > 0 ? Math.round(diasAdherencia/totalMedDias*100) : null;
+  const adherenciaTexto = pctAdherencia === null ? 'Sin datos' : pctAdherencia+'%';
+  const adherenciaColor = pctAdherencia === null ? 'var(--gris-muted)' : pctAdherencia >= 80 ? 'var(--verde-texto)' : pctAdherencia >= 60 ? 'var(--naranja-texto)' : 'var(--rojo-texto)';
+
   document.getElementById('metricas-grid').innerHTML = `
+    <div class="metrica" style="grid-column:1/-1;background:var(--azul);border-color:#BFDBFE;">
+      <div style="font-size:11px;font-weight:700;color:var(--azul-texto);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Resumen clínico — ${periodoTexto}</div>
+      <div style="font-size:13px;color:var(--azul-texto);line-height:1.8;">
+        ${diasBuenos > diasMalos ? '▲ La mayoría de días el paciente reportó bienestar general.' : diasMalos > diasBuenos ? '▼ Predominaron días con sintomatología significativa.' : '→ Balance mixto entre días con y sin sintomatología.'}
+        ${regsVisita.length > 0 ? ' Se registraron <strong>'+regsVisita.length+' visita(s) médica(s)</strong> en el período.' : ''}
+        ${pctAdherencia !== null ? ' Adherencia farmacológica autoreportada: <strong>'+adherenciaTexto+'</strong>.' : ''}
+      </div>
+    </div>
     <div class="metrica">
       <div class="metrica-num" style="color:var(--verde-texto)">${diasBuenos}</div>
-      <div class="metrica-label">Días buenos</div>
+      <div class="metrica-label">Días sin síntomas</div>
       <div class="metrica-sub">${pctBuenos}% del total registrado</div>
     </div>
     <div class="metrica">
       <div class="metrica-num" style="color:var(--rojo-texto)">${diasMalos}</div>
-      <div class="metrica-label">Días difíciles</div>
-      <div class="metrica-sub">Naranja + rojo</div>
+      <div class="metrica-label">Días con síntomas</div>
+      <div class="metrica-sub">Requirieron atención o limitaron actividad</div>
     </div>
     <div class="metrica">
-      <div class="metrica-num" style="color:var(--negro)">${regs.length}</div>
-      <div class="metrica-label">Registros totales</div>
-      <div class="metrica-sub">Voz + check-ins</div>
+      <div class="metrica-num" style="color:${adherenciaColor}">${adherenciaTexto}</div>
+      <div class="metrica-label">Adherencia farmacológica</div>
+      <div class="metrica-sub">Autoreportada por el paciente</div>
     </div>
     <div class="metrica">
-      <div class="metrica-num" style="color:var(--naranja-texto)">${sintomaTop ? sintomaTop[1] : 0}</div>
-      <div class="metrica-label">${sintomaTop ? NOMBRES_CAT[sintomaTop[0]]?.label : 'Sin síntomas'}</div>
-      <div class="metrica-sub">Síntoma más frecuente</div>
+      <div class="metrica-num" style="color:var(--naranja-texto)">${regsVisita.length}</div>
+      <div class="metrica-label">Visitas médicas</div>
+      <div class="metrica-sub">Registradas en el período</div>
     </div>
   `;
 
@@ -519,15 +549,18 @@ function renderReporte() {
       ? `<div style="font-size:13px;color:var(--gris-muted);text-align:center;padding:16px 0;">Sin registros en este período</div>`
       : regsRecientes.map(r => {
           const fecha = new Date(r.fecha).toLocaleDateString('es-CL', { day:'numeric', month:'short' });
+          const esVisita = r.tipo === 'visita';
+          const esBorderColor = esVisita ? 'border-left:3px solid #F97316;padding-left:12px;' : '';
           return `
-          <div class="reg-item">
+          <div class="reg-item" style="${esBorderColor}">
             <div class="reg-meta">
               <span class="reg-fecha-hora">${fecha} · ${r.hora}</span>
-              <span class="reg-tipo">${r.tipo === 'checkin' ? '📋 Check-in' : '🎙 Libre'}</span>
+              <span class="reg-tipo">${r.tipo === 'checkin' ? '📋 Check-in' : r.tipo === 'visita' ? '🏥 Visita médica' : '🎙 Registro libre'}</span>
             </div>
             <div class="reg-texto">"${r.texto}"</div>
             <div class="reg-tags">
               ${(r.categorias || []).map(c => `<span class="reg-tag ${NOMBRES_CAT[c]?.clase||''}">${NOMBRES_CAT[c]?.label||c}</span>`).join('')}
+              ${esVisita && r.detalle?.especialidad ? `<span class="reg-tag tag-visita">👨‍⚕️ ${r.detalle.especialidad}</span>` : ''}
             </div>
           </div>`;
         }).join('')
