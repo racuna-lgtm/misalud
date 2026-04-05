@@ -539,13 +539,26 @@ document.getElementById('fecha-hoy').textContent = fechaLinda().charAt(0).toUppe
 // ── CHECK-IN ──────────────────────────────────────────────────
 const hoy = new Date().toDateString();
 const checkinHecho = localStorage.getItem('misalud_checkin_' + perfil.id + '_' + hoy);
-if (checkinHecho) {
+// Verificar que realmente hay registros hoy — si los borraron, limpiar el flag
+const keyRegs = 'misalud_registros_' + perfil.id;
+const regsHoyCheck = JSON.parse(localStorage.getItem(keyRegs) || '[]').filter(r => r.fecha === hoy);
+if (checkinHecho && regsHoyCheck.length === 0) {
+  localStorage.removeItem('misalud_checkin_' + perfil.id + '_' + hoy);
+}
+const checkinValido = checkinHecho && regsHoyCheck.length > 0;
+if (checkinValido) {
   document.getElementById('checkin-card').classList.add('completado');
   document.getElementById('checkin-icono').textContent = '✅';
-  document.getElementById('checkin-titulo').textContent = 'Check-in completado';
-  document.getElementById('checkin-sub').textContent = 'Ya registraste cómo amaneciste hoy';
+  document.getElementById('checkin-titulo').textContent = 'Check-in de hoy completado';
+  document.getElementById('checkin-sub').textContent = 'Solo se hace una vez al día · Toca para ver';
 }
-function irCheckin() { window.location.href = 'checkin.html'; }
+function irCheckin() {
+  if (checkinValido) {
+    window.location.href = 'historial.html';
+    return;
+  }
+  window.location.href = 'checkin.html';
+}
 
 // ── MICRÓFONO ─────────────────────────────────────────────────
 let recognition = null;
