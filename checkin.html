@@ -162,15 +162,15 @@ depresion:{id:'depresion',emoji:'🫂',texto:'¿Cómo estuvo tu energía y motiv
   {emoji:'😔',texto:'Sin energía ni ganas',sub:'Me costó mucho hacer cualquier cosa',valor:'bajo'},
   {emoji:'🛌',texto:'Muy apagada',sub:'No quise hacer nada, me quedé en cama',valor:'muy_bajo'},
 ]},
-medicamentos:{id:'medicamentos',emoji:'💊',texto:'¿Cómo vas con tus remedios?',sub:esNoche?'Los de hoy en total':'Los que te tocaban hasta este momento del día',tipo:'opciones',esTransversal:true,opciones:[
-  {emoji:'✅',texto:esNoche?'Tomé todos mis remedios de hoy':'Tomé los que me tocaban hasta ahora',sub:'Todo en orden',valor:'todos'},
-  {emoji:'⏰',texto:'Los de la tarde o noche los tomo después',sub:'Aún no es la hora — esto es normal, no es un olvido',valor:'pendiente_noche'},
+medicamentos:{id:'medicamentos',emoji:'💊',texto:'¿Cómo vas con tus remedios?',sub:esNoche?'Los de hoy en total':'Los que debías tomar hasta este momento',tipo:'opciones',esTransversal:true,opciones:[
+  {emoji:'✅',texto:esNoche?'Tomé todos mis remedios':'Tomé los que me tocaban hasta ahora',sub:'Todo en orden con mis remedios',valor:'todos'},
+  {emoji:'⏰',texto:'Los de la tarde o noche los tomo después',sub:'Aún no es la hora — esto no es un olvido',valor:'pendiente_noche'},
   {emoji:'🤔',texto:'Se me olvidó alguno',sub:'Ya era la hora y no lo tomé',valor:'algunos'},
-  {emoji:'💊',texto:'Tomé algo extra por dolor',sub:'Un analgésico u otro remedio de emergencia, no de rutina',valor:'extra'},
-  {emoji:'📦',texto:'No los tenía — se acabaron',sub:'Quise tomarlos pero no tenía el remedio disponible',valor:'sin_remedio'},
-  {emoji:'🔄',texto:'Me cambiaron el tratamiento',sub:'El médico me cambió algún remedio o ajustó la dosis',valor:'cambio'},
-  {emoji:'❌',texto:'No tomé ningún remedio',sub:'Se me olvidó por completo',valor:'ninguno'},
-]},
+  {emoji:'❌',texto:'No tomé ningún remedio hoy',sub:'Se me olvidó por completo',valor:'ninguno'},
+  {emoji:'📦',texto:'No los tenía — se acabaron',sub:'Quise tomarlos pero no tenía el remedio',valor:'sin_remedio'},
+  {emoji:'💊',texto:'Tomé algo extra por dolor',sub:'Un analgésico u otro, no de mi rutina diaria',valor:'extra'},
+  {emoji:'🔄',texto:'Me cambiaron el tratamiento',sub:'El médico me cambió algún remedio o dosis',valor:'cambio'},
+],opcionesExtra:true},
 presion:{id:'presion',emoji:'📊',texto:'¿Cómo está tu presión hoy?',sub:'Si te la mediste, cuéntame cómo salió',tipo:'mixto',condicion:'Hipertensión',opciones:[
   {emoji:'✅',texto:'Normal, dentro del rango',sub:'La presión estuvo bien controlada',valor:'normal'},
   {emoji:'📈',texto:'Alta — salió elevada',sub:'Por encima de lo normal para mí',valor:'alta'},
@@ -237,6 +237,8 @@ function renderPregunta(){
   const btn=document.getElementById('btn-siguiente');
   btn.textContent=preguntaActual===total-1?'Ver resumen →':'Siguiente →';
   btn.disabled=!respuestas[p.id];
+  const opcionesPrincipales = p.opcionesExtra ? p.opciones.slice(0,4) : p.opciones;
+  const opcionesExtra = p.opcionesExtra ? p.opciones.slice(4) : [];
   const cont=document.getElementById('pregunta-contenido');
   cont.innerHTML=`<div class="pregunta-wrap">
     <div class="pregunta-emoji">${p.emoji}</div>
@@ -244,10 +246,21 @@ function renderPregunta(){
     <div class="pregunta-texto">${p.texto}</div>
     <div class="pregunta-sub">${p.sub}</div>
     <div class="opciones" id="opciones-cont">
-      ${p.opciones.map((o,i)=>`<div class="opcion" id="op-${i}" onclick="selOp(${i},'${o.valor}',\`${o.texto.replace(/`/g,"'")}\`,'${p.id}')">
+      ${opcionesPrincipales.map((o,i)=>`<div class="opcion" id="op-${i}" onclick="selOp(${i},'${o.valor}',\`${o.texto.replace(/`/g,"'")}\`,'${p.id}')">
         <span class="opcion-emoji">${o.emoji}</span>
         <div><div class="opcion-texto">${o.texto}</div>${o.sub?`<div class="opcion-sub">${o.sub}</div>`:''}</div>
       </div>`).join('')}
+      ${opcionesExtra.length>0?`
+      <div id="ver-mas-wrap" style="text-align:center;margin-top:4px;">
+        <span onclick="mostrarMasOpciones()" style="font-size:13px;color:#64748B;font-weight:600;cursor:pointer;text-decoration:underline;">Ver más opciones ↓</span>
+      </div>
+      <div id="opciones-extra" style="display:none;margin-top:8px;display:none;">
+        ${opcionesExtra.map((o,i)=>`<div class="opcion" id="op-${i+4}" onclick="selOp(${i+4},'${o.valor}',\`${o.texto.replace(/`/g,"'")}\`,'${p.id}')" style="margin-bottom:9px;">
+          <span class="opcion-emoji">${o.emoji}</span>
+          <div><div class="opcion-texto">${o.texto}</div>${o.sub?`<div class="opcion-sub">${o.sub}</div>`:''}</div>
+        </div>`).join('')}
+      </div>`:''
+      }
     </div>
     ${p.tipo==='mixto'?`<div class="mic-checkin" id="mic-checkin-btn" onclick="toggleMicCheckin()">
       <div class="mic-checkin-icono">🎙️</div>
@@ -266,9 +279,20 @@ function renderPregunta(){
   window.scrollTo(0,0);
 }
 
+function mostrarMasOpciones(){
+  const ex=document.getElementById('opciones-extra');
+  const vw=document.getElementById('ver-mas-wrap');
+  if(ex){ex.style.display='flex';ex.style.flexDirection='column';ex.style.gap='9px';}
+  if(vw)vw.style.display='none';
+}
+
 function selOp(idx,valor,textoOp,pregId){
   document.querySelectorAll('.opcion').forEach(o=>o.classList.remove('seleccionada'));
-  document.getElementById('op-'+idx).classList.add('seleccionada');
+  const opEl=document.getElementById('op-'+idx);
+  opEl.classList.add('seleccionada');
+  opEl.style.transform='scale(1.02)';
+  setTimeout(()=>{opEl.style.transform='scale(1)';opEl.style.transition='transform 0.15s';},150);
+  if(navigator.vibrate)navigator.vibrate(40);
   const p=PREGUNTAS[preguntaActual];
   respuestas[pregId]={valor,texto:textoOp,emoji:p.opciones[idx].emoji};
   const btn=document.getElementById('btn-siguiente');
@@ -322,15 +346,27 @@ function mostrarResumen(){
   document.getElementById('progreso-wrap').style.display='none';
   document.getElementById('aviso-momento').style.display='none';
   document.getElementById('resumen').classList.add('visible');
-  document.getElementById('resumen-items').innerHTML=PREGUNTAS.map(p=>{
+  document.getElementById('resumen-items').innerHTML=PREGUNTAS.map((p,i)=>{
     const r=respuestas[p.id];
-    return`<div class="resumen-item">
-      <div class="resumen-item-emoji">${(!r||r.valor==='saltada')?'—':r.emoji}</div>
-      <div><div class="resumen-pregunta">${p.texto}</div>
-      <div class="resumen-respuesta" style="${(!r||r.valor==='saltada')?'color:var(--gris-muted)':''}">${(!r||r.valor==='saltada')?'Sin respuesta':r.texto}</div></div>
+    const sinResp=!r||r.valor==='saltada';
+    return`<div class="resumen-item" onclick="irAPregunta(${i})" style="cursor:pointer;">
+      <div class="resumen-item-emoji">${sinResp?'—':r.emoji}</div>
+      <div style="flex:1;"><div class="resumen-pregunta">${p.texto}</div>
+      <div class="resumen-respuesta" style="${sinResp?'color:var(--gris-muted)':''}">${sinResp?'Sin respuesta':r.texto}</div></div>
+      <div style="font-size:18px;color:#94A3B8;align-self:center;margin-left:8px;">✏️</div>
     </div>`;
   }).join('');
   window.scrollTo(0,0);
+}
+
+function irAPregunta(idx){
+  preguntaActual=idx;
+  document.getElementById('resumen').classList.remove('visible');
+  document.getElementById('pregunta-contenido').style.display='block';
+  document.getElementById('nav-btns').style.display='flex';
+  document.getElementById('progreso-wrap').style.display='block';
+  document.getElementById('aviso-momento').style.display='flex';
+  renderPregunta();
 }
 
 function volverEditar(){
