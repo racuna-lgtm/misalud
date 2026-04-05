@@ -7,670 +7,388 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --verde: #22C55E;
-  --verde-claro: #DCFCE7;
-  --verde-texto: #15803D;
-  --verde-oscuro: #16A34A;
-  --gris-bg: #F8FAFC;
-  --gris-borde: #E2E8F0;
-  --gris-texto: #64748B;
-  --gris-muted: #94A3B8;
-  --negro: #0F172A;
-  --radio: 20px;
-  --radio-sm: 12px;
+  --verde: #22C55E; --verde-claro: #DCFCE7; --verde-texto: #15803D; --verde-oscuro: #16A34A;
+  --gris-bg: #F8FAFC; --gris-borde: #E2E8F0; --gris-texto: #64748B; --gris-muted: #94A3B8; --negro: #0F172A;
+  --radio: 20px; --radio-sm: 12px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body {
-  font-family: 'Nunito Sans', sans-serif;
-  background: var(--gris-bg);
-  color: var(--negro);
-  min-height: 100vh;
-  max-width: 480px;
-  margin: 0 auto;
-}
-
-/* HEADER */
-.header {
-  background: #fff;
-  padding: 18px 22px;
-  border-bottom: 1px solid var(--gris-borde);
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.btn-back {
-  width: 40px; height: 40px;
-  border-radius: 12px;
-  border: 1px solid var(--gris-borde);
-  background: var(--gris-bg);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; font-size: 18px; flex-shrink: 0;
-}
+body { font-family: 'Nunito Sans', sans-serif; background: var(--gris-bg); color: var(--negro); min-height: 100vh; max-width: 480px; margin: 0 auto; }
+.header { background: #fff; padding: 18px 22px; border-bottom: 1px solid var(--gris-borde); display: flex; align-items: center; gap: 14px; }
+.btn-back { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--gris-borde); background: var(--gris-bg); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; flex-shrink: 0; }
 .header-info { flex: 1; }
 .header-titulo { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 17px; }
 .header-sub { font-size: 12px; color: var(--gris-texto); margin-top: 2px; }
-
-/* PROGRESO */
-.progreso-wrap { padding: 20px 22px 0; }
-.progreso-bar {
-  height: 6px; background: var(--gris-borde);
-  border-radius: 10px; overflow: hidden; margin-bottom: 8px;
-}
-.progreso-fill {
-  height: 100%; background: var(--verde);
-  border-radius: 10px;
-  transition: width 0.4s ease;
-}
+.aviso-momento { display: flex; align-items: center; gap: 8px; padding: 10px 22px; font-size: 13px; font-weight: 600; border-bottom: 1px solid var(--gris-borde); }
+.progreso-wrap { padding: 16px 22px 0; }
+.progreso-bar { height: 6px; background: var(--gris-borde); border-radius: 10px; overflow: hidden; margin-bottom: 6px; }
+.progreso-fill { height: 100%; background: var(--verde); border-radius: 10px; transition: width 0.4s ease; }
 .progreso-texto { font-size: 12px; color: var(--gris-muted); text-align: right; }
-
-/* PREGUNTA */
-.pregunta-wrap {
-  padding: 24px 22px;
-  animation: slideIn 0.35s ease;
-}
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(30px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-.pregunta-emoji { font-size: 48px; text-align: center; margin-bottom: 16px; }
-.pregunta-texto {
-  font-family: 'Nunito', sans-serif;
-  font-weight: 800; font-size: 22px;
-  color: var(--negro); text-align: center;
-  line-height: 1.3; margin-bottom: 8px;
-}
-.pregunta-sub {
-  font-size: 14px; color: var(--gris-texto);
-  text-align: center; margin-bottom: 28px;
-  line-height: 1.5;
-}
-
-/* OPCIONES */
-.opciones { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
-.opcion {
-  padding: 16px 20px;
-  border-radius: var(--radio-sm);
-  border: 2px solid var(--gris-borde);
-  background: #fff;
-  cursor: pointer;
-  display: flex; align-items: center; gap: 14px;
-  transition: all 0.15s;
-  min-height: 60px;
-}
+.pregunta-wrap { padding: 22px 20px; animation: slideIn 0.3s ease; }
+@keyframes slideIn { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: translateX(0); } }
+.pregunta-emoji { font-size: 44px; text-align: center; margin-bottom: 14px; }
+.pregunta-badge { display: block; text-align: center; font-size: 10px; font-weight: 700; padding: 2px 10px; border-radius: 8px; background: #EFF6FF; color: #1D4ED8; margin-bottom: 10px; }
+.pregunta-texto { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 21px; color: var(--negro); text-align: center; line-height: 1.3; margin-bottom: 6px; }
+.pregunta-sub { font-size: 13px; color: var(--gris-texto); text-align: center; margin-bottom: 22px; line-height: 1.5; }
+.opciones { display: flex; flex-direction: column; gap: 9px; margin-bottom: 20px; }
+.opcion { padding: 14px 16px; border-radius: var(--radio-sm); border: 2px solid var(--gris-borde); background: #fff; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.15s; min-height: 58px; }
 .opcion:active { transform: scale(0.98); }
-.opcion.seleccionada {
-  border-color: var(--verde);
-  background: var(--verde-claro);
-}
-.opcion-emoji { font-size: 24px; flex-shrink: 0; }
-.opcion-texto {
-  font-family: 'Nunito', sans-serif;
-  font-weight: 700; font-size: 15px;
-  color: var(--negro);
-}
-.opcion-sub { font-size: 12px; color: var(--gris-texto); margin-top: 2px; }
+.opcion.seleccionada { border-color: var(--verde); background: var(--verde-claro); }
+.opcion-emoji { font-size: 22px; flex-shrink: 0; }
+.opcion-texto { font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 14px; color: var(--negro); }
+.opcion-sub { font-size: 11px; color: var(--gris-texto); margin-top: 2px; line-height: 1.4; }
 .opcion.seleccionada .opcion-texto { color: var(--verde-texto); }
-
-/* VOZ EN CHECK-IN */
-.mic-checkin {
-  background: #fff;
-  border: 2px dashed var(--gris-borde);
-  border-radius: var(--radio-sm);
-  padding: 16px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.15s;
-  margin-bottom: 10px;
-}
-.mic-checkin:active { transform: scale(0.98); }
-.mic-checkin.grabando {
-  border-color: var(--verde);
-  background: var(--verde-claro);
-}
-.mic-checkin-icono { font-size: 28px; margin-bottom: 6px; }
+.opcion.seleccionada .opcion-sub { color: var(--verde-texto); opacity: 0.8; }
+.mic-checkin { background: #fff; border: 2px dashed var(--gris-borde); border-radius: var(--radio-sm); padding: 14px; text-align: center; cursor: pointer; transition: all 0.15s; margin-bottom: 8px; }
+.mic-checkin.grabando { border-color: var(--verde); background: var(--verde-claro); }
+.mic-checkin-icono { font-size: 26px; margin-bottom: 4px; }
 .mic-checkin-texto { font-size: 13px; color: var(--gris-texto); font-weight: 600; }
 .mic-checkin.grabando .mic-checkin-texto { color: var(--verde-texto); }
-
-.transcripcion-mini {
-  display: none;
-  background: var(--verde-claro);
-  border: 1.5px solid var(--verde);
-  border-radius: var(--radio-sm);
-  padding: 12px 14px;
-  margin-bottom: 10px;
-}
+.transcripcion-mini { display: none; background: var(--verde-claro); border: 1.5px solid var(--verde); border-radius: var(--radio-sm); padding: 12px 14px; margin-bottom: 8px; }
 .transcripcion-mini.visible { display: block; }
 .trans-mini-label { font-size: 11px; font-weight: 700; color: var(--verde-texto); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
-.trans-mini-texto {
-  font-size: 14px; color: var(--negro);
-  border: none; background: transparent;
-  width: 100%; outline: none;
-  font-family: 'Nunito Sans', sans-serif;
-  resize: none;
-}
+.trans-mini-texto { font-size: 14px; color: var(--negro); border: none; background: transparent; width: 100%; outline: none; font-family: 'Nunito Sans', sans-serif; resize: none; }
 .trans-mini-acciones { display: flex; gap: 8px; margin-top: 8px; }
 .btn-usar { flex: 1; padding: 10px; border-radius: 8px; border: none; background: var(--verde); color: #fff; font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 13px; cursor: pointer; }
 .btn-rehace { padding: 10px 14px; border-radius: 8px; border: 1.5px solid var(--gris-borde); background: #fff; color: var(--gris-texto); font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 13px; cursor: pointer; }
-
-/* BOTONES NAVEGACIÓN */
-.nav-btns {
-  display: flex; gap: 10px;
-  padding: 0 22px 32px;
-}
-.btn-siguiente {
-  flex: 1; padding: 16px;
-  border-radius: var(--radio-sm); border: none;
-  background: var(--verde); color: #fff;
-  font-family: 'Nunito', sans-serif;
-  font-weight: 800; font-size: 17px;
-  cursor: pointer; transition: all 0.15s;
-  min-height: 56px;
-}
+.nav-btns { display: flex; gap: 10px; padding: 0 20px 32px; }
+.btn-siguiente { flex: 1; padding: 16px; border-radius: var(--radio-sm); border: none; background: var(--verde); color: #fff; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 17px; cursor: pointer; transition: all 0.15s; min-height: 56px; }
 .btn-siguiente:hover { background: var(--verde-oscuro); }
 .btn-siguiente:disabled { background: var(--gris-borde); color: var(--gris-muted); cursor: not-allowed; }
-.btn-saltar {
-  padding: 16px 18px;
-  border-radius: var(--radio-sm);
-  border: 1.5px solid var(--gris-borde);
-  background: #fff; color: var(--gris-texto);
-  font-family: 'Nunito', sans-serif;
-  font-weight: 700; font-size: 14px;
-  cursor: pointer; min-height: 56px;
-}
-
-/* RESUMEN FINAL */
-.resumen {
-  display: none;
-  padding: 24px 22px;
-  animation: slideIn 0.35s ease;
-}
+.btn-saltar { padding: 16px 18px; border-radius: var(--radio-sm); border: 1.5px solid var(--gris-borde); background: #fff; color: var(--gris-texto); font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 14px; cursor: pointer; min-height: 56px; }
+.resumen { display: none; padding: 22px 20px; animation: slideIn 0.3s ease; }
 .resumen.visible { display: block; }
-.resumen-titulo {
-  font-family: 'Nunito', sans-serif;
-  font-weight: 900; font-size: 24px;
-  text-align: center; margin-bottom: 6px;
-}
-.resumen-sub { font-size: 14px; color: var(--gris-texto); text-align: center; margin-bottom: 24px; }
-.resumen-items { margin-bottom: 24px; }
-.resumen-item {
-  background: #fff;
-  border: 1px solid var(--gris-borde);
-  border-radius: var(--radio-sm);
-  padding: 14px 16px;
-  margin-bottom: 10px;
-  display: flex; align-items: flex-start; gap: 12px;
-}
-.resumen-item-emoji { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
-.resumen-item-texto {}
-.resumen-pregunta { font-size: 12px; color: var(--gris-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 2px; }
-.resumen-respuesta { font-size: 14px; color: var(--negro); font-weight: 600; }
-.btn-guardar-todo {
-  width: 100%; padding: 18px;
-  border-radius: var(--radio-sm); border: none;
-  background: var(--verde); color: #fff;
-  font-family: 'Nunito', sans-serif;
-  font-weight: 800; font-size: 18px;
-  cursor: pointer; transition: all 0.15s;
-  margin-bottom: 10px;
-}
+.resumen-titulo { font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 22px; text-align: center; margin-bottom: 6px; }
+.resumen-sub { font-size: 14px; color: var(--gris-texto); text-align: center; margin-bottom: 20px; }
+.resumen-item { background: #fff; border: 1px solid var(--gris-borde); border-radius: var(--radio-sm); padding: 12px 14px; margin-bottom: 9px; display: flex; align-items: flex-start; gap: 10px; }
+.resumen-item-emoji { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+.resumen-pregunta { font-size: 11px; color: var(--gris-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 2px; }
+.resumen-respuesta { font-size: 14px; color: var(--negro); font-weight: 600; line-height: 1.4; }
+.btn-guardar-todo { width: 100%; padding: 18px; border-radius: var(--radio-sm); border: none; background: var(--verde); color: #fff; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 18px; cursor: pointer; transition: all 0.15s; margin-bottom: 10px; }
 .btn-guardar-todo:hover { background: var(--verde-oscuro); }
-.btn-volver-editar {
-  width: 100%; padding: 14px;
-  border-radius: var(--radio-sm);
-  border: 1.5px solid var(--gris-borde);
-  background: #fff; color: var(--gris-texto);
-  font-family: 'Nunito', sans-serif;
-  font-weight: 700; font-size: 14px;
-  cursor: pointer;
-}
-
-/* TOAST */
-.toast {
-  position: fixed; bottom: 24px; left: 50%;
-  transform: translateX(-50%) translateY(80px);
-  background: var(--negro); color: #fff;
-  padding: 14px 22px; border-radius: 14px;
-  font-size: 14px; font-weight: 600;
-  opacity: 0; transition: all 0.3s; z-index: 200;
-  white-space: nowrap;
-}
+.btn-volver-editar { width: 100%; padding: 14px; border-radius: var(--radio-sm); border: 1.5px solid var(--gris-borde); background: #fff; color: var(--gris-texto); font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 14px; cursor: pointer; }
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--negro); color: #fff; padding: 14px 22px; border-radius: 14px; font-size: 14px; font-weight: 600; opacity: 0; transition: all 0.3s; z-index: 200; white-space: nowrap; }
 .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 .toast.verde { background: var(--verde-oscuro); }
-
-@media (min-width: 480px) {
-  body { border-left: 1px solid var(--gris-borde); border-right: 1px solid var(--gris-borde); }
-}
+@media (min-width: 480px) { body { border-left: 1px solid var(--gris-borde); border-right: 1px solid var(--gris-borde); } }
 </style>
 </head>
 <body>
-
 <div class="header">
   <div class="btn-back" onclick="window.location.href='home.html'">←</div>
   <div class="header-info">
     <div class="header-titulo">Check-in de hoy</div>
-    <div class="header-sub" id="header-nombre-sub">Cuéntame cómo estás</div>
+    <div class="header-sub" id="header-nombre-sub">Cargando...</div>
   </div>
 </div>
-
-<div style="background:#FFF7ED;border-bottom:1px solid #FED7AA;padding:10px 22px;display:flex;align-items:center;gap:8px;" id="aviso-momento">
-  <span style="font-size:16px;" id="aviso-icono">🌅</span>
-  <span style="font-size:13px;color:#9A3412;font-weight:600;" id="aviso-texto">Puedes hacer este check-in en cualquier momento del día</span>
+<div class="aviso-momento" id="aviso-momento" style="background:#FFF7ED;color:#9A3412;border-bottom:1px solid #FED7AA;">
+  <span id="aviso-icono">🌅</span>
+  <span id="aviso-texto">Ideal hacerlo en la mañana</span>
 </div>
-
 <div class="progreso-wrap">
-  <div class="progreso-bar">
-    <div class="progreso-fill" id="progreso-fill" style="width:0%"></div>
-  </div>
-  <div class="progreso-texto" id="progreso-texto">Pregunta 1 de 4</div>
+  <div class="progreso-bar"><div class="progreso-fill" id="progreso-fill" style="width:0%"></div></div>
+  <div class="progreso-texto" id="progreso-texto">Pregunta 1</div>
 </div>
-
 <div id="pregunta-contenido"></div>
-
 <div class="nav-btns" id="nav-btns">
   <button class="btn-saltar" onclick="saltar()">Saltar</button>
   <button class="btn-siguiente" id="btn-siguiente" onclick="siguiente()" disabled>Siguiente →</button>
 </div>
-
 <div class="resumen" id="resumen">
-  <div style="font-size:52px;text-align:center;margin-bottom:16px;">✅</div>
-  <div class="resumen-titulo">¡Check-in listo!</div>
-  <div class="resumen-sub">Así quedaron tus respuestas de hoy</div>
-  <div class="resumen-items" id="resumen-items"></div>
+  <div style="font-size:48px;text-align:center;margin-bottom:14px;">✅</div>
+  <div class="resumen-titulo">Check-in listo</div>
+  <div class="resumen-sub">Revisa tus respuestas antes de guardar</div>
+  <div id="resumen-items"></div>
   <button class="btn-guardar-todo" onclick="guardarTodo()">Guardar y volver al inicio</button>
   <button class="btn-volver-editar" onclick="volverEditar()">Revisar respuestas</button>
 </div>
-
 <div class="toast" id="toast"></div>
-
 <script>
 const perfil = JSON.parse(localStorage.getItem('misalud_usuario_actual') || 'null');
 if (!perfil) window.location.href = 'index.html';
-
+const condiciones = (perfil.condiciones || []).map(c => c.toLowerCase());
+const hora = new Date().getHours();
+const esTarde = hora >= 14, esNoche = hora >= 20;
 const nombreCorto = perfil.nombre.split(' ')[0];
-const horaActual = new Date().getHours();
-let momentoDia = 'mañana';
-let saludoCheckin = '¿cómo amaneciste?';
-let avisoIcono = '🌅';
-let avisoTexto = 'Ideal hacerlo en la mañana, así capturas cómo amaneciste';
-if (horaActual >= 12 && horaActual < 20) {
-  momentoDia = 'tarde'; saludoCheckin = '¿cómo ha estado tu día?';
-  avisoIcono = '☀️'; avisoTexto = 'Check-in de la tarde — cuéntame cómo te fue hoy';
-} else if (horaActual >= 20) {
-  momentoDia = 'noche'; saludoCheckin = '¿cómo estuvo tu día?';
-  avisoIcono = '🌙'; avisoTexto = 'Check-in nocturno — ¿cómo terminó tu día?';
+
+let avisoIcono='🌅',avisoTexto='Ideal hacerlo en la mañana',avisoColor='#FFF7ED',avisoTxt='#9A3412',avisoBorde='#FED7AA',saludo='buenos días';
+if(hora>=12&&hora<20){avisoIcono='☀️';avisoTexto='Check-in de la tarde';avisoColor='#EFF6FF';avisoTxt='#1D4ED8';avisoBorde='#BFDBFE';saludo='buenas tardes';}
+else if(hora>=20){avisoIcono='🌙';avisoTexto='Check-in nocturno';avisoColor='#F5F3FF';avisoTxt='#5B21B6';avisoBorde='#DDD6FE';saludo='buenas noches';}
+document.getElementById('header-nombre-sub').textContent = 'Hola '+nombreCorto+', '+saludo;
+const av=document.getElementById('aviso-momento');
+av.style.background=avisoColor;av.style.color=avisoTxt;av.style.borderBottomColor=avisoBorde;
+document.getElementById('aviso-icono').textContent=avisoIcono;
+document.getElementById('aviso-texto').textContent=avisoTexto;
+
+function tiene(kws){return kws.some(kw=>condiciones.some(c=>c.includes(kw)));}
+const tieneDiabetes=tiene(['diabetes','diabética','diabetica','glicemia']);
+const tieneHTA=tiene(['hipertensión','hipertension','presión alta','presion alta']);
+const tieneFibro=tiene(['fibromialgia']);
+const tieneDepresion=tiene(['depresión','depresion','depresiva']);
+const tieneAnsiedad=tiene(['ansiedad','ansiosa']);
+const tieneArtrosis=tiene(['artritis','artrosis','articular']);
+const tieneColostomia=tiene(['colostomía','colostomia','bolsa','colon','ostomía','ostomia']);
+const tieneProstata=tiene(['próstata','prostata','hiperplasia']);
+const tienePostop=tiene(['postoperatorio','operada','operado','cirugía','cirugia','recuperación']);
+
+const BANCO = {
+sueno:{id:'sueno',emoji:'🌙',texto:esTarde||esNoche?'¿Cómo dormiste la noche pasada?':'¿Cómo dormiste anoche?',sub:'Tu descanso afecta todo lo demás',tipo:'opciones',esTransversal:true,opciones:[
+  {emoji:'😴',texto:'Dormí muy bien',sub:'Descansé de corrido, me desperté con energía',valor:'bien'},
+  {emoji:'😐',texto:'Más o menos',sub:'Algunos despertares pero dormí algo',valor:'regular'},
+  {emoji:'😫',texto:'Dormí mal',sub:'Me desperté varias veces o tuve pesadillas',valor:'mal'},
+  {emoji:'😰',texto:'Casi no dormí',sub:'Insomnio, dolor o ansiedad no me dejaron dormir',valor:'muy_mal'},
+  {emoji:'🛌',texto:'Dormí demasiado',sub:'No me pude levantar, mucho sueño todo el día',valor:'exceso'},
+]},
+dolor:{id:'dolor',emoji:'⚡',texto:'¿Cómo está tu cuerpo hoy?',sub:'Cualquier molestia o dolor que tengas ahora',tipo:'mixto',esTransversal:true,opciones:[
+  {emoji:'✅',texto:'Sin dolor ni molestias',sub:'Me siento bien físicamente',valor:'sin_dolor'},
+  {emoji:'😬',texto:'Molestia leve',sub:'Algo incómoda pero puedo hacer mis cosas',valor:'leve'},
+  {emoji:'😣',texto:'Dolor moderado',sub:'Me limita en algunas actividades del día',valor:'moderado'},
+  {emoji:'😭',texto:'Dolor fuerte',sub:'Me cuesta bastante hacer cosas normales',valor:'fuerte'},
+]},
+fibromialgia:{id:'fibromialgia',emoji:'🌡️',texto:'¿Cómo están los puntos sensibles hoy?',sub:'Los puntos de dolor típicos de la fibromialgia',tipo:'opciones',condicion:'Fibromialgia',opciones:[
+  {emoji:'✅',texto:'Más calmados que ayer',sub:'Los puntos sensibles están mejor hoy',valor:'mejor'},
+  {emoji:'😐',texto:'Igual que ayer',sub:'Sin cambios, como siempre',valor:'igual'},
+  {emoji:'😣',texto:'Más activos que ayer',sub:'Más puntos o más intensidad de dolor',valor:'peor'},
+  {emoji:'😰',texto:'Brote fuerte hoy',sub:'Muy difícil de manejar, peor que lo habitual',valor:'brote'},
+]},
+animo:{id:'animo',emoji:'💙',texto:'¿Cómo está tu ánimo?',sub:'No hay respuesta correcta, solo cuéntame',tipo:'opciones',esTransversal:true,opciones:[
+  {emoji:'😊',texto:'Bien, tranquila',sub:'Me siento en paz y con energía',valor:'bien'},
+  {emoji:'😌',texto:'Regular nomás',sub:'Ni muy bien ni muy mal',valor:'regular'},
+  {emoji:'😔',texto:'Triste o irritable',sub:'Decaída, de mal humor o con poca gana de nada',valor:'triste'},
+  {emoji:'😢',texto:'Muy mal',sub:'Muy angustiada, ansiosa o sin fuerzas',valor:'muy_mal'},
+]},
+depresion:{id:'depresion',emoji:'🫂',texto:'¿Cómo estuvo tu energía y motivación?',sub:'Comparado con los últimos días',tipo:'opciones',condicion:'Depresión / ansiedad',opciones:[
+  {emoji:'⚡',texto:'Con energía y ganas',sub:'Me sentí motivada hoy',valor:'bien'},
+  {emoji:'😐',texto:'Con algo de energía',sub:'Pude hacer cosas aunque con esfuerzo',valor:'regular'},
+  {emoji:'😔',texto:'Sin energía ni ganas',sub:'Me costó mucho hacer cualquier cosa',valor:'bajo'},
+  {emoji:'🛌',texto:'Muy apagada',sub:'No quise hacer nada, me quedé en cama',valor:'muy_bajo'},
+]},
+medicamentos:{id:'medicamentos',emoji:'💊',texto:'¿Cómo vas con tus remedios?',sub:esNoche?'Los de hoy en total':'Los que te tocaban hasta este momento del día',tipo:'opciones',esTransversal:true,opciones:[
+  {emoji:'✅',texto:esNoche?'Tomé todos mis remedios de hoy':'Tomé los que me tocaban hasta ahora',sub:'Todo en orden',valor:'todos'},
+  {emoji:'⏰',texto:'Los de la tarde o noche los tomo después',sub:'Aún no es la hora — esto es normal, no es un olvido',valor:'pendiente_noche'},
+  {emoji:'🤔',texto:'Se me olvidó alguno',sub:'Ya era la hora y no lo tomé',valor:'algunos'},
+  {emoji:'💊',texto:'Tomé algo extra por dolor',sub:'Un analgésico u otro remedio de emergencia, no de rutina',valor:'extra'},
+  {emoji:'📦',texto:'No los tenía — se acabaron',sub:'Quise tomarlos pero no tenía el remedio disponible',valor:'sin_remedio'},
+  {emoji:'🔄',texto:'Me cambiaron el tratamiento',sub:'El médico me cambió algún remedio o ajustó la dosis',valor:'cambio'},
+  {emoji:'❌',texto:'No tomé ningún remedio',sub:'Se me olvidó por completo',valor:'ninguno'},
+]},
+presion:{id:'presion',emoji:'📊',texto:'¿Cómo está tu presión hoy?',sub:'Si te la mediste, cuéntame cómo salió',tipo:'mixto',condicion:'Hipertensión',opciones:[
+  {emoji:'✅',texto:'Normal, dentro del rango',sub:'La presión estuvo bien controlada',valor:'normal'},
+  {emoji:'📈',texto:'Alta — salió elevada',sub:'Por encima de lo normal para mí',valor:'alta'},
+  {emoji:'📉',texto:'Baja — me sentí mareada',sub:'Mareos, debilidad o vista borrosa',valor:'baja'},
+  {emoji:'🤷',texto:'No me la medí hoy',sub:'No tuve cómo o no pude',valor:'no_medida'},
+]},
+diabetes:{id:'diabetes',emoji:'🩸',texto:'¿Cómo estuvo tu azúcar hoy?',sub:'Si te la mediste, cuéntame',tipo:'mixto',condicion:'Diabetes',opciones:[
+  {emoji:'✅',texto:'Normal, dentro del rango',sub:'El azúcar estuvo controlada hoy',valor:'normal'},
+  {emoji:'📈',texto:'Alta — sobre lo normal',sub:'Mucha sed, cansancio o muchas ganas de orinar',valor:'alta'},
+  {emoji:'📉',texto:'Baja — tuve hipoglicemia',sub:'Temblor, sudor frío, mareos o mucha hambre',valor:'baja'},
+  {emoji:'🤷',texto:'No me la medí hoy',sub:'',valor:'no_medida'},
+]},
+colostomia:{id:'colostomia',emoji:'🫁',texto:'¿Cómo estuvo tu bolsa hoy?',sub:'Cuéntame sobre la bolsa y cómo te sentiste',tipo:'mixto',condicion:'Colostomía',opciones:[
+  {emoji:'✅',texto:'Todo bien, sin problemas',sub:'La bolsa funcionó con normalidad',valor:'bien'},
+  {emoji:'😬',texto:'Alguna molestia leve',sub:'Pequeña irritación o incomodidad',valor:'molestia'},
+  {emoji:'😣',texto:'Irritación en la piel',sub:'La zona alrededor de la bolsa está irritada o con escozor',valor:'irritacion'},
+  {emoji:'🚨',texto:'Problema importante',sub:'Fuga, mal olor fuerte, dolor intenso o algo preocupante',valor:'problema'},
+]},
+prostata:{id:'prostata',emoji:'🫁',texto:'¿Cómo estuvo la orina hoy?',sub:'Dificultades o frecuencia al orinar',tipo:'opciones',condicion:'Próstata / urología',opciones:[
+  {emoji:'✅',texto:'Sin problemas, todo normal',sub:'',valor:'normal'},
+  {emoji:'😬',texto:'Algo de dificultad al orinar',sub:'Chorro débil o tardé un poco más',valor:'leve'},
+  {emoji:'😣',texto:'Bastante dificultad',sub:'Me costó mucho o fui muchas veces al baño',valor:'moderado'},
+  {emoji:'🌙',texto:'Me levanté varias veces en la noche',sub:'Más de 2 veces a orinar mientras dormía',valor:'nocturia'},
+]},
+artrosis:{id:'artrosis',emoji:'🦴',texto:'¿Cómo estuvo la rigidez hoy?',sub:'Especialmente al levantarte en la mañana',tipo:'opciones',condicion:'Artritis / artrosis',opciones:[
+  {emoji:'✅',texto:'Sin rigidez, me moví bien',sub:'Las articulaciones respondieron bien',valor:'bien'},
+  {emoji:'😐',texto:'Rigidez leve al despertar',sub:'Pasó en menos de 30 minutos',valor:'leve'},
+  {emoji:'😣',texto:'Rigidez moderada',sub:'Me costó moverme por más de 30 minutos',valor:'moderada'},
+  {emoji:'😰',texto:'Muy rígida o con mucho dolor',sub:'Me costó hacer cosas básicas del día',valor:'severa'},
+]},
+postop:{id:'postop',emoji:'🩹',texto:'¿Cómo está la zona operada?',sub:'Herida, cicatriz o zona de la cirugía',tipo:'mixto',condicion:'Postoperatorio',opciones:[
+  {emoji:'✅',texto:'Bien, sanando normalmente',sub:'Sin signos de alerta',valor:'bien'},
+  {emoji:'😬',texto:'Algo de molestia o picazón',sub:'Normal en el proceso de cicatrización',valor:'leve'},
+  {emoji:'😣',texto:'Dolor o inflamación',sub:'Más de lo que esperaba para este momento',valor:'dolor'},
+  {emoji:'🚨',texto:'Algo preocupante',sub:'Enrojecimiento, líquido, fiebre o mucho dolor',valor:'alerta'},
+]}
+};
+
+function armarPreguntas(){
+  const p=[];
+  p.push(BANCO.sueno);
+  p.push(BANCO.dolor);
+  if(tieneFibro) p.push(BANCO.fibromialgia);
+  if(tieneArtrosis&&!tieneFibro) p.push(BANCO.artrosis);
+  if(tieneColostomia) p.push(BANCO.colostomia);
+  if(tienePostop&&!tieneColostomia) p.push(BANCO.postop);
+  p.push(BANCO.animo);
+  if(tieneDepresion||tieneAnsiedad) p.push(BANCO.depresion);
+  p.push(BANCO.medicamentos);
+  if(tieneHTA) p.push(BANCO.presion);
+  if(tieneDiabetes) p.push(BANCO.diabetes);
+  if(tieneProstata) p.push(BANCO.prostata);
+  return p.slice(0,6);
 }
-document.getElementById('header-nombre-sub').textContent = 'Hola ' + nombreCorto + ', ' + saludoCheckin;
-document.getElementById('aviso-icono').textContent = avisoIcono;
-document.getElementById('aviso-texto').textContent = avisoTexto;
 
-// ── PREGUNTAS ─────────────────────────────────────────────────
-const horaCheckin = new Date().getHours();
-const esTarde = horaCheckin >= 14;
-const esNoche = horaCheckin >= 20;
+const PREGUNTAS=armarPreguntas();
+let preguntaActual=0,respuestas={},recognition=null,grabandoCheckin=false,textoVozCheckin='';
 
-const PREGUNTAS = [
-  {
-    id: 'sueno',
-    emoji: '🌙',
-    texto: esTarde || esNoche ? '¿Cómo dormiste la noche pasada?' : '¿Cómo dormiste anoche?',
-    sub: 'Cuéntame o elige una opción',
-    tipo: 'opciones',
-    opciones: [
-      { emoji: '😴', texto: 'Dormí muy bien', sub: 'Descansé de corrido', valor: 'bien', color: 'verde' },
-      { emoji: '😐', texto: 'Más o menos', sub: 'Algunos despertares', valor: 'regular', color: 'amarillo' },
-      { emoji: '😫', texto: 'Dormí mal', sub: 'Me desperté varias veces', valor: 'mal', color: 'naranja' },
-      { emoji: '😰', texto: 'No pude dormir', sub: 'Insomnio o pesadillas', valor: 'muy_mal', color: 'rojo' },
-      { emoji: '🛌', texto: 'Dormí demasiado', sub: 'No me pude levantar, mucho sueño', valor: 'exceso', color: 'naranja' },
-    ]
-  },
-  {
-    id: 'dolor',
-    emoji: '⚡',
-    texto: '¿Cómo está tu dolor hoy?',
-    sub: 'Comparado con ayer, ¿cómo te sientes físicamente?',
-    tipo: 'mixto',
-    opciones: [
-      { emoji: '✅', texto: 'Sin dolor', sub: 'Me siento bien físicamente', valor: 'sin_dolor', color: 'verde' },
-      { emoji: '😬', texto: 'Dolor leve', sub: 'Molestia que puedo manejar', valor: 'leve', color: 'amarillo' },
-      { emoji: '😣', texto: 'Dolor moderado', sub: 'Me limita un poco', valor: 'moderado', color: 'naranja' },
-      { emoji: '😭', texto: 'Dolor fuerte', sub: 'Me cuesta hacer cosas', valor: 'fuerte', color: 'rojo' },
-    ]
-  },
-  {
-    id: 'animo',
-    emoji: '💙',
-    texto: '¿Cómo está tu ánimo?',
-    sub: 'Cómo te sientes emocionalmente hoy',
-    tipo: 'opciones',
-    opciones: [
-      { emoji: '😊', texto: 'Bien, tranquila', sub: 'Me siento en paz', valor: 'bien', color: 'verde' },
-      { emoji: '😌', texto: 'Regular nomás', sub: 'Ni bien ni mal', valor: 'regular', color: 'amarillo' },
-      { emoji: '😔', texto: 'Triste o irritable', sub: 'Decaída, de mal humor o con poca energía', valor: 'triste', color: 'naranja' },
-      { emoji: '😢', texto: 'Muy mal', sub: 'Muy ansiosa, angustiada o muy triste', valor: 'muy_mal', color: 'rojo' },
-    ]
-  },
-  {
-    id: 'medicamentos',
-    emoji: '💊',
-    texto: '¿Cómo vas con tus medicamentos?',
-    sub: esNoche ? 'Los remedios de hoy' : 'Los que debías tomar hasta ahora',
-    tipo: 'opciones',
-    opciones: [
-      { emoji: '✅', texto: esNoche ? 'Tomé todos' : 'Tomé los que correspondían', sub: esNoche ? 'Cumplí con todos los de hoy' : 'Los de la noche los tomo más tarde', valor: 'todos', color: 'verde' },
-      { emoji: '⏰', texto: 'Los de la noche los tomo después', sub: 'Aún no es la hora del remedio de la noche', valor: 'pendiente_noche', color: 'verde' },
-      { emoji: '🤔', texto: 'Se me olvidó alguno', sub: 'Me faltó tomar alguno que ya correspondía', valor: 'algunos', color: 'amarillo' },
-      { emoji: '💊', texto: 'Tomé algo extra', sub: 'Un analgésico u otro remedio por dolor o emergencia', valor: 'extra', color: 'amarillo' },
-      { emoji: '📦', texto: 'No los tenía / se acabaron', sub: 'No pude tomarlo porque no tenía el remedio', valor: 'sin_remedio', color: 'rojo' },
-      { emoji: '❌', texto: 'No tomé nada', sub: 'Se me olvidó por completo', valor: 'ninguno', color: 'rojo' },
-      { emoji: '🔄', texto: 'Me cambiaron el tratamiento', sub: 'Cambio reciente de remedio o dosis', valor: 'cambio', color: 'amarillo' },
-    ]
-  }
-];
-
-// ── ESTADO ────────────────────────────────────────────────────
-let preguntaActual = 0;
-let respuestas = {};
-let recognition = null;
-let grabandoCheckin = false;
-let textoVozCheckin = '';
-
-// ── RENDER ────────────────────────────────────────────────────
-function renderPregunta() {
-  const p = PREGUNTAS[preguntaActual];
-  const pct = (preguntaActual / PREGUNTAS.length) * 100;
-  document.getElementById('progreso-fill').style.width = pct + '%';
-  document.getElementById('progreso-texto').textContent =
-    'Pregunta ' + (preguntaActual + 1) + ' de ' + PREGUNTAS.length;
-
-  const cont = document.getElementById('pregunta-contenido');
-  cont.innerHTML = `
-    <div class="pregunta-wrap">
-      <div class="pregunta-emoji">${p.emoji}</div>
-      <div class="pregunta-texto">${p.texto}</div>
-      <div class="pregunta-sub">${p.sub}</div>
-
-      <div class="opciones" id="opciones-cont">
-        ${p.opciones.map((o, i) => `
-          <div class="opcion" id="op-${i}" onclick="seleccionarOpcion(${i}, '${o.valor}', '${o.texto}')">
-            <span class="opcion-emoji">${o.emoji}</span>
-            <div>
-              <div class="opcion-texto">${o.texto}</div>
-              <div class="opcion-sub">${o.sub}</div>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-
-      ${p.tipo === 'mixto' ? `
-      <div class="mic-checkin" id="mic-checkin-btn" onclick="toggleMicCheckin()">
-        <div class="mic-checkin-icono">🎙️</div>
-        <div class="mic-checkin-texto">O toca aquí para describir con tu voz</div>
-      </div>
-      <div class="transcripcion-mini" id="trans-mini">
-        <div class="trans-mini-label">Esto es lo que escuché</div>
-        <textarea class="trans-mini-texto" id="trans-mini-texto" rows="2"></textarea>
-        <div class="trans-mini-acciones">
-          <button class="btn-usar" onclick="usarTranscripcionCheckin()">✓ Usar esta respuesta</button>
-          <button class="btn-rehace" onclick="rehacerVoz()">Repetir</button>
-        </div>
-      </div>
-      ` : ''}
+function renderPregunta(){
+  const p=PREGUNTAS[preguntaActual];
+  const total=PREGUNTAS.length;
+  document.getElementById('progreso-fill').style.width=(preguntaActual/total*100)+'%';
+  document.getElementById('progreso-texto').textContent='Pregunta '+(preguntaActual+1)+' de '+total;
+  const btn=document.getElementById('btn-siguiente');
+  btn.textContent=preguntaActual===total-1?'Ver resumen →':'Siguiente →';
+  btn.disabled=!respuestas[p.id];
+  const cont=document.getElementById('pregunta-contenido');
+  cont.innerHTML=`<div class="pregunta-wrap">
+    <div class="pregunta-emoji">${p.emoji}</div>
+    ${p.condicion?`<span class="pregunta-badge">Para: ${p.condicion}</span>`:''}
+    <div class="pregunta-texto">${p.texto}</div>
+    <div class="pregunta-sub">${p.sub}</div>
+    <div class="opciones" id="opciones-cont">
+      ${p.opciones.map((o,i)=>`<div class="opcion" id="op-${i}" onclick="selOp(${i},'${o.valor}',\`${o.texto.replace(/`/g,"'")}\`,'${p.id}')">
+        <span class="opcion-emoji">${o.emoji}</span>
+        <div><div class="opcion-texto">${o.texto}</div>${o.sub?`<div class="opcion-sub">${o.sub}</div>`:''}</div>
+      </div>`).join('')}
     </div>
-  `;
-
-  // Restaurar selección si ya respondió
-  if (respuestas[p.id]) {
-    const idx = p.opciones.findIndex(o => o.valor === respuestas[p.id].valor);
-    if (idx >= 0) {
-      document.getElementById('op-' + idx)?.classList.add('seleccionada');
-    }
-    document.getElementById('btn-siguiente').disabled = false;
-  } else {
-    document.getElementById('btn-siguiente').disabled = true;
-  }
+    ${p.tipo==='mixto'?`<div class="mic-checkin" id="mic-checkin-btn" onclick="toggleMicCheckin()">
+      <div class="mic-checkin-icono">🎙️</div>
+      <div class="mic-checkin-texto">O toca para contarme con tu voz</div>
+    </div>
+    <div class="transcripcion-mini" id="trans-mini">
+      <div class="trans-mini-label">Esto escuché — ¿está bien?</div>
+      <textarea class="trans-mini-texto" id="trans-mini-texto" rows="2"></textarea>
+      <div class="trans-mini-acciones">
+        <button class="btn-usar" onclick="usarTrans('${p.id}')">✓ Usar esta respuesta</button>
+        <button class="btn-rehace" onclick="rehacerVoz()">Repetir</button>
+      </div>
+    </div>`:''}
+  </div>`;
+  if(respuestas[p.id]){const idx=p.opciones.findIndex(o=>o.valor===respuestas[p.id].valor);if(idx>=0)document.getElementById('op-'+idx)?.classList.add('seleccionada');}
+  window.scrollTo(0,0);
 }
 
-function seleccionarOpcion(idx, valor, textoOp) {
-  const p = PREGUNTAS[preguntaActual];
-  document.querySelectorAll('.opcion').forEach(o => o.classList.remove('seleccionada'));
-  document.getElementById('op-' + idx).classList.add('seleccionada');
-  respuestas[p.id] = { valor, texto: textoOp, emoji: p.opciones[idx].emoji };
-  const btn = document.getElementById('btn-siguiente');
-  btn.disabled = false;
-  btn.textContent = preguntaActual === PREGUNTAS.length - 1 ? 'Ver resumen →' : 'Siguiente →';
-
-  // Ocultar transcripción si estaba visible
-  const tm = document.getElementById('trans-mini');
-  if (tm) tm.classList.remove('visible');
+function selOp(idx,valor,textoOp,pregId){
+  document.querySelectorAll('.opcion').forEach(o=>o.classList.remove('seleccionada'));
+  document.getElementById('op-'+idx).classList.add('seleccionada');
+  const p=PREGUNTAS[preguntaActual];
+  respuestas[pregId]={valor,texto:textoOp,emoji:p.opciones[idx].emoji};
+  const btn=document.getElementById('btn-siguiente');
+  btn.disabled=false;btn.textContent=preguntaActual===PREGUNTAS.length-1?'Ver resumen →':'Siguiente →';
+  const tm=document.getElementById('trans-mini');if(tm)tm.classList.remove('visible');
 }
 
-function siguiente() {
-  if (preguntaActual < PREGUNTAS.length - 1) {
-    preguntaActual++;
-    renderPregunta();
-    window.scrollTo(0, 0);
-  } else {
-    mostrarResumen();
-  }
+function siguiente(){
+  if(preguntaActual<PREGUNTAS.length-1){preguntaActual++;renderPregunta();}
+  else mostrarResumen();
 }
 
-function actualizarBotonSiguiente() {
-  const btn = document.getElementById('btn-siguiente');
-  if (btn) {
-    btn.textContent = preguntaActual === PREGUNTAS.length - 1 ? 'Ver resumen →' : 'Siguiente →';
-  }
-}
-
-function saltar() {
-  const p = PREGUNTAS[preguntaActual];
-  respuestas[p.id] = { valor: 'saltada', texto: 'Sin respuesta', emoji: '—' };
+function saltar(){
+  const p=PREGUNTAS[preguntaActual];
+  respuestas[p.id]={valor:'saltada',texto:'Sin respuesta',emoji:'—'};
   siguiente();
 }
 
-// ── VOZ EN CHECK-IN ───────────────────────────────────────────
-function toggleMicCheckin() {
-  if (grabandoCheckin) detenerMicCheckin();
-  else iniciarMicCheckin();
-}
-
-function iniciarMicCheckin() {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) { alert('Usa Chrome para el micrófono'); return; }
-
-  grabandoCheckin = true;
-  textoVozCheckin = '';
-
-  const btn = document.getElementById('mic-checkin-btn');
-  btn.classList.add('grabando');
-  btn.querySelector('.mic-checkin-icono').textContent = '⏹️';
-  btn.querySelector('.mic-checkin-texto').textContent = 'Escuchando... toca para detener';
-
-  recognition = new SR();
-  recognition.lang = 'es-CL';
-  recognition.continuous = false;
-  recognition.interimResults = false;
-
-  recognition.onresult = (e) => {
-    textoVozCheckin = e.results[0][0].transcript;
+function toggleMicCheckin(){if(grabandoCheckin)detenerMicCheckin();else iniciarMicCheckin();}
+function iniciarMicCheckin(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){alert('Usa Chrome para el micrófono');return;}
+  grabandoCheckin=true;textoVozCheckin='';
+  const btn=document.getElementById('mic-checkin-btn');
+  btn.classList.add('grabando');btn.querySelector('.mic-checkin-icono').textContent='⏹️';btn.querySelector('.mic-checkin-texto').textContent='Escuchando... toca para detener';
+  recognition=new SR();recognition.lang='es-CL';recognition.continuous=false;recognition.interimResults=false;
+  recognition.onresult=(e)=>{textoVozCheckin=e.results[0][0].transcript;};
+  recognition.onend=()=>{
+    grabandoCheckin=false;
+    const b=document.getElementById('mic-checkin-btn');
+    if(b){b.classList.remove('grabando');b.querySelector('.mic-checkin-icono').textContent='🎙️';b.querySelector('.mic-checkin-texto').textContent='O toca para contarme con tu voz';}
+    if(textoVozCheckin){const tm=document.getElementById('trans-mini');const tt=document.getElementById('trans-mini-texto');if(tm&&tt){tt.value=textoVozCheckin;tm.classList.add('visible');}}
   };
-
-  recognition.onend = () => {
-    grabandoCheckin = false;
-    const btn = document.getElementById('mic-checkin-btn');
-    if (btn) {
-      btn.classList.remove('grabando');
-      btn.querySelector('.mic-checkin-icono').textContent = '🎙️';
-      btn.querySelector('.mic-checkin-texto').textContent = 'O toca aquí para describir con tu voz';
-    }
-    if (textoVozCheckin) {
-      const tm = document.getElementById('trans-mini');
-      const tt = document.getElementById('trans-mini-texto');
-      if (tm && tt) {
-        tt.value = textoVozCheckin;
-        tm.classList.add('visible');
-      }
-    }
-  };
-
-  recognition.onerror = () => {
-    grabandoCheckin = false;
-    const btn = document.getElementById('mic-checkin-btn');
-    if (btn) {
-      btn.classList.remove('grabando');
-      btn.querySelector('.mic-checkin-icono').textContent = '🎙️';
-      btn.querySelector('.mic-checkin-texto').textContent = 'O toca aquí para describir con tu voz';
-    }
-  };
-
+  recognition.onerror=()=>{grabandoCheckin=false;const b=document.getElementById('mic-checkin-btn');if(b){b.classList.remove('grabando');b.querySelector('.mic-checkin-icono').textContent='🎙️';b.querySelector('.mic-checkin-texto').textContent='O toca para contarme con tu voz';}};
   recognition.start();
 }
-
-function detenerMicCheckin() {
-  grabandoCheckin = false;
-  if (recognition) { try { recognition.stop(); } catch(e) {} }
-}
-
-function usarTranscripcionCheckin() {
-  const texto = document.getElementById('trans-mini-texto').value.trim();
-  if (!texto) return;
-  const p = PREGUNTAS[preguntaActual];
-  respuestas[p.id] = { valor: 'voz', texto: texto, emoji: '🎙️' };
+function detenerMicCheckin(){grabandoCheckin=false;if(recognition){try{recognition.stop();}catch(e){}}}
+function usarTrans(pregId){
+  const txt=document.getElementById('trans-mini-texto').value.trim();if(!txt)return;
+  respuestas[pregId]={valor:'voz',texto:txt,emoji:'🎙️'};
   document.getElementById('trans-mini').classList.remove('visible');
-  document.querySelectorAll('.opcion').forEach(o => o.classList.remove('seleccionada'));
-  document.getElementById('btn-siguiente').disabled = false;
-  mostrarToast('✓ Respuesta guardada', true);
+  document.querySelectorAll('.opcion').forEach(o=>o.classList.remove('seleccionada'));
+  const btn=document.getElementById('btn-siguiente');btn.disabled=false;btn.textContent=preguntaActual===PREGUNTAS.length-1?'Ver resumen →':'Siguiente →';
+  mostrarToast('✓ Respuesta guardada',true);
 }
+function rehacerVoz(){document.getElementById('trans-mini').classList.remove('visible');textoVozCheckin='';}
 
-function rehacerVoz() {
-  document.getElementById('trans-mini').classList.remove('visible');
-  textoVozCheckin = '';
-}
-
-// ── RESUMEN ───────────────────────────────────────────────────
-function mostrarResumen() {
-  const pc = document.getElementById('pregunta-contenido');
-  const nb = document.getElementById('nav-btns');
-  const pw = document.getElementById('progreso-wrap');
-  if (pc) pc.style.display = 'none';
-  if (nb) nb.style.display = 'none';
-  if (pw) pw.style.display = 'none';
-
-  const resumen = document.getElementById('resumen');
-  resumen.classList.add('visible');
-
-  const items = document.getElementById('resumen-items');
-  items.innerHTML = PREGUNTAS.map(p => {
-    const r = respuestas[p.id];
-    if (!r || r.valor === 'saltada') return `
-      <div class="resumen-item">
-        <div class="resumen-item-emoji">${p.emoji}</div>
-        <div class="resumen-item-texto">
-          <div class="resumen-pregunta">${p.texto}</div>
-          <div class="resumen-respuesta" style="color:var(--gris-muted)">Sin respuesta</div>
-        </div>
-      </div>`;
-    return `
-      <div class="resumen-item">
-        <div class="resumen-item-emoji">${r.emoji}</div>
-        <div class="resumen-item-texto">
-          <div class="resumen-pregunta">${p.texto}</div>
-          <div class="resumen-respuesta">${r.texto}</div>
-        </div>
-      </div>`;
+function mostrarResumen(){
+  document.getElementById('pregunta-contenido').style.display='none';
+  document.getElementById('nav-btns').style.display='none';
+  document.getElementById('progreso-wrap').style.display='none';
+  document.getElementById('aviso-momento').style.display='none';
+  document.getElementById('resumen').classList.add('visible');
+  document.getElementById('resumen-items').innerHTML=PREGUNTAS.map(p=>{
+    const r=respuestas[p.id];
+    return`<div class="resumen-item">
+      <div class="resumen-item-emoji">${(!r||r.valor==='saltada')?'—':r.emoji}</div>
+      <div><div class="resumen-pregunta">${p.texto}</div>
+      <div class="resumen-respuesta" style="${(!r||r.valor==='saltada')?'color:var(--gris-muted)':''}">${(!r||r.valor==='saltada')?'Sin respuesta':r.texto}</div></div>
+    </div>`;
   }).join('');
-
-  document.getElementById('progreso-fill').style.width = '100%';
-  window.scrollTo(0, 0);
+  window.scrollTo(0,0);
 }
 
-function volverEditar() {
-  preguntaActual = 0;
+function volverEditar(){
+  preguntaActual=0;
   document.getElementById('resumen').classList.remove('visible');
-  document.getElementById('pregunta-contenido').style.display = 'block';
-  document.getElementById('nav-btns').style.display = 'flex';
-  document.getElementById('progreso-wrap').style.display = 'block';
+  document.getElementById('pregunta-contenido').style.display='block';
+  document.getElementById('nav-btns').style.display='flex';
+  document.getElementById('progreso-wrap').style.display='block';
+  document.getElementById('aviso-momento').style.display='flex';
   renderPregunta();
 }
 
-// ── GUARDAR TODO ──────────────────────────────────────────────
-function evaluarDia(registros) {
-  const vals = Object.values(respuestas).map(r => r.valor);
-  // Valores que NO penalizan (son neutros o informativos)
-  const neutros = ['pendiente_noche', 'extra', 'cambio'];
-  const valsRelevantes = vals.filter(v => !neutros.includes(v));
+const NEUTROS=['pendiente_noche','extra','cambio','no_medida'];
+const TEXTOS_VALOR={'pendiente_noche':'Remedios del día tomados — los de la tarde/noche los toma más tarde','sin_remedio':'No pudo tomar el remedio porque no lo tenía disponible','extra':'Tomó medicamento extra por dolor o emergencia','exceso':'Durmió en exceso, le costó levantarse','no_medida':'No se midió hoy'};
 
-  if (valsRelevantes.includes('muy_mal') || valsRelevantes.includes('fuerte') || valsRelevantes.includes('ninguno') || valsRelevantes.includes('sin_remedio')) return 'rojo';
-  if (valsRelevantes.includes('mal') || valsRelevantes.includes('moderado') || valsRelevantes.includes('triste') || valsRelevantes.includes('exceso')) return 'naranja';
-  if (valsRelevantes.includes('regular') || valsRelevantes.includes('leve') || valsRelevantes.includes('algunos')) return 'amarillo';
-  return 'verde';
+function evaluarDia(){
+  const vals=Object.values(respuestas).map(r=>r.valor).filter(v=>!NEUTROS.includes(v));
+  if(vals.some(v=>['muy_mal','fuerte','ninguno','sin_remedio','alerta','brote','problema'].includes(v)))return'rojo';
+  if(vals.some(v=>['mal','moderado','triste','exceso','bajo','muy_bajo','alta','baja','peor','severa','dolor'].includes(v)))return'naranja';
+  if(vals.some(v=>['regular','leve','algunos','molestia','nocturia','moderada'].includes(v)))return'amarillo';
+  return'verde';
 }
 
-function guardarTodo() {
-  const ahora = new Date();
-  const fechaStr = ahora.toDateString();
-  const hora = ahora.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
-
-  // Construir texto resumen del check-in
-  // Mapear valores a textos claros para el reporte
-  const TEXTOS_VALOR = {
-    'pendiente_noche': 'Remedios del día tomados, los de la noche pendientes (aún no es la hora)',
-    'sin_remedio': 'No pudo tomar el remedio porque no lo tenía disponible',
-    'extra': 'Tomó medicamento extra por dolor o emergencia',
-    'exceso': 'Durmió en exceso, le costó levantarse'
-  };
-  const textoResumen = PREGUNTAS
-    .filter(p => respuestas[p.id] && respuestas[p.id].valor !== 'saltada')
-    .map(p => {
-      const r = respuestas[p.id];
-      const textoClaro = TEXTOS_VALOR[r.valor] || r.texto;
-      return p.texto + ': ' + textoClaro;
-    })
-    .join('. ');
-
-  const registro = {
-    id: Date.now(),
-    texto: textoResumen,
-    categorias: ['sueno','dolor','animo','med'].filter(c => {
-      const r = respuestas[c];
-      return r && r.valor !== 'saltada' && r.valor !== 'bien' && r.valor !== 'todos' && r.valor !== 'sin_dolor';
-    }),
-    hora,
-    fecha: fechaStr,
-    tipo: 'checkin',
-    detalle: respuestas
-  };
-
-  // Guardar registro
-  const key = 'misalud_registros_' + perfil.id;
-  const registros = JSON.parse(localStorage.getItem(key) || '[]');
+function guardarTodo(){
+  const ahora=new Date();
+  const fechaStr=ahora.toDateString();
+  const hora2=ahora.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+  const textoResumen=PREGUNTAS.filter(p=>respuestas[p.id]&&respuestas[p.id].valor!=='saltada')
+    .map(p=>{const r=respuestas[p.id];return p.texto+': '+(TEXTOS_VALOR[r.valor]||r.texto);}).join('. ');
+  const cats=[];
+  Object.entries(respuestas).forEach(([id,r])=>{
+    if(r.valor==='saltada'||NEUTROS.includes(r.valor))return;
+    if(['mal','muy_mal','exceso'].includes(r.valor)&&id==='sueno')cats.push('sueno');
+    if(['leve','moderado','fuerte','peor','brote','severa','dolor'].includes(r.valor)&&['dolor','fibromialgia','artrosis','postop'].includes(id))cats.push('dolor');
+    if(['triste','muy_mal','bajo','muy_bajo'].includes(r.valor)&&['animo','depresion'].includes(id))cats.push('animo');
+    if(['algunos','sin_remedio','ninguno'].includes(r.valor)&&id==='medicamentos')cats.push('med');
+    if(['alta','baja'].includes(r.valor)&&['presion','diabetes'].includes(id))cats.push('presion');
+    if(['molestia','irritacion','problema'].includes(r.valor)&&id==='colostomia')cats.push('mov');
+    if(['leve','moderado','nocturia'].includes(r.valor)&&id==='prostata')cats.push('mov');
+  });
+  const registro={id:Date.now(),texto:textoResumen,categorias:[...new Set(cats)],hora:hora2,fecha:fechaStr,tipo:'checkin',detalle:respuestas};
+  const key='misalud_registros_'+perfil.id;
+  const registros=JSON.parse(localStorage.getItem(key)||'[]');
   registros.push(registro);
-  localStorage.setItem(key, JSON.stringify(registros));
-
-  // Marcar check-in como completado hoy
-  localStorage.setItem('misalud_checkin_' + perfil.id + '_' + fechaStr, '1');
-
-  // Color del día
-  const colorDia = evaluarDia(registros);
-  localStorage.setItem('misalud_dia_' + perfil.id + '_' + fechaStr, colorDia);
-
-  mostrarToast('✓ Check-in guardado', true);
-  setTimeout(() => window.location.href = 'home.html', 1200);
+  localStorage.setItem(key,JSON.stringify(registros));
+  localStorage.setItem('misalud_checkin_'+perfil.id+'_'+fechaStr,'1');
+  localStorage.setItem('misalud_dia_'+perfil.id+'_'+fechaStr,evaluarDia());
+  mostrarToast('✓ Check-in guardado',true);
+  setTimeout(()=>window.location.href='home.html',1200);
 }
 
-function mostrarToast(msg, ok = true) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast' + (ok ? ' verde' : '') + ' show';
-  setTimeout(() => t.classList.remove('show'), 2800);
+function mostrarToast(msg,ok){
+  const t=document.getElementById('toast');t.textContent=msg;
+  t.className='toast'+(ok?' verde':'')+' show';
+  setTimeout(()=>t.classList.remove('show'),2800);
 }
 
-// ── INIT ──────────────────────────────────────────────────────
-function renderPreguntaConBoton() {
-  renderPregunta();
-  actualizarBotonSiguiente();
-}
-renderPreguntaConBoton();
+renderPregunta();
 </script>
 </body>
 </html>
