@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MiSalud — Mis registros</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --verde: #22C55E; --verde-claro: #DCFCE7; --verde-texto: #15803D;
+  --gris-bg: #F8FAFC; --gris-borde: #E2E8F0;
+  --gris-texto: #64748B; --gris-muted: #94A3B8; --negro: #0F172A;
+  --radio: 14px; --radio-sm: 10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Nunito Sans', sans-serif; background: var(--gris-bg); color: var(--negro); min-height: 100vh; max-width: 480px; margin: 0 auto; padding-bottom: 100px; }
+
+.header { background: #fff; padding: 18px 22px; border-bottom: 1px solid var(--gris-borde); display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 50; }
+.btn-back { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--gris-borde); background: var(--gris-bg); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; flex-shrink: 0; }
+.header-titulo { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 17px; }
+.header-sub { font-size: 12px; color: var(--gris-texto); margin-top: 2px; }
+
+.filtros { display: flex; gap: 8px; padding: 14px 16px; background: #fff; border-bottom: 1px solid var(--gris-borde); overflow-x: auto; }
+.filtro-btn { padding: 7px 14px; border-radius: 20px; border: 1.5px solid var(--gris-borde); background: #fff; color: var(--gris-texto); font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 12px; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
+.filtro-btn.activo { border-color: var(--verde); background: var(--verde-claro); color: var(--verde-texto); }
+
+.body { padding: 16px; }
+
+.fecha-grupo { margin-bottom: 20px; }
+.fecha-label { font-size: 12px; font-weight: 700; color: var(--gris-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; padding-left: 4px; }
+
+.reg-item { background: #fff; border-radius: var(--radio); border: 1px solid var(--gris-borde); padding: 14px 16px; margin-bottom: 10px; cursor: pointer; transition: all 0.15s; }
+.reg-item:active { transform: scale(0.98); }
+.reg-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.reg-hora { font-size: 11px; color: var(--gris-muted); font-weight: 700; }
+.reg-tipo { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 8px; background: var(--gris-bg); color: var(--gris-texto); }
+.reg-texto { font-size: 14px; color: var(--negro); line-height: 1.5; margin-bottom: 8px; }
+.reg-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.reg-tag { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 10px; }
+.tag-sueno { background: #EDE9FE; color: #5B21B6; }
+.tag-dolor { background: #FEE2E2; color: #991B1B; }
+.tag-animo { background: #FCE7F3; color: #9D174D; }
+.tag-med { background: #DCFCE7; color: #15803D; }
+.tag-presion { background: #FEF9C3; color: #854D0E; }
+.tag-alim { background: #E0F2FE; color: #075985; }
+.tag-mov { background: #F1F5F9; color: #475569; }
+.tag-visita { background: #FED7AA; color: #9A3412; }
+
+.empty { text-align: center; padding: 48px 24px; color: var(--gris-muted); }
+.empty-icon { font-size: 48px; margin-bottom: 12px; }
+.empty-titulo { font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 16px; color: var(--negro); margin-bottom: 6px; }
+
+.nav-bottom { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: #fff; border-top: 1px solid var(--gris-borde); display: flex; padding: 10px 0 20px; z-index: 50; }
+.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 4px 0; font-size: 11px; color: var(--gris-muted); font-weight: 600; }
+.nav-item.activo { color: var(--verde); }
+.nav-icono { font-size: 22px; }
+
+@media (min-width: 480px) { body { border-left: 1px solid var(--gris-borde); border-right: 1px solid var(--gris-borde); } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="btn-back" onclick="window.location.href='home.html'">←</div>
+  <div>
+    <div class="header-titulo">Mis registros</div>
+    <div class="header-sub" id="header-sub">Cargando...</div>
+  </div>
+</div>
+
+<div class="filtros">
+  <div class="filtro-btn activo" onclick="setFiltro('todos', this)">Todos</div>
+  <div class="filtro-btn" onclick="setFiltro('sueno', this)">🌙 Sueño</div>
+  <div class="filtro-btn" onclick="setFiltro('dolor', this)">⚡ Dolor</div>
+  <div class="filtro-btn" onclick="setFiltro('animo', this)">💙 Ánimo</div>
+  <div class="filtro-btn" onclick="setFiltro('med', this)">💊 Medicamentos</div>
+  <div class="filtro-btn" onclick="setFiltro('visita', this)">🩺 Visitas</div>
+</div>
+
+<div class="body" id="body"></div>
+
+<div class="nav-bottom">
+  <div class="nav-item" onclick="window.location.href='home.html'"><div class="nav-icono">🏠</div><span>Inicio</span></div>
+  <div class="nav-item" onclick="window.location.href='calendario.html'"><div class="nav-icono">📅</div><span>Calendario</span></div>
+  <div class="nav-item activo"><div class="nav-icono">📋</div><span>Historial</span></div>
+  <div class="nav-item" onclick="window.location.href='reporte.html'"><div class="nav-icono">📄</div><span>Reporte</span></div>
+</div>
+
+<script>
+const perfil = JSON.parse(localStorage.getItem('misalud_usuario_actual') || 'null');
+if (!perfil) window.location.href = 'index.html';
+
+const NOMBRES_CAT = {
+  sueno: { label: '🌙 Sueño', clase: 'tag-sueno' },
+  dolor: { label: '⚡ Dolor', clase: 'tag-dolor' },
+  animo: { label: '💙 Ánimo', clase: 'tag-animo' },
+  med:   { label: '💊 Medicamentos', clase: 'tag-med' },
+  presion:{ label: '📊 Presión', clase: 'tag-presion' },
+  alim:  { label: '🥗 Alimentación', clase: 'tag-alim' },
+  mov:   { label: '🚶 Movilidad', clase: 'tag-mov' },
+  visita:{ label: '🩺 Visita médica', clase: 'tag-visita' }
+};
+
+let filtroActual = 'todos';
+
+function setFiltro(f, el) {
+  filtroActual = f;
+  document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('activo'));
+  el.classList.add('activo');
+  renderRegistros();
+}
+
+function getRegistros() {
+  const key = 'misalud_registros_' + perfil.id;
+  const todos = JSON.parse(localStorage.getItem(key) || '[]');
+  if (filtroActual === 'todos') return todos;
+  return todos.filter(r => (r.categorias || []).includes(filtroActual));
+}
+
+function fechaLinda(dateStr) {
+  const f = new Date(dateStr);
+  const hoy = new Date();
+  const ayer = new Date(); ayer.setDate(ayer.getDate() - 1);
+  if (f.toDateString() === hoy.toDateString()) return 'Hoy';
+  if (f.toDateString() === ayer.toDateString()) return 'Ayer';
+  return f.toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+
+function renderRegistros() {
+  const regs = getRegistros().reverse();
+  document.getElementById('header-sub').textContent = regs.length + ' registro' + (regs.length !== 1 ? 's' : '');
+
+  const body = document.getElementById('body');
+  if (regs.length === 0) {
+    body.innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">📭</div>
+        <div class="empty-titulo">Sin registros</div>
+        <div>Aún no hay registros en esta categoría</div>
+      </div>`;
+    return;
+  }
+
+  // Agrupar por fecha
+  const grupos = {};
+  regs.forEach(r => {
+    const label = fechaLinda(r.fecha);
+    if (!grupos[label]) grupos[label] = [];
+    grupos[label].push(r);
+  });
+
+  body.innerHTML = Object.entries(grupos).map(([fecha, regsGrupo]) => `
+    <div class="fecha-grupo">
+      <div class="fecha-label">${fecha}</div>
+      ${regsGrupo.map(r => `
+        <div class="reg-item">
+          <div class="reg-meta">
+            <span class="reg-hora">${r.hora}</span>
+            <span class="reg-tipo">${r.tipo === 'checkin' ? '📋 Check-in' : '🎙 Libre'}</span>
+          </div>
+          <div class="reg-texto">"${r.texto}"</div>
+          <div class="reg-tags">
+            ${(r.categorias || []).map(c => `<span class="reg-tag ${NOMBRES_CAT[c]?.clase||''}">${NOMBRES_CAT[c]?.label||c}</span>`).join('')}
+            ${(!r.categorias || r.categorias.length === 0) ? '<span style="font-size:12px;color:#94A3B8;">Sin categorías</span>' : ''}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+renderRegistros();
+</script>
+</body>
+</html>
