@@ -480,13 +480,15 @@ function renderCalendario() {
       </div>
     </div>
     ${diasConRegistro > 0 ? `
-    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--gris-borde);font-size:12px;color:var(--gris-texto);">
-      ${diasConRegistro} días con registro este mes
-      ${stats.verde > diasConRegistro / 2 ? ' · La mayoría de días estuviste bien 💚' : ''}
-      ${stats.rojo >= 3 ? ' · Hubo varios días difíciles este mes' : ''}
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--gris-borde);font-size:12px;color:var(--gris-texto);line-height:1.7;">
+      ${diasConRegistro} día${diasConRegistro!==1?'s':''} con registro este mes 🌿
+      ${stats.verde > diasConRegistro / 2 ? '<br>💚 La mayoría de días te sentiste bien.' : ''}
+      ${stats.rojo >= 3 ? '<br>Hubo algunos días difíciles — esa información ayuda a tu médico.' : ''}
+      ${diasConRegistro < 5 ? '<br>Cada registro que haces es un regalo para tu salud.' : ''}
     </div>` : `
-    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--gris-borde);font-size:12px;color:var(--gris-muted);">
-      Aún no hay registros este mes
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--gris-borde);font-size:12px;color:var(--gris-muted);line-height:1.7;">
+      Aún no hay registros este mes.<br>
+      <span style="color:#22C55E;font-weight:600;">¡No importa cuándo empieces — hoy es un buen día! 🌱</span>
     </div>`}
   `;
 }
