@@ -253,6 +253,11 @@ body {
   </div>
 </div>
 
+<div style="background:#FFF7ED;border-bottom:1px solid #FED7AA;padding:10px 22px;display:flex;align-items:center;gap:8px;" id="aviso-momento">
+  <span style="font-size:16px;" id="aviso-icono">🌅</span>
+  <span style="font-size:13px;color:#9A3412;font-weight:600;" id="aviso-texto">Puedes hacer este check-in en cualquier momento del día</span>
+</div>
+
 <div class="progreso-wrap">
   <div class="progreso-bar">
     <div class="progreso-fill" id="progreso-fill" style="width:0%"></div>
@@ -282,8 +287,22 @@ body {
 const perfil = JSON.parse(localStorage.getItem('misalud_usuario_actual') || 'null');
 if (!perfil) window.location.href = 'index.html';
 
-document.getElementById('header-nombre-sub').textContent =
-  'Hola ' + perfil.nombre.split(' ')[0] + ', ¿cómo amaneciste?';
+const nombreCorto = perfil.nombre.split(' ')[0];
+const horaActual = new Date().getHours();
+let momentoDia = 'mañana';
+let saludoCheckin = '¿cómo amaneciste?';
+let avisoIcono = '🌅';
+let avisoTexto = 'Ideal hacerlo en la mañana, así capturas cómo amaneciste';
+if (horaActual >= 12 && horaActual < 20) {
+  momentoDia = 'tarde'; saludoCheckin = '¿cómo ha estado tu día?';
+  avisoIcono = '☀️'; avisoTexto = 'Check-in de la tarde — cuéntame cómo te fue hoy';
+} else if (horaActual >= 20) {
+  momentoDia = 'noche'; saludoCheckin = '¿cómo estuvo tu día?';
+  avisoIcono = '🌙'; avisoTexto = 'Check-in nocturno — ¿cómo terminó tu día?';
+}
+document.getElementById('header-nombre-sub').textContent = 'Hola ' + nombreCorto + ', ' + saludoCheckin;
+document.getElementById('aviso-icono').textContent = avisoIcono;
+document.getElementById('aviso-texto').textContent = avisoTexto;
 
 // ── PREGUNTAS ─────────────────────────────────────────────────
 const PREGUNTAS = [
@@ -409,7 +428,9 @@ function seleccionarOpcion(idx, valor, textoOp) {
   document.querySelectorAll('.opcion').forEach(o => o.classList.remove('seleccionada'));
   document.getElementById('op-' + idx).classList.add('seleccionada');
   respuestas[p.id] = { valor, texto: textoOp, emoji: p.opciones[idx].emoji };
-  document.getElementById('btn-siguiente').disabled = false;
+  const btn = document.getElementById('btn-siguiente');
+  btn.disabled = false;
+  btn.textContent = preguntaActual === PREGUNTAS.length - 1 ? 'Ver resumen →' : 'Siguiente →';
 
   // Ocultar transcripción si estaba visible
   const tm = document.getElementById('trans-mini');
@@ -423,6 +444,13 @@ function siguiente() {
     window.scrollTo(0, 0);
   } else {
     mostrarResumen();
+  }
+}
+
+function actualizarBotonSiguiente() {
+  const btn = document.getElementById('btn-siguiente');
+  if (btn) {
+    btn.textContent = preguntaActual === PREGUNTAS.length - 1 ? 'Ver resumen →' : 'Siguiente →';
   }
 }
 
@@ -513,9 +541,12 @@ function rehacerVoz() {
 
 // ── RESUMEN ───────────────────────────────────────────────────
 function mostrarResumen() {
-  document.getElementById('pregunta-contenido').style.display = 'none';
-  document.getElementById('nav-btns').style.display = 'none';
-  document.getElementById('progreso-wrap').style.display = 'none';
+  const pc = document.getElementById('pregunta-contenido');
+  const nb = document.getElementById('nav-btns');
+  const pw = document.getElementById('progreso-wrap');
+  if (pc) pc.style.display = 'none';
+  if (nb) nb.style.display = 'none';
+  if (pw) pw.style.display = 'none';
 
   const resumen = document.getElementById('resumen');
   resumen.classList.add('visible');
@@ -613,7 +644,11 @@ function mostrarToast(msg, ok = true) {
 }
 
 // ── INIT ──────────────────────────────────────────────────────
-renderPregunta();
+function renderPreguntaConBoton() {
+  renderPregunta();
+  actualizarBotonSiguiente();
+}
+renderPreguntaConBoton();
 </script>
 </body>
 </html>
