@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MiSalud — Check-in</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --verde: #22C55E;
+  --verde-claro: #DCFCE7;
+  --verde-texto: #15803D;
+  --verde-oscuro: #16A34A;
+  --gris-bg: #F8FAFC;
+  --gris-borde: #E2E8F0;
+  --gris-texto: #64748B;
+  --gris-muted: #94A3B8;
+  --negro: #0F172A;
+  --radio: 20px;
+  --radio-sm: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: 'Nunito Sans', sans-serif;
+  background: var(--gris-bg);
+  color: var(--negro);
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* HEADER */
+.header {
+  background: #fff;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--gris-borde);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.btn-back {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--gris-borde);
+  background: var(--gris-bg);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 18px; flex-shrink: 0;
+}
+.header-info { flex: 1; }
+.header-titulo { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 17px; }
+.header-sub { font-size: 12px; color: var(--gris-texto); margin-top: 2px; }
+
+/* PROGRESO */
+.progreso-wrap { padding: 20px 22px 0; }
+.progreso-bar {
+  height: 6px; background: var(--gris-borde);
+  border-radius: 10px; overflow: hidden; margin-bottom: 8px;
+}
+.progreso-fill {
+  height: 100%; background: var(--verde);
+  border-radius: 10px;
+  transition: width 0.4s ease;
+}
+.progreso-texto { font-size: 12px; color: var(--gris-muted); text-align: right; }
+
+/* PREGUNTA */
+.pregunta-wrap {
+  padding: 24px 22px;
+  animation: slideIn 0.35s ease;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.pregunta-emoji { font-size: 48px; text-align: center; margin-bottom: 16px; }
+.pregunta-texto {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800; font-size: 22px;
+  color: var(--negro); text-align: center;
+  line-height: 1.3; margin-bottom: 8px;
+}
+.pregunta-sub {
+  font-size: 14px; color: var(--gris-texto);
+  text-align: center; margin-bottom: 28px;
+  line-height: 1.5;
+}
+
+/* OPCIONES */
+.opciones { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+.opcion {
+  padding: 16px 20px;
+  border-radius: var(--radio-sm);
+  border: 2px solid var(--gris-borde);
+  background: #fff;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 14px;
+  transition: all 0.15s;
+  min-height: 60px;
+}
+.opcion:active { transform: scale(0.98); }
+.opcion.seleccionada {
+  border-color: var(--verde);
+  background: var(--verde-claro);
+}
+.opcion-emoji { font-size: 24px; flex-shrink: 0; }
+.opcion-texto {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700; font-size: 15px;
+  color: var(--negro);
+}
+.opcion-sub { font-size: 12px; color: var(--gris-texto); margin-top: 2px; }
+.opcion.seleccionada .opcion-texto { color: var(--verde-texto); }
+
+/* VOZ EN CHECK-IN */
+.mic-checkin {
+  background: #fff;
+  border: 2px dashed var(--gris-borde);
+  border-radius: var(--radio-sm);
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-bottom: 10px;
+}
+.mic-checkin:active { transform: scale(0.98); }
+.mic-checkin.grabando {
+  border-color: var(--verde);
+  background: var(--verde-claro);
+}
+.mic-checkin-icono { font-size: 28px; margin-bottom: 6px; }
+.mic-checkin-texto { font-size: 13px; color: var(--gris-texto); font-weight: 600; }
+.mic-checkin.grabando .mic-checkin-texto { color: var(--verde-texto); }
+
+.transcripcion-mini {
+  display: none;
+  background: var(--verde-claro);
+  border: 1.5px solid var(--verde);
+  border-radius: var(--radio-sm);
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+.transcripcion-mini.visible { display: block; }
+.trans-mini-label { font-size: 11px; font-weight: 700; color: var(--verde-texto); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+.trans-mini-texto {
+  font-size: 14px; color: var(--negro);
+  border: none; background: transparent;
+  width: 100%; outline: none;
+  font-family: 'Nunito Sans', sans-serif;
+  resize: none;
+}
+.trans-mini-acciones { display: flex; gap: 8px; margin-top: 8px; }
+.btn-usar { flex: 1; padding: 10px; border-radius: 8px; border: none; background: var(--verde); color: #fff; font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 13px; cursor: pointer; }
+.btn-rehace { padding: 10px 14px; border-radius: 8px; border: 1.5px solid var(--gris-borde); background: #fff; color: var(--gris-texto); font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 13px; cursor: pointer; }
+
+/* BOTONES NAVEGACIÓN */
+.nav-btns {
+  display: flex; gap: 10px;
+  padding: 0 22px 32px;
+}
+.btn-siguiente {
+  flex: 1; padding: 16px;
+  border-radius: var(--radio-sm); border: none;
+  background: var(--verde); color: #fff;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800; font-size: 17px;
+  cursor: pointer; transition: all 0.15s;
+  min-height: 56px;
+}
+.btn-siguiente:hover { background: var(--verde-oscuro); }
+.btn-siguiente:disabled { background: var(--gris-borde); color: var(--gris-muted); cursor: not-allowed; }
+.btn-saltar {
+  padding: 16px 18px;
+  border-radius: var(--radio-sm);
+  border: 1.5px solid var(--gris-borde);
+  background: #fff; color: var(--gris-texto);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700; font-size: 14px;
+  cursor: pointer; min-height: 56px;
+}
+
+/* RESUMEN FINAL */
+.resumen {
+  display: none;
+  padding: 24px 22px;
+  animation: slideIn 0.35s ease;
+}
+.resumen.visible { display: block; }
+.resumen-titulo {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 900; font-size: 24px;
+  text-align: center; margin-bottom: 6px;
+}
+.resumen-sub { font-size: 14px; color: var(--gris-texto); text-align: center; margin-bottom: 24px; }
+.resumen-items { margin-bottom: 24px; }
+.resumen-item {
+  background: #fff;
+  border: 1px solid var(--gris-borde);
+  border-radius: var(--radio-sm);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.resumen-item-emoji { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+.resumen-item-texto {}
+.resumen-pregunta { font-size: 12px; color: var(--gris-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 2px; }
+.resumen-respuesta { font-size: 14px; color: var(--negro); font-weight: 600; }
+.btn-guardar-todo {
+  width: 100%; padding: 18px;
+  border-radius: var(--radio-sm); border: none;
+  background: var(--verde); color: #fff;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800; font-size: 18px;
+  cursor: pointer; transition: all 0.15s;
+  margin-bottom: 10px;
+}
+.btn-guardar-todo:hover { background: var(--verde-oscuro); }
+.btn-volver-editar {
+  width: 100%; padding: 14px;
+  border-radius: var(--radio-sm);
+  border: 1.5px solid var(--gris-borde);
+  background: #fff; color: var(--gris-texto);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700; font-size: 14px;
+  cursor: pointer;
+}
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--negro); color: #fff;
+  padding: 14px 22px; border-radius: 14px;
+  font-size: 14px; font-weight: 600;
+  opacity: 0; transition: all 0.3s; z-index: 200;
+  white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.toast.verde { background: var(--verde-oscuro); }
+
+@media (min-width: 480px) {
+  body { border-left: 1px solid var(--gris-borde); border-right: 1px solid var(--gris-borde); }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="btn-back" onclick="window.location.href='home.html'">←</div>
+  <div class="header-info">
+    <div class="header-titulo">Check-in de hoy</div>
+    <div class="header-sub" id="header-nombre-sub">Cuéntame cómo estás</div>
+  </div>
+</div>
+
+<div class="progreso-wrap">
+  <div class="progreso-bar">
+    <div class="progreso-fill" id="progreso-fill" style="width:0%"></div>
+  </div>
+  <div class="progreso-texto" id="progreso-texto">Pregunta 1 de 4</div>
+</div>
+
+<div id="pregunta-contenido"></div>
+
+<div class="nav-btns" id="nav-btns">
+  <button class="btn-saltar" onclick="saltar()">Saltar</button>
+  <button class="btn-siguiente" id="btn-siguiente" onclick="siguiente()" disabled>Siguiente →</button>
+</div>
+
+<div class="resumen" id="resumen">
+  <div style="font-size:52px;text-align:center;margin-bottom:16px;">✅</div>
+  <div class="resumen-titulo">¡Check-in listo!</div>
+  <div class="resumen-sub">Así quedaron tus respuestas de hoy</div>
+  <div class="resumen-items" id="resumen-items"></div>
+  <button class="btn-guardar-todo" onclick="guardarTodo()">Guardar y volver al inicio</button>
+  <button class="btn-volver-editar" onclick="volverEditar()">Revisar respuestas</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const perfil = JSON.parse(localStorage.getItem('misalud_usuario_actual') || 'null');
+if (!perfil) window.location.href = 'index.html';
+
+document.getElementById('header-nombre-sub').textContent =
+  'Hola ' + perfil.nombre.split(' ')[0] + ', ¿cómo amaneciste?';
+
+// ── PREGUNTAS ─────────────────────────────────────────────────
+const PREGUNTAS = [
+  {
+    id: 'sueno',
+    emoji: '🌙',
+    texto: '¿Cómo dormiste anoche?',
+    sub: 'Cuéntame o elige una opción',
+    tipo: 'opciones',
+    opciones: [
+      { emoji: '😴', texto: 'Dormí muy bien', sub: 'Descansé de corrido', valor: 'bien', color: 'verde' },
+      { emoji: '😐', texto: 'Más o menos', sub: 'Algunos despertares', valor: 'regular', color: 'amarillo' },
+      { emoji: '😫', texto: 'Dormí mal', sub: 'Me desperté varias veces', valor: 'mal', color: 'naranja' },
+      { emoji: '😰', texto: 'No pude dormir', sub: 'Insomnio o pesadillas', valor: 'muy_mal', color: 'rojo' },
+    ]
+  },
+  {
+    id: 'dolor',
+    emoji: '⚡',
+    texto: '¿Tienes algún dolor hoy?',
+    sub: 'Dónde te duele o cómo te sientes físicamente',
+    tipo: 'mixto',
+    opciones: [
+      { emoji: '✅', texto: 'No tengo dolor', sub: 'Me siento bien físicamente', valor: 'sin_dolor', color: 'verde' },
+      { emoji: '😬', texto: 'Dolor leve', sub: 'Molestia que puedo manejar', valor: 'leve', color: 'amarillo' },
+      { emoji: '😣', texto: 'Dolor moderado', sub: 'Me limita un poco', valor: 'moderado', color: 'naranja' },
+      { emoji: '😭', texto: 'Dolor fuerte', sub: 'Me cuesta hacer cosas', valor: 'fuerte', color: 'rojo' },
+    ]
+  },
+  {
+    id: 'animo',
+    emoji: '💙',
+    texto: '¿Cómo está tu ánimo?',
+    sub: 'Cómo te sientes emocionalmente hoy',
+    tipo: 'opciones',
+    opciones: [
+      { emoji: '😊', texto: 'Bien, tranquila', sub: 'Me siento en paz', valor: 'bien', color: 'verde' },
+      { emoji: '😌', texto: 'Regular nomás', sub: 'Ni bien ni mal', valor: 'regular', color: 'amarillo' },
+      { emoji: '😔', texto: 'Un poco triste', sub: 'Decaída o con poca energía', valor: 'triste', color: 'naranja' },
+      { emoji: '😢', texto: 'Muy mal', sub: 'Ansiosa, angustiada o muy triste', valor: 'muy_mal', color: 'rojo' },
+    ]
+  },
+  {
+    id: 'medicamentos',
+    emoji: '💊',
+    texto: '¿Tomaste tus medicamentos?',
+    sub: 'Los remedios de hoy',
+    tipo: 'opciones',
+    opciones: [
+      { emoji: '✅', texto: 'Sí, todos', sub: 'Tomé todo lo que correspondía', valor: 'todos', color: 'verde' },
+      { emoji: '🤔', texto: 'Solo algunos', sub: 'Me faltó tomar alguno', valor: 'algunos', color: 'amarillo' },
+      { emoji: '❌', texto: 'No tomé nada', sub: 'Se me olvidó o no los tenía', valor: 'ninguno', color: 'rojo' },
+      { emoji: '💬', texto: 'Me cambiaron la dosis', sub: 'Cambio reciente de tratamiento', valor: 'cambio', color: 'amarillo' },
+    ]
+  }
+];
+
+// ── ESTADO ────────────────────────────────────────────────────
+let preguntaActual = 0;
+let respuestas = {};
+let recognition = null;
+let grabandoCheckin = false;
+let textoVozCheckin = '';
+
+// ── RENDER ────────────────────────────────────────────────────
+function renderPregunta() {
+  const p = PREGUNTAS[preguntaActual];
+  const pct = (preguntaActual / PREGUNTAS.length) * 100;
+  document.getElementById('progreso-fill').style.width = pct + '%';
+  document.getElementById('progreso-texto').textContent =
+    'Pregunta ' + (preguntaActual + 1) + ' de ' + PREGUNTAS.length;
+
+  const cont = document.getElementById('pregunta-contenido');
+  cont.innerHTML = `
+    <div class="pregunta-wrap">
+      <div class="pregunta-emoji">${p.emoji}</div>
+      <div class="pregunta-texto">${p.texto}</div>
+      <div class="pregunta-sub">${p.sub}</div>
+
+      <div class="opciones" id="opciones-cont">
+        ${p.opciones.map((o, i) => `
+          <div class="opcion" id="op-${i}" onclick="seleccionarOpcion(${i}, '${o.valor}', '${o.texto}')">
+            <span class="opcion-emoji">${o.emoji}</span>
+            <div>
+              <div class="opcion-texto">${o.texto}</div>
+              <div class="opcion-sub">${o.sub}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      ${p.tipo === 'mixto' ? `
+      <div class="mic-checkin" id="mic-checkin-btn" onclick="toggleMicCheckin()">
+        <div class="mic-checkin-icono">🎙️</div>
+        <div class="mic-checkin-texto">O toca aquí para describir con tu voz</div>
+      </div>
+      <div class="transcripcion-mini" id="trans-mini">
+        <div class="trans-mini-label">Esto es lo que escuché</div>
+        <textarea class="trans-mini-texto" id="trans-mini-texto" rows="2"></textarea>
+        <div class="trans-mini-acciones">
+          <button class="btn-usar" onclick="usarTranscripcionCheckin()">✓ Usar esta respuesta</button>
+          <button class="btn-rehace" onclick="rehacerVoz()">Repetir</button>
+        </div>
+      </div>
+      ` : ''}
+    </div>
+  `;
+
+  // Restaurar selección si ya respondió
+  if (respuestas[p.id]) {
+    const idx = p.opciones.findIndex(o => o.valor === respuestas[p.id].valor);
+    if (idx >= 0) {
+      document.getElementById('op-' + idx)?.classList.add('seleccionada');
+    }
+    document.getElementById('btn-siguiente').disabled = false;
+  } else {
+    document.getElementById('btn-siguiente').disabled = true;
+  }
+}
+
+function seleccionarOpcion(idx, valor, textoOp) {
+  const p = PREGUNTAS[preguntaActual];
+  document.querySelectorAll('.opcion').forEach(o => o.classList.remove('seleccionada'));
+  document.getElementById('op-' + idx).classList.add('seleccionada');
+  respuestas[p.id] = { valor, texto: textoOp, emoji: p.opciones[idx].emoji };
+  document.getElementById('btn-siguiente').disabled = false;
+
+  // Ocultar transcripción si estaba visible
+  const tm = document.getElementById('trans-mini');
+  if (tm) tm.classList.remove('visible');
+}
+
+function siguiente() {
+  if (preguntaActual < PREGUNTAS.length - 1) {
+    preguntaActual++;
+    renderPregunta();
+    window.scrollTo(0, 0);
+  } else {
+    mostrarResumen();
+  }
+}
+
+function saltar() {
+  const p = PREGUNTAS[preguntaActual];
+  respuestas[p.id] = { valor: 'saltada', texto: 'Sin respuesta', emoji: '—' };
+  siguiente();
+}
+
+// ── VOZ EN CHECK-IN ───────────────────────────────────────────
+function toggleMicCheckin() {
+  if (grabandoCheckin) detenerMicCheckin();
+  else iniciarMicCheckin();
+}
+
+function iniciarMicCheckin() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { alert('Usa Chrome para el micrófono'); return; }
+
+  grabandoCheckin = true;
+  textoVozCheckin = '';
+
+  const btn = document.getElementById('mic-checkin-btn');
+  btn.classList.add('grabando');
+  btn.querySelector('.mic-checkin-icono').textContent = '⏹️';
+  btn.querySelector('.mic-checkin-texto').textContent = 'Escuchando... toca para detener';
+
+  recognition = new SR();
+  recognition.lang = 'es-CL';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  recognition.onresult = (e) => {
+    textoVozCheckin = e.results[0][0].transcript;
+  };
+
+  recognition.onend = () => {
+    grabandoCheckin = false;
+    const btn = document.getElementById('mic-checkin-btn');
+    if (btn) {
+      btn.classList.remove('grabando');
+      btn.querySelector('.mic-checkin-icono').textContent = '🎙️';
+      btn.querySelector('.mic-checkin-texto').textContent = 'O toca aquí para describir con tu voz';
+    }
+    if (textoVozCheckin) {
+      const tm = document.getElementById('trans-mini');
+      const tt = document.getElementById('trans-mini-texto');
+      if (tm && tt) {
+        tt.value = textoVozCheckin;
+        tm.classList.add('visible');
+      }
+    }
+  };
+
+  recognition.onerror = () => {
+    grabandoCheckin = false;
+    const btn = document.getElementById('mic-checkin-btn');
+    if (btn) {
+      btn.classList.remove('grabando');
+      btn.querySelector('.mic-checkin-icono').textContent = '🎙️';
+      btn.querySelector('.mic-checkin-texto').textContent = 'O toca aquí para describir con tu voz';
+    }
+  };
+
+  recognition.start();
+}
+
+function detenerMicCheckin() {
+  grabandoCheckin = false;
+  if (recognition) { try { recognition.stop(); } catch(e) {} }
+}
+
+function usarTranscripcionCheckin() {
+  const texto = document.getElementById('trans-mini-texto').value.trim();
+  if (!texto) return;
+  const p = PREGUNTAS[preguntaActual];
+  respuestas[p.id] = { valor: 'voz', texto: texto, emoji: '🎙️' };
+  document.getElementById('trans-mini').classList.remove('visible');
+  document.querySelectorAll('.opcion').forEach(o => o.classList.remove('seleccionada'));
+  document.getElementById('btn-siguiente').disabled = false;
+  mostrarToast('✓ Respuesta guardada', true);
+}
+
+function rehacerVoz() {
+  document.getElementById('trans-mini').classList.remove('visible');
+  textoVozCheckin = '';
+}
+
+// ── RESUMEN ───────────────────────────────────────────────────
+function mostrarResumen() {
+  document.getElementById('pregunta-contenido').style.display = 'none';
+  document.getElementById('nav-btns').style.display = 'none';
+  document.getElementById('progreso-wrap').style.display = 'none';
+
+  const resumen = document.getElementById('resumen');
+  resumen.classList.add('visible');
+
+  const items = document.getElementById('resumen-items');
+  items.innerHTML = PREGUNTAS.map(p => {
+    const r = respuestas[p.id];
+    if (!r || r.valor === 'saltada') return `
+      <div class="resumen-item">
+        <div class="resumen-item-emoji">${p.emoji}</div>
+        <div class="resumen-item-texto">
+          <div class="resumen-pregunta">${p.texto}</div>
+          <div class="resumen-respuesta" style="color:var(--gris-muted)">Sin respuesta</div>
+        </div>
+      </div>`;
+    return `
+      <div class="resumen-item">
+        <div class="resumen-item-emoji">${r.emoji}</div>
+        <div class="resumen-item-texto">
+          <div class="resumen-pregunta">${p.texto}</div>
+          <div class="resumen-respuesta">${r.texto}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('progreso-fill').style.width = '100%';
+  window.scrollTo(0, 0);
+}
+
+function volverEditar() {
+  preguntaActual = 0;
+  document.getElementById('resumen').classList.remove('visible');
+  document.getElementById('pregunta-contenido').style.display = 'block';
+  document.getElementById('nav-btns').style.display = 'flex';
+  document.getElementById('progreso-wrap').style.display = 'block';
+  renderPregunta();
+}
+
+// ── GUARDAR TODO ──────────────────────────────────────────────
+function evaluarDia(registros) {
+  const vals = Object.values(respuestas).map(r => r.valor);
+  if (vals.includes('muy_mal') || vals.includes('fuerte')) return 'rojo';
+  if (vals.includes('mal') || vals.includes('moderado') || vals.includes('triste')) return 'naranja';
+  if (vals.includes('regular') || vals.includes('leve') || vals.includes('algunos')) return 'amarillo';
+  if (vals.includes('ninguno')) return 'rojo';
+  return 'verde';
+}
+
+function guardarTodo() {
+  const ahora = new Date();
+  const fechaStr = ahora.toDateString();
+  const hora = ahora.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+
+  // Construir texto resumen del check-in
+  const textoResumen = PREGUNTAS
+    .filter(p => respuestas[p.id] && respuestas[p.id].valor !== 'saltada')
+    .map(p => p.texto + ': ' + respuestas[p.id].texto)
+    .join('. ');
+
+  const registro = {
+    id: Date.now(),
+    texto: textoResumen,
+    categorias: ['sueno','dolor','animo','med'].filter(c => {
+      const r = respuestas[c];
+      return r && r.valor !== 'saltada' && r.valor !== 'bien' && r.valor !== 'todos' && r.valor !== 'sin_dolor';
+    }),
+    hora,
+    fecha: fechaStr,
+    tipo: 'checkin',
+    detalle: respuestas
+  };
+
+  // Guardar registro
+  const key = 'misalud_registros_' + perfil.id;
+  const registros = JSON.parse(localStorage.getItem(key) || '[]');
+  registros.push(registro);
+  localStorage.setItem(key, JSON.stringify(registros));
+
+  // Marcar check-in como completado hoy
+  localStorage.setItem('misalud_checkin_' + perfil.id + '_' + fechaStr, '1');
+
+  // Color del día
+  const colorDia = evaluarDia(registros);
+  localStorage.setItem('misalud_dia_' + perfil.id + '_' + fechaStr, colorDia);
+
+  mostrarToast('✓ Check-in guardado', true);
+  setTimeout(() => window.location.href = 'home.html', 1200);
+}
+
+function mostrarToast(msg, ok = true) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (ok ? ' verde' : '') + ' show';
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+renderPregunta();
+</script>
+</body>
+</html>
