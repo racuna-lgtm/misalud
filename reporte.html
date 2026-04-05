@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MiSalud — Reporte médico</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --verde: #22C55E;
+  --verde-claro: #DCFCE7;
+  --verde-texto: #15803D;
+  --verde-oscuro: #16A34A;
+  --amarillo: #FEF9C3;
+  --amarillo-texto: #854D0E;
+  --naranja: #FED7AA;
+  --naranja-texto: #9A3412;
+  --rojo: #FEE2E2;
+  --rojo-texto: #991B1B;
+  --azul: #EFF6FF;
+  --azul-texto: #1D4ED8;
+  --gris-bg: #F8FAFC;
+  --gris-borde: #E2E8F0;
+  --gris-texto: #64748B;
+  --gris-muted: #94A3B8;
+  --negro: #0F172A;
+  --radio: 16px;
+  --radio-sm: 10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: 'Nunito Sans', sans-serif;
+  background: var(--gris-bg);
+  color: var(--negro);
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  padding-bottom: 100px;
+}
+
+.header {
+  background: #fff;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--gris-borde);
+  display: flex; align-items: center; gap: 14px;
+  position: sticky; top: 0; z-index: 50;
+}
+.btn-back {
+  width: 40px; height: 40px; border-radius: 12px;
+  border: 1px solid var(--gris-borde); background: var(--gris-bg);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 18px; flex-shrink: 0;
+}
+.header-info { flex: 1; }
+.header-titulo { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 17px; }
+.header-sub { font-size: 12px; color: var(--gris-texto); margin-top: 2px; }
+.btn-imprimir {
+  padding: 8px 14px; border-radius: 10px;
+  border: 1.5px solid var(--verde);
+  background: var(--verde-claro); color: var(--verde-texto);
+  font-family: 'Nunito', sans-serif; font-weight: 700;
+  font-size: 13px; cursor: pointer; white-space: nowrap;
+}
+
+.body { padding: 18px 16px; }
+
+/* SELECTOR PERÍODO */
+.periodo-wrap {
+  background: #fff;
+  border-radius: var(--radio);
+  border: 1px solid var(--gris-borde);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.periodo-titulo { font-size: 12px; font-weight: 700; color: var(--gris-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+.periodo-btns { display: flex; gap: 8px; }
+.periodo-btn {
+  flex: 1; padding: 10px 6px;
+  border-radius: var(--radio-sm);
+  border: 1.5px solid var(--gris-borde);
+  background: #fff; color: var(--gris-texto);
+  font-family: 'Nunito', sans-serif; font-weight: 700;
+  font-size: 13px; cursor: pointer; text-align: center;
+  transition: all 0.15s;
+}
+.periodo-btn.activo {
+  border-color: var(--verde);
+  background: var(--verde-claro);
+  color: var(--verde-texto);
+}
+
+/* TARJETA PACIENTE */
+.paciente-card {
+  background: #fff;
+  border-radius: var(--radio);
+  border: 1px solid var(--gris-borde);
+  padding: 18px;
+  margin-bottom: 16px;
+}
+.paciente-header { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+.paciente-avatar {
+  width: 52px; height: 52px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 18px;
+  flex-shrink: 0;
+}
+.paciente-nombre { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 17px; }
+.paciente-datos { font-size: 13px; color: var(--gris-texto); margin-top: 3px; }
+.paciente-badge {
+  font-size: 11px; font-weight: 700; padding: 3px 10px;
+  border-radius: 20px; margin-left: auto; flex-shrink: 0;
+}
+.paciente-condiciones { display: flex; flex-wrap: wrap; gap: 6px; }
+.cond-tag {
+  font-size: 11px; font-weight: 600;
+  background: var(--azul); color: var(--azul-texto);
+  padding: 3px 10px; border-radius: 20px;
+}
+.paciente-nota {
+  margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid var(--gris-borde);
+  font-size: 13px; color: var(--gris-texto); line-height: 1.6;
+}
+
+/* MÉTRICAS RÁPIDAS */
+.metricas-titulo {
+  font-family: 'Nunito', sans-serif; font-weight: 800;
+  font-size: 15px; color: var(--negro);
+  margin-bottom: 10px;
+}
+.metricas-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
+.metrica {
+  background: #fff; border-radius: var(--radio);
+  border: 1px solid var(--gris-borde);
+  padding: 14px 16px;
+}
+.metrica-num {
+  font-family: 'Nunito', sans-serif; font-weight: 900;
+  font-size: 28px; line-height: 1;
+}
+.metrica-label { font-size: 12px; color: var(--gris-texto); margin-top: 4px; font-weight: 600; }
+.metrica-sub { font-size: 11px; color: var(--gris-muted); margin-top: 2px; }
+
+/* MINICALENDARIO */
+.mini-cal-wrap {
+  background: #fff; border-radius: var(--radio);
+  border: 1px solid var(--gris-borde);
+  padding: 16px; margin-bottom: 16px;
+}
+.mini-cal-titulo { font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 14px; margin-bottom: 10px; }
+.mini-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.mini-dia {
+  aspect-ratio: 1; border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700;
+}
+.mini-dia.verde { background: #DCFCE7; color: #15803D; }
+.mini-dia.verde-mid { background: #BBF7D0; color: #15803D; }
+.mini-dia.amarillo { background: #FEF9C3; color: #854D0E; }
+.mini-dia.naranja { background: #FED7AA; color: #9A3412; }
+.mini-dia.rojo { background: #FEE2E2; color: #991B1B; }
+.mini-dia.sin { background: #F1F5F9; color: #CBD5E1; }
+.mini-dia.vacio { background: transparent; }
+.mini-dia.futuro { background: transparent; color: #E2E8F0; }
+
+/* CATEGORÍAS FRECUENCIA */
+.frec-wrap {
+  background: #fff; border-radius: var(--radio);
+  border: 1px solid var(--gris-borde);
+  padding: 16px; margin-bottom: 16px;
+}
+.frec-titulo { font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 14px; margin-bottom: 12px; }
+.frec-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.frec-label { font-size: 13px; font-weight: 600; color: var(--negro); width: 130px; flex-shrink: 0; }
+.frec-bar-wrap { flex: 1; height: 10px; background: var(--gris-bg); border-radius: 10px; overflow: hidden; }
+.frec-bar { height: 100%; border-radius: 10px; transition: width 0.6s ease; }
+.frec-num { font-size: 12px; font-weight: 700; color: var(--gris-texto); width: 30px; text-align: right; flex-shrink: 0; }
+
+/* REGISTROS RECIENTES */
+.registros-wrap {
+  background: #fff; border-radius: var(--radio);
+  border: 1px solid var(--gris-borde);
+  padding: 16px; margin-bottom: 16px;
+}
+.registros-titulo { font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 14px; margin-bottom: 12px; }
+.reg-item {
+  border-bottom: 1px solid var(--gris-borde);
+  padding: 10px 0;
+}
+.reg-item:last-child { border-bottom: none; padding-bottom: 0; }
+.reg-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.reg-fecha-hora { font-size: 11px; color: var(--gris-muted); font-weight: 600; }
+.reg-tipo { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 8px; background: var(--gris-bg); color: var(--gris-texto); }
+.reg-texto { font-size: 13px; color: var(--negro); line-height: 1.5; margin-bottom: 6px; }
+.reg-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.reg-tag { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 8px; }
+.tag-sueno { background: #EDE9FE; color: #5B21B6; }
+.tag-dolor { background: #FEE2E2; color: #991B1B; }
+.tag-animo { background: #FCE7F3; color: #9D174D; }
+.tag-med { background: #DCFCE7; color: #15803D; }
+.tag-presion { background: #FEF9C3; color: #854D0E; }
+.tag-alim { background: #E0F2FE; color: #075985; }
+.tag-mov { background: #F1F5F9; color: #475569; }
+.tag-visita { background: #FED7AA; color: #9A3412; }
+
+/* BTN COMPARTIR */
+.btns-compartir { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.btn-compartir {
+  width: 100%; padding: 16px;
+  border-radius: var(--radio-sm); border: none;
+  font-family: 'Nunito', sans-serif; font-weight: 800;
+  font-size: 16px; cursor: pointer; transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-imprimir-grande { background: var(--negro); color: #fff; }
+.btn-imprimir-grande:hover { background: #1E293B; }
+.btn-copiar { background: var(--verde-claro); color: var(--verde-texto); border: 1.5px solid var(--verde); }
+
+/* NOTA MEDICA */
+.nota-medica {
+  background: var(--azul); border-radius: var(--radio);
+  border: 1px solid #BFDBFE; padding: 14px 16px;
+  font-size: 13px; color: var(--azul-texto); line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+/* NAV BOTTOM */
+.nav-bottom {
+  position: fixed; bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 100%; max-width: 480px;
+  background: #fff; border-top: 1px solid var(--gris-borde);
+  display: flex; padding: 10px 0 20px; z-index: 50;
+}
+.nav-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; gap: 4px; cursor: pointer;
+  padding: 4px 0; font-size: 11px; color: var(--gris-muted); font-weight: 600;
+}
+.nav-item.activo { color: var(--verde); }
+.nav-icono { font-size: 22px; }
+
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--negro); color: #fff;
+  padding: 14px 22px; border-radius: 14px;
+  font-size: 14px; font-weight: 600;
+  opacity: 0; transition: all 0.3s; z-index: 200;
+  white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.toast.verde { background: var(--verde-oscuro); }
+
+/* PRINT */
+@media print {
+  .header, .nav-bottom, .btns-compartir, .periodo-wrap, .toast { display: none !important; }
+  body { max-width: 100%; padding: 0; background: #fff; }
+  .body { padding: 0; }
+  .paciente-card, .metricas-grid .metrica, .mini-cal-wrap, .frec-wrap, .registros-wrap {
+    break-inside: avoid; box-shadow: none;
+  }
+}
+
+@media (min-width: 480px) {
+  body { border-left: 1px solid var(--gris-borde); border-right: 1px solid var(--gris-borde); }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="btn-back" onclick="window.location.href='home.html'">←</div>
+  <div class="header-info">
+    <div class="header-titulo">Reporte médico</div>
+    <div class="header-sub" id="header-sub">Para mostrar al doctor</div>
+  </div>
+  <button class="btn-imprimir" onclick="window.print()">🖨 Imprimir</button>
+</div>
+
+<div class="body">
+
+  <!-- PERÍODO -->
+  <div class="periodo-wrap">
+    <div class="periodo-titulo">Período del reporte</div>
+    <div class="periodo-btns">
+      <div class="periodo-btn" onclick="setPeriodo(7, this)">7 días</div>
+      <div class="periodo-btn activo" onclick="setPeriodo(30, this)">30 días</div>
+      <div class="periodo-btn" onclick="setPeriodo(90, this)">3 meses</div>
+      <div class="periodo-btn" onclick="setPeriodo(0, this)">Todo</div>
+    </div>
+  </div>
+
+  <!-- PACIENTE -->
+  <div class="paciente-card" id="paciente-card"></div>
+
+  <!-- MÉTRICAS -->
+  <div class="metricas-titulo">Resumen del período</div>
+  <div class="metricas-grid" id="metricas-grid"></div>
+
+  <!-- MINI CALENDARIO -->
+  <div class="mini-cal-wrap" id="mini-cal-wrap"></div>
+
+  <!-- FRECUENCIA CATEGORÍAS -->
+  <div class="frec-wrap" id="frec-wrap"></div>
+
+  <!-- REGISTROS -->
+  <div class="registros-wrap" id="registros-wrap"></div>
+
+  <!-- NOTA -->
+  <div class="nota-medica">
+    📋 <strong>Nota para el médico:</strong> Este reporte fue generado automáticamente por MiSalud, una app de seguimiento de salud personal. Los registros son autoreportados por el paciente mediante voz o texto. No reemplaza la evaluación clínica profesional.
+  </div>
+
+  <!-- COMPARTIR -->
+  <div class="btns-compartir">
+    <button class="btn-compartir btn-imprimir-grande" onclick="window.print()">
+      🖨️ Imprimir reporte
+    </button>
+    <button class="btn-compartir btn-copiar" onclick="copiarResumen()">
+      📋 Copiar resumen de texto
+    </button>
+  </div>
+
+</div>
+
+<div class="nav-bottom">
+  <div class="nav-item" onclick="window.location.href='home.html'"><div class="nav-icono">🏠</div><span>Inicio</span></div>
+  <div class="nav-item" onclick="window.location.href='calendario.html'"><div class="nav-icono">📅</div><span>Calendario</span></div>
+  <div class="nav-item" onclick="window.location.href='historial.html'"><div class="nav-icono">📋</div><span>Historial</span></div>
+  <div class="nav-item activo"><div class="nav-icono">📄</div><span>Reporte</span></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const perfil = JSON.parse(localStorage.getItem('misalud_usuario_actual') || 'null');
+if (!perfil) window.location.href = 'index.html';
+
+const NOMBRES_CAT = {
+  sueno: { label: '🌙 Sueño', clase: 'tag-sueno', color: '#7C3AED' },
+  dolor: { label: '⚡ Dolor', clase: 'tag-dolor', color: '#DC2626' },
+  animo: { label: '💙 Ánimo', clase: 'tag-animo', color: '#DB2777' },
+  med:   { label: '💊 Medicamentos', clase: 'tag-med', color: '#16A34A' },
+  presion:{ label: '📊 Presión', clase: 'tag-presion', color: '#B45309' },
+  alim:  { label: '🥗 Alimentación', clase: 'tag-alim', color: '#0369A1' },
+  mov:   { label: '🚶 Movilidad', clase: 'tag-mov', color: '#475569' },
+  visita:{ label: '🩺 Visita médica', clase: 'tag-visita', color: '#9A3412' }
+};
+
+const COLORES_AVATAR = [
+  ['#DBEAFE','#1D4ED8'],['#DCFCE7','#15803D'],['#FCE7F3','#9D174D'],
+  ['#FEF9C3','#854D0E'],['#EDE9FE','#5B21B6'],['#FFEDD5','#9A3412']
+];
+
+const perfiles = JSON.parse(localStorage.getItem('misalud_perfiles') || '[]');
+const idxPerfil = Math.max(0, perfiles.findIndex(p => p.id === perfil.id));
+const [bgAv, textAv] = COLORES_AVATAR[idxPerfil % COLORES_AVATAR.length];
+
+function iniciales(n) { return n.split(' ').map(p=>p[0]).join('').substring(0,2).toUpperCase(); }
+
+let diasPeriodo = 30;
+
+function setPeriodo(dias, el) {
+  diasPeriodo = dias;
+  document.querySelectorAll('.periodo-btn').forEach(b => b.classList.remove('activo'));
+  el.classList.add('activo');
+  renderReporte();
+}
+
+function getRegistros() {
+  const key = 'misalud_registros_' + perfil.id;
+  const todos = JSON.parse(localStorage.getItem(key) || '[]');
+  if (diasPeriodo === 0) return todos;
+  const desde = new Date();
+  desde.setDate(desde.getDate() - diasPeriodo);
+  return todos.filter(r => new Date(r.fecha) >= desde);
+}
+
+function getColorDia(fecha) {
+  return localStorage.getItem('misalud_dia_' + perfil.id + '_' + fecha.toDateString()) || null;
+}
+
+function renderReporte() {
+  const regs = getRegistros();
+  const hoy = new Date();
+
+  // ── PACIENTE ──────────────────────────────────────────────
+  const sexoLabel = perfil.sexo === 'f' ? '♀ Mujer' : '♂ Hombre';
+  const sexoBg = perfil.sexo === 'f' ? '#FCE7F3' : '#EFF6FF';
+  const sexoColor = perfil.sexo === 'f' ? '#9D174D' : '#1D4ED8';
+  const condsMostrar = (perfil.condiciones || []).slice(0,6);
+  const restoC = (perfil.condiciones || []).length - 6;
+  const periodoTexto = diasPeriodo === 0 ? 'historial completo' :
+    diasPeriodo === 7 ? 'últimos 7 días' :
+    diasPeriodo === 30 ? 'últimos 30 días' : 'últimos 3 meses';
+
+  document.getElementById('header-sub').textContent = periodoTexto.charAt(0).toUpperCase() + periodoTexto.slice(1);
+
+  document.getElementById('paciente-card').innerHTML = `
+    <div class="paciente-header">
+      <div class="paciente-avatar" style="background:${bgAv};color:${textAv}">${iniciales(perfil.nombre)}</div>
+      <div style="flex:1;">
+        <div class="paciente-nombre">${perfil.nombre}</div>
+        <div class="paciente-datos">${perfil.edad} años · ${perfil.relacion || ''}</div>
+      </div>
+      <div class="paciente-badge" style="background:${sexoBg};color:${sexoColor}">${sexoLabel}</div>
+    </div>
+    ${condsMostrar.length > 0 ? `
+    <div class="paciente-condiciones">
+      ${condsMostrar.map(c => `<span class="cond-tag">${c}</span>`).join('')}
+      ${restoC > 0 ? `<span class="cond-tag">+${restoC} más</span>` : ''}
+    </div>` : ''}
+    ${perfil.notas ? `<div class="paciente-nota">📝 ${perfil.notas}</div>` : ''}
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--gris-borde);font-size:12px;color:var(--gris-muted);">
+      Reporte generado el ${hoy.toLocaleDateString('es-CL', {weekday:'long',day:'numeric',month:'long',year:'numeric'})}
+      · Período: ${periodoTexto}
+    </div>
+  `;
+
+  // ── MÉTRICAS ──────────────────────────────────────────────
+  const totalDias = diasPeriodo === 0 ? 90 : diasPeriodo;
+  let cDias = { verde: 0, 'verde-mid': 0, amarillo: 0, naranja: 0, rojo: 0 };
+  for (let i = 0; i < totalDias; i++) {
+    const f = new Date(); f.setDate(f.getDate() - i);
+    const c = getColorDia(f);
+    if (c && cDias[c] !== undefined) cDias[c]++;
+  }
+  const diasBuenos = cDias.verde + cDias['verde-mid'];
+  const diasMalos = cDias.naranja + cDias.rojo;
+  const diasReg = cDias.amarillo;
+  const totalConRegistro = diasBuenos + diasMalos + diasReg;
+  const pctBuenos = totalConRegistro > 0 ? Math.round(diasBuenos / totalConRegistro * 100) : 0;
+
+  const catConteo = {};
+  regs.forEach(r => (r.categorias || []).forEach(c => { catConteo[c] = (catConteo[c] || 0) + 1; }));
+  const sintomaTop = Object.entries(catConteo).filter(([c]) => ['dolor','sueno','animo'].includes(c)).sort((a,b)=>b[1]-a[1])[0];
+
+  document.getElementById('metricas-grid').innerHTML = `
+    <div class="metrica">
+      <div class="metrica-num" style="color:var(--verde-texto)">${diasBuenos}</div>
+      <div class="metrica-label">Días buenos</div>
+      <div class="metrica-sub">${pctBuenos}% del total registrado</div>
+    </div>
+    <div class="metrica">
+      <div class="metrica-num" style="color:var(--rojo-texto)">${diasMalos}</div>
+      <div class="metrica-label">Días difíciles</div>
+      <div class="metrica-sub">Naranja + rojo</div>
+    </div>
+    <div class="metrica">
+      <div class="metrica-num" style="color:var(--negro)">${regs.length}</div>
+      <div class="metrica-label">Registros totales</div>
+      <div class="metrica-sub">Voz + check-ins</div>
+    </div>
+    <div class="metrica">
+      <div class="metrica-num" style="color:var(--naranja-texto)">${sintomaTop ? sintomaTop[1] : 0}</div>
+      <div class="metrica-label">${sintomaTop ? NOMBRES_CAT[sintomaTop[0]]?.label : 'Sin síntomas'}</div>
+      <div class="metrica-sub">Síntoma más frecuente</div>
+    </div>
+  `;
+
+  // ── MINI CALENDARIO ───────────────────────────────────────
+  const diasMostrar = Math.min(totalDias, 35);
+  const primerDiaCal = new Date();
+  primerDiaCal.setDate(primerDiaCal.getDate() - diasMostrar + 1);
+  const mesCal = primerDiaCal.toLocaleDateString('es-CL', { month: 'long', year: 'numeric' });
+
+  let celdas = '';
+  // Día de semana inicial
+  let inicioSem = primerDiaCal.getDay() - 1;
+  if (inicioSem < 0) inicioSem = 6;
+  for (let i = 0; i < inicioSem; i++) celdas += `<div class="mini-dia vacio"></div>`;
+
+  for (let i = 0; i < diasMostrar; i++) {
+    const f = new Date(primerDiaCal);
+    f.setDate(primerDiaCal.getDate() + i);
+    const color = getColorDia(f);
+    const cls = color || 'sin';
+    const esHoy = f.toDateString() === hoy.toDateString();
+    celdas += `<div class="mini-dia ${cls}" ${esHoy ? 'style="outline:2px solid #22C55E;outline-offset:1px;"' : ''}>${f.getDate()}</div>`;
+  }
+
+  document.getElementById('mini-cal-wrap').innerHTML = `
+    <div class="mini-cal-titulo">Calendario — ${mesCal.charAt(0).toUpperCase() + mesCal.slice(1)}</div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:6px;">
+      ${['Lu','Ma','Mi','Ju','Vi','Sa','Do'].map(d=>`<div style="text-align:center;font-size:9px;font-weight:700;color:var(--gris-muted)">${d}</div>`).join('')}
+    </div>
+    <div class="mini-cal-grid">${celdas}</div>
+  `;
+
+  // ── FRECUENCIA CATEGORÍAS ──────────────────────────────────
+  const maxCat = Math.max(...Object.values(catConteo), 1);
+  const catOrdenadas = Object.entries(NOMBRES_CAT)
+    .map(([id, info]) => ({ id, info, count: catConteo[id] || 0 }))
+    .filter(x => x.count > 0)
+    .sort((a, b) => b.count - a.count);
+
+  document.getElementById('frec-wrap').innerHTML = `
+    <div class="frec-titulo">Síntomas y categorías más frecuentes</div>
+    ${catOrdenadas.length === 0
+      ? `<div style="font-size:13px;color:var(--gris-muted);text-align:center;padding:16px 0;">Sin registros en este período</div>`
+      : catOrdenadas.map(({ id, info, count }) => `
+        <div class="frec-item">
+          <div class="frec-label">${info.label}</div>
+          <div class="frec-bar-wrap">
+            <div class="frec-bar" style="width:${Math.round(count/maxCat*100)}%;background:${info.color}20;border-right:3px solid ${info.color}"></div>
+          </div>
+          <div class="frec-num">${count}</div>
+        </div>
+      `).join('')
+    }
+  `;
+
+  // ── REGISTROS ─────────────────────────────────────────────
+  const regsRecientes = [...regs].reverse().slice(0, 10);
+  document.getElementById('registros-wrap').innerHTML = `
+    <div class="registros-titulo">Últimos registros ${regsRecientes.length < regs.length ? '('+regsRecientes.length+' de '+regs.length+')' : ''}</div>
+    ${regsRecientes.length === 0
+      ? `<div style="font-size:13px;color:var(--gris-muted);text-align:center;padding:16px 0;">Sin registros en este período</div>`
+      : regsRecientes.map(r => {
+          const fecha = new Date(r.fecha).toLocaleDateString('es-CL', { day:'numeric', month:'short' });
+          return `
+          <div class="reg-item">
+            <div class="reg-meta">
+              <span class="reg-fecha-hora">${fecha} · ${r.hora}</span>
+              <span class="reg-tipo">${r.tipo === 'checkin' ? '📋 Check-in' : '🎙 Libre'}</span>
+            </div>
+            <div class="reg-texto">"${r.texto}"</div>
+            <div class="reg-tags">
+              ${(r.categorias || []).map(c => `<span class="reg-tag ${NOMBRES_CAT[c]?.clase||''}">${NOMBRES_CAT[c]?.label||c}</span>`).join('')}
+            </div>
+          </div>`;
+        }).join('')
+    }
+  `;
+}
+
+function copiarResumen() {
+  const regs = getRegistros();
+  const periodoTexto = diasPeriodo === 0 ? 'historial completo' :
+    diasPeriodo === 7 ? 'últimos 7 días' :
+    diasPeriodo === 30 ? 'últimos 30 días' : 'últimos 3 meses';
+
+  const catConteo = {};
+  regs.forEach(r => (r.categorias||[]).forEach(c => { catConteo[c] = (catConteo[c]||0)+1; }));
+
+  let texto = `REPORTE MISALUD — ${new Date().toLocaleDateString('es-CL')}\n`;
+  texto += `Paciente: ${perfil.nombre}, ${perfil.edad} años\n`;
+  if (perfil.condiciones?.length) texto += `Condiciones: ${perfil.condiciones.join(', ')}\n`;
+  texto += `Período: ${periodoTexto}\n`;
+  texto += `Total registros: ${regs.length}\n\n`;
+
+  texto += `SÍNTOMAS FRECUENTES:\n`;
+  Object.entries(catConteo).sort((a,b)=>b[1]-a[1]).forEach(([c,n]) => {
+    texto += `• ${NOMBRES_CAT[c]?.label || c}: ${n} veces\n`;
+  });
+
+  texto += `\nÚLTIMOS REGISTROS:\n`;
+  [...regs].reverse().slice(0,5).forEach(r => {
+    const fecha = new Date(r.fecha).toLocaleDateString('es-CL');
+    texto += `[${fecha} ${r.hora}] ${r.texto}\n`;
+  });
+
+  texto += `\nGenerado por MiSalud — app de seguimiento de salud personal`;
+
+  navigator.clipboard.writeText(texto).then(() => {
+    mostrarToast('✓ Resumen copiado', true);
+  }).catch(() => mostrarToast('No se pudo copiar', false));
+}
+
+function mostrarToast(msg, ok) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (ok ? ' verde' : '') + ' show';
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+renderReporte();
+</script>
+</body>
+</html>
