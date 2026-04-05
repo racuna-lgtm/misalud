@@ -305,11 +305,15 @@ document.getElementById('aviso-icono').textContent = avisoIcono;
 document.getElementById('aviso-texto').textContent = avisoTexto;
 
 // ── PREGUNTAS ─────────────────────────────────────────────────
+const horaCheckin = new Date().getHours();
+const esTarde = horaCheckin >= 14;
+const esNoche = horaCheckin >= 20;
+
 const PREGUNTAS = [
   {
     id: 'sueno',
     emoji: '🌙',
-    texto: '¿Cómo dormiste anoche?',
+    texto: esTarde || esNoche ? '¿Cómo dormiste la noche pasada?' : '¿Cómo dormiste anoche?',
     sub: 'Cuéntame o elige una opción',
     tipo: 'opciones',
     opciones: [
@@ -317,16 +321,17 @@ const PREGUNTAS = [
       { emoji: '😐', texto: 'Más o menos', sub: 'Algunos despertares', valor: 'regular', color: 'amarillo' },
       { emoji: '😫', texto: 'Dormí mal', sub: 'Me desperté varias veces', valor: 'mal', color: 'naranja' },
       { emoji: '😰', texto: 'No pude dormir', sub: 'Insomnio o pesadillas', valor: 'muy_mal', color: 'rojo' },
+      { emoji: '🛌', texto: 'Dormí demasiado', sub: 'No me pude levantar, mucho sueño', valor: 'exceso', color: 'naranja' },
     ]
   },
   {
     id: 'dolor',
     emoji: '⚡',
-    texto: '¿Tienes algún dolor hoy?',
-    sub: 'Dónde te duele o cómo te sientes físicamente',
+    texto: '¿Cómo está tu dolor hoy?',
+    sub: 'Comparado con ayer, ¿cómo te sientes físicamente?',
     tipo: 'mixto',
     opciones: [
-      { emoji: '✅', texto: 'No tengo dolor', sub: 'Me siento bien físicamente', valor: 'sin_dolor', color: 'verde' },
+      { emoji: '✅', texto: 'Sin dolor', sub: 'Me siento bien físicamente', valor: 'sin_dolor', color: 'verde' },
       { emoji: '😬', texto: 'Dolor leve', sub: 'Molestia que puedo manejar', valor: 'leve', color: 'amarillo' },
       { emoji: '😣', texto: 'Dolor moderado', sub: 'Me limita un poco', valor: 'moderado', color: 'naranja' },
       { emoji: '😭', texto: 'Dolor fuerte', sub: 'Me cuesta hacer cosas', valor: 'fuerte', color: 'rojo' },
@@ -341,21 +346,24 @@ const PREGUNTAS = [
     opciones: [
       { emoji: '😊', texto: 'Bien, tranquila', sub: 'Me siento en paz', valor: 'bien', color: 'verde' },
       { emoji: '😌', texto: 'Regular nomás', sub: 'Ni bien ni mal', valor: 'regular', color: 'amarillo' },
-      { emoji: '😔', texto: 'Un poco triste', sub: 'Decaída o con poca energía', valor: 'triste', color: 'naranja' },
-      { emoji: '😢', texto: 'Muy mal', sub: 'Ansiosa, angustiada o muy triste', valor: 'muy_mal', color: 'rojo' },
+      { emoji: '😔', texto: 'Triste o irritable', sub: 'Decaída, de mal humor o con poca energía', valor: 'triste', color: 'naranja' },
+      { emoji: '😢', texto: 'Muy mal', sub: 'Muy ansiosa, angustiada o muy triste', valor: 'muy_mal', color: 'rojo' },
     ]
   },
   {
     id: 'medicamentos',
     emoji: '💊',
-    texto: '¿Tomaste tus medicamentos?',
-    sub: 'Los remedios de hoy',
+    texto: '¿Cómo vas con tus medicamentos?',
+    sub: esNoche ? 'Los remedios de hoy' : 'Los que debías tomar hasta ahora',
     tipo: 'opciones',
     opciones: [
-      { emoji: '✅', texto: 'Sí, todos', sub: 'Tomé todo lo que correspondía', valor: 'todos', color: 'verde' },
-      { emoji: '🤔', texto: 'Solo algunos', sub: 'Me faltó tomar alguno', valor: 'algunos', color: 'amarillo' },
-      { emoji: '❌', texto: 'No tomé nada', sub: 'Se me olvidó o no los tenía', valor: 'ninguno', color: 'rojo' },
-      { emoji: '💬', texto: 'Me cambiaron la dosis', sub: 'Cambio reciente de tratamiento', valor: 'cambio', color: 'amarillo' },
+      { emoji: '✅', texto: esNoche ? 'Tomé todos' : 'Tomé los que correspondían', sub: esNoche ? 'Cumplí con todos los de hoy' : 'Los de la noche los tomo más tarde', valor: 'todos', color: 'verde' },
+      { emoji: '⏰', texto: 'Los de la noche los tomo después', sub: 'Aún no es la hora del remedio de la noche', valor: 'pendiente_noche', color: 'verde' },
+      { emoji: '🤔', texto: 'Se me olvidó alguno', sub: 'Me faltó tomar alguno que ya correspondía', valor: 'algunos', color: 'amarillo' },
+      { emoji: '💊', texto: 'Tomé algo extra', sub: 'Un analgésico u otro remedio por dolor o emergencia', valor: 'extra', color: 'amarillo' },
+      { emoji: '📦', texto: 'No los tenía / se acabaron', sub: 'No pude tomarlo porque no tenía el remedio', valor: 'sin_remedio', color: 'rojo' },
+      { emoji: '❌', texto: 'No tomé nada', sub: 'Se me olvidó por completo', valor: 'ninguno', color: 'rojo' },
+      { emoji: '🔄', texto: 'Me cambiaron el tratamiento', sub: 'Cambio reciente de remedio o dosis', valor: 'cambio', color: 'amarillo' },
     ]
   }
 ];
@@ -588,10 +596,13 @@ function volverEditar() {
 // ── GUARDAR TODO ──────────────────────────────────────────────
 function evaluarDia(registros) {
   const vals = Object.values(respuestas).map(r => r.valor);
-  if (vals.includes('muy_mal') || vals.includes('fuerte')) return 'rojo';
-  if (vals.includes('mal') || vals.includes('moderado') || vals.includes('triste')) return 'naranja';
-  if (vals.includes('regular') || vals.includes('leve') || vals.includes('algunos')) return 'amarillo';
-  if (vals.includes('ninguno')) return 'rojo';
+  // Valores que NO penalizan (son neutros o informativos)
+  const neutros = ['pendiente_noche', 'extra', 'cambio'];
+  const valsRelevantes = vals.filter(v => !neutros.includes(v));
+
+  if (valsRelevantes.includes('muy_mal') || valsRelevantes.includes('fuerte') || valsRelevantes.includes('ninguno') || valsRelevantes.includes('sin_remedio')) return 'rojo';
+  if (valsRelevantes.includes('mal') || valsRelevantes.includes('moderado') || valsRelevantes.includes('triste') || valsRelevantes.includes('exceso')) return 'naranja';
+  if (valsRelevantes.includes('regular') || valsRelevantes.includes('leve') || valsRelevantes.includes('algunos')) return 'amarillo';
   return 'verde';
 }
 
@@ -601,9 +612,20 @@ function guardarTodo() {
   const hora = ahora.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
 
   // Construir texto resumen del check-in
+  // Mapear valores a textos claros para el reporte
+  const TEXTOS_VALOR = {
+    'pendiente_noche': 'Remedios del día tomados, los de la noche pendientes (aún no es la hora)',
+    'sin_remedio': 'No pudo tomar el remedio porque no lo tenía disponible',
+    'extra': 'Tomó medicamento extra por dolor o emergencia',
+    'exceso': 'Durmió en exceso, le costó levantarse'
+  };
   const textoResumen = PREGUNTAS
     .filter(p => respuestas[p.id] && respuestas[p.id].valor !== 'saltada')
-    .map(p => p.texto + ': ' + respuestas[p.id].texto)
+    .map(p => {
+      const r = respuestas[p.id];
+      const textoClaro = TEXTOS_VALOR[r.valor] || r.texto;
+      return p.texto + ': ' + textoClaro;
+    })
     .join('. ');
 
   const registro = {
