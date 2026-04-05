@@ -244,6 +244,9 @@ function armarPreguntas(){
 const PREGUNTAS=armarPreguntas();
 let preguntaActual=0,respuestas={},recognition=null,grabandoCheckin=false,textoVozCheckin='';
 
+// Actualizar subtítulo del header con cantidad real de preguntas
+document.getElementById('header-nombre-sub').textContent = 'Hola '+nombreCorto+', '+saludo+' · '+PREGUNTAS.length+' preguntas';
+
 function renderPregunta(){
   const p=PREGUNTAS[preguntaActual];
   const total=PREGUNTAS.length;
@@ -429,8 +432,16 @@ function guardarTodo(){
   localStorage.setItem(key,JSON.stringify(registros));
   localStorage.setItem('misalud_checkin_'+perfil.id+'_'+fechaStr,'1');
   localStorage.setItem('misalud_dia_'+perfil.id+'_'+fechaStr,evaluarDia());
-  mostrarToast('✓ Check-in guardado',true);
-  setTimeout(()=>window.location.href='home.html',1200);
+  // Pantalla de cierre cálida antes de volver al home
+  document.getElementById('resumen').innerHTML = `
+    <div style="text-align:center;padding:40px 20px;">
+      <div style="font-size:72px;margin-bottom:20px;">🌿</div>
+      <div style="font-family:'Nunito',sans-serif;font-weight:900;font-size:26px;color:#0F172A;margin-bottom:10px;">¡Gracias, ${nombreCorto}!</div>
+      <div style="font-size:16px;color:#64748B;line-height:1.7;margin-bottom:32px;">Tu check-in quedó guardado.<br>Esta información ayuda mucho a tu médico.</div>
+      <button onclick="window.location.href='home.html'" style="width:100%;padding:18px;border-radius:14px;border:none;background:#22C55E;color:#fff;font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;cursor:pointer;margin-bottom:12px;">Volver al inicio 🏠</button>
+      <button onclick="window.location.href='historial.html'" style="width:100%;padding:14px;border-radius:14px;border:1.5px solid #E2E8F0;background:#fff;color:#64748B;font-family:'Nunito',sans-serif;font-weight:700;font-size:15px;cursor:pointer;">Ver mis registros de hoy</button>
+    </div>`;
+  window.scrollTo(0,0);
 }
 
 function mostrarToast(msg,ok){
