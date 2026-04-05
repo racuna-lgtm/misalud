@@ -424,6 +424,18 @@ body {
     </div>
   </div>
 
+  <!-- BOTÓN VISITA MÉDICA -->
+  <div style="margin-bottom:16px;">
+    <div onclick="abrirVisita()" style="background:#fff;border:2px solid #E2E8F0;border-radius:18px;padding:16px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;min-height:64px;">
+      <div style="width:44px;height:44px;border-radius:14px;background:#FED7AA;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🏥</div>
+      <div style="flex:1;">
+        <div style="font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;color:#0F172A;">Registrar visita médica</div>
+        <div style="font-size:13px;color:#64748B;margin-top:2px;">Fui al doctor, me hicieron exámenes...</div>
+      </div>
+      <div style="font-size:20px;color:#94A3B8;">›</div>
+    </div>
+  </div>
+
   <!-- CHECK-IN -->
   <div class="checkin-card" id="checkin-card" onclick="irCheckin()">
     <div class="checkin-icono" id="checkin-icono">📋</div>
@@ -765,6 +777,96 @@ function renderRegistrosHoy() {
   `).join('');
 }
 
+
+// ── VISITA MÉDICA ─────────────────────────────────────────────
+const ESPECIALIDADES = ['Médico general','Cardiólogo','Psiquiatra','Psicólogo','Traumatólogo','Ginecólogo','Urólogo','Neurólogo','Endocrinólogo','Reumatólogo','Nutricionista','Kinesiólogo','Oftalmólogo','Otorrino','Dentista','Urgencias'];
+let visitaEsp = '', visitaTipo = '', visitaEmojiTipo = '', recMicVisita = null, grabandoVisita = false;
+
+function abrirVisita() {
+  visitaEsp=''; visitaTipo=''; visitaEmojiTipo='';
+  document.getElementById('esp-otra').value='';
+  document.getElementById('visita-nota').value='';
+  document.querySelectorAll('.vop').forEach(v=>{v.style.borderColor='#E2E8F0';v.style.background='#fff';v.style.color='#0F172A';});
+  const grid=document.getElementById('esp-grid');
+  grid.innerHTML=ESPECIALIDADES.map(e=>`<div onclick="selEsp(this,'${e}')" style="padding:10px 12px;border-radius:10px;border:2px solid #E2E8F0;background:#fff;cursor:pointer;font-size:13px;font-weight:600;color:#64748B;text-align:center;min-height:44px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;">${e}</div>`).join('');
+  const ov=document.getElementById('visita-overlay');
+  ov.style.display='flex';
+  setTimeout(()=>ov.style.opacity='1',10);
+}
+
+function cerrarVisita(){
+  document.getElementById('visita-overlay').style.display='none';
+  if(grabandoVisita&&recMicVisita){try{recMicVisita.stop();}catch(e){}}
+}
+
+function selEsp(el,nombre){
+  document.querySelectorAll('#esp-grid div').forEach(d=>{d.style.borderColor='#E2E8F0';d.style.background='#fff';d.style.color='#64748B';});
+  el.style.borderColor='#22C55E';el.style.background='#DCFCE7';el.style.color='#15803D';
+  visitaEsp=nombre;
+  document.getElementById('esp-otra').value='';
+}
+
+function selVop(el,tipo,emoji){
+  document.querySelectorAll('.vop').forEach(v=>{v.style.borderColor='#E2E8F0';v.style.background='#fff';v.style.color='#0F172A';});
+  el.style.borderColor='#22C55E';el.style.background='#DCFCE7';el.style.color='#15803D';
+  visitaTipo=tipo;visitaEmojiTipo=emoji;
+}
+
+function toggleMicVisita(){
+  if(grabandoVisita)detenerMicVisita();else iniciarMicVisita();
+}
+function iniciarMicVisita(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){mostrarToast('Usa Chrome para el micrófono',false);return;}
+  grabandoVisita=true;
+  document.getElementById('mic-visita-btn').style.borderColor='#22C55E';
+  document.getElementById('mic-visita-btn').style.background='#DCFCE7';
+  document.getElementById('mic-visita-icono').textContent='⏹️';
+  document.getElementById('mic-visita-txt').textContent='Escuchando... toca para detener';
+  recMicVisita=new SR();recMicVisita.lang='es-CL';recMicVisita.continuous=false;recMicVisita.interimResults=false;
+  recMicVisita.onresult=(e)=>{
+    const txt=e.results[0][0].transcript;
+    const nota=document.getElementById('visita-nota');
+    nota.value=(nota.value?nota.value+' ':'')+txt;
+  };
+  recMicVisita.onend=()=>{
+    grabandoVisita=false;
+    document.getElementById('mic-visita-btn').style.borderColor='#E2E8F0';
+    document.getElementById('mic-visita-btn').style.background='#F8FAFC';
+    document.getElementById('mic-visita-icono').textContent='🎙️';
+    document.getElementById('mic-visita-txt').textContent='Dictar nota de voz';
+  };
+  recMicVisita.start();
+}
+function detenerMicVisita(){grabandoVisita=false;if(recMicVisita){try{recMicVisita.stop();}catch(e){}}}
+
+function guardarVisita(){
+  const espFinal=visitaEsp||document.getElementById('esp-otra').value.trim();
+  if(!espFinal){mostrarToast('Elige o escribe el especialista',false);return;}
+  if(!visitaTipo){mostrarToast('Indica qué pasó en la consulta',false);return;}
+  const nota=document.getElementById('visita-nota').value.trim();
+  const texto=`Visita médica: ${espFinal}. ${visitaTipo}.${nota?' '+nota:''}`;
+  const ahora=new Date();
+  const registro={
+    id:Date.now(),
+    texto,
+    categorias:['visita'],
+    hora:ahora.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'}),
+    fecha:ahora.toDateString(),
+    tipo:'visita',
+    detalle:{especialidad:espFinal,tipo:visitaTipo,emoji:visitaEmojiTipo,nota}
+  };
+  const key='misalud_registros_'+perfil.id;
+  const registros=JSON.parse(localStorage.getItem(key)||'[]');
+  registros.push(registro);
+  localStorage.setItem(key,JSON.stringify(registros));
+  const keyDia='misalud_dia_'+perfil.id+'_'+ahora.toDateString();
+  if(!localStorage.getItem(keyDia))localStorage.setItem(keyDia,'verde');
+  cerrarVisita();
+  mostrarToast('✓ Visita médica registrada',true);
+  renderRegistrosHoy();
+}
+
 function cerrarSesion() {
   if (confirm('¿Cerrar sesión?')) {
     localStorage.removeItem('misalud_usuario_actual');
@@ -781,5 +883,40 @@ function mostrarToast(msg, ok = true) {
 
 renderRegistrosHoy();
 </script>
+
+<!-- MODAL VISITA MÉDICA -->
+<div id="visita-overlay" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,0.5);z-index:200;align-items:flex-end;justify-content:center;">
+  <div style="background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;">
+    <div style="width:40px;height:4px;background:#E2E8F0;border-radius:10px;margin:12px auto 0;"></div>
+    <div style="padding:18px 22px 14px;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;">Registrar visita médica</div>
+      <div onclick="cerrarVisita()" style="width:32px;height:32px;border-radius:8px;border:1px solid #E2E8F0;background:#F8FAFC;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;">✕</div>
+    </div>
+    <div style="padding:20px 22px 32px;">
+      <div style="font-size:12px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">¿A qué especialista fuiste?</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;" id="esp-grid"></div>
+      <input id="esp-otra" placeholder="Otra especialidad..." style="width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid #E2E8F0;font-size:14px;font-family:'Nunito Sans',sans-serif;color:#0F172A;margin-bottom:18px;" oninput="this.style.borderColor=this.value?'#22C55E':'#E2E8F0'">
+
+      <div style="font-size:12px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">¿Qué pasó en la consulta?</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;">
+        <div class="vop" onclick="selVop(this,'Control de rutina','📋')" style="padding:14px 16px;border-radius:10px;border:2px solid #E2E8F0;background:#fff;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600;color:#0F172A;min-height:56px;transition:all 0.15s;"><span style="font-size:22px;">📋</span>Control de rutina</div>
+        <div class="vop" onclick="selVop(this,'Me hicieron exámenes','🔬')" style="padding:14px 16px;border-radius:10px;border:2px solid #E2E8F0;background:#fff;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600;color:#0F172A;min-height:56px;transition:all 0.15s;"><span style="font-size:22px;">🔬</span>Me hicieron exámenes</div>
+        <div class="vop" onclick="selVop(this,'Me recetaron o cambiaron remedios','💊')" style="padding:14px 16px;border-radius:10px;border:2px solid #E2E8F0;background:#fff;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600;color:#0F172A;min-height:56px;transition:all 0.15s;"><span style="font-size:22px;">💊</span>Me recetaron o cambiaron remedios</div>
+        <div class="vop" onclick="selVop(this,'Urgencia o emergencia','🚨')" style="padding:14px 16px;border-radius:10px;border:2px solid #E2E8F0;background:#fff;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600;color:#0F172A;min-height:56px;transition:all 0.15s;"><span style="font-size:22px;">🚨</span>Urgencia o emergencia</div>
+      </div>
+
+      <div style="font-size:12px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Notas adicionales (opcional)</div>
+      <textarea id="visita-nota" placeholder="Ej: me subieron la dosis del remedio de la presión, me mandaron hacer eco..." style="width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid #E2E8F0;font-size:15px;font-family:'Nunito Sans',sans-serif;color:#0F172A;resize:none;min-height:80px;margin-bottom:10px;" rows="3"></textarea>
+      <div onclick="toggleMicVisita()" id="mic-visita-btn" style="padding:10px 14px;border-radius:10px;border:1.5px dashed #E2E8F0;background:#F8FAFC;cursor:pointer;font-size:13px;font-weight:600;color:#64748B;display:inline-flex;align-items:center;gap:6px;margin-bottom:18px;">
+        <span id="mic-visita-icono">🎙️</span><span id="mic-visita-txt">Dictar nota de voz</span>
+      </div>
+
+      <button onclick="guardarVisita()" style="width:100%;padding:17px;border-radius:14px;border:none;background:#22C55E;color:#fff;font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;cursor:pointer;min-height:58px;">
+        Guardar visita médica
+      </button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
