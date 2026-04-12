@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MiSalud — Mis exámenes</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --verde:#22C55E;--verde-claro:#DCFCE7;--verde-texto:#15803D;--verde-oscuro:#16A34A;
+  --azul:#3B82F6;--azul-claro:#EFF6FF;--azul-texto:#1D4ED8;
+  --gris-bg:#F8FAFC;--gris-borde:#E2E8F0;--gris-texto:#64748B;--gris-muted:#94A3B8;--negro:#0F172A;
+  --radio:20px;--radio-sm:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Nunito Sans',sans-serif;background:var(--gris-bg);color:var(--negro);min-height:100vh;max-width:480px;margin:0 auto;padding-bottom:100px;}
+.header{background:#fff;padding:18px 22px;border-bottom:1px solid var(--gris-borde);display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:50;}
+.btn-back{width:40px;height:40px;border-radius:12px;border:1px solid var(--gris-borde);background:var(--gris-bg);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;flex-shrink:0;}
+.header-titulo{font-family:'Nunito',sans-serif;font-weight:800;font-size:17px;flex:1;}
+.btn-nuevo-exam{padding:8px 14px;border-radius:10px;border:none;background:var(--verde);color:#fff;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;}
+
+.body{padding:18px 20px;}
+
+/* FILTROS */
+.filtros{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;margin-bottom:16px;}
+.filtro{padding:7px 14px;border-radius:20px;border:1.5px solid var(--gris-borde);background:#fff;font-size:12px;font-weight:700;cursor:pointer;color:var(--gris-texto);white-space:nowrap;transition:all 0.15s;font-family:'Nunito',sans-serif;}
+.filtro.activo{background:var(--azul-texto);border-color:var(--azul-texto);color:#fff;}
+
+/* EXAMEN CARD */
+.exam-card{background:#fff;border-radius:16px;border:1px solid var(--gris-borde);margin-bottom:12px;overflow:hidden;cursor:pointer;transition:all 0.15s;}
+.exam-card:active{transform:scale(0.98);}
+.exam-header{display:flex;gap:12px;padding:14px 16px;}
+.exam-foto{width:72px;height:72px;border-radius:10px;object-fit:cover;flex-shrink:0;background:var(--gris-bg);display:flex;align-items:center;justify-content:center;font-size:28px;}
+.exam-foto img{width:72px;height:72px;border-radius:10px;object-fit:cover;}
+.exam-info{flex:1;}
+.exam-nombre{font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;color:var(--negro);margin-bottom:3px;}
+.exam-fecha{font-size:12px;color:var(--gris-texto);margin-bottom:4px;}
+.exam-tipo{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;display:inline-block;}
+.exam-nota{font-size:12px;color:var(--gris-texto);padding:0 16px 12px;line-height:1.5;border-top:1px solid var(--gris-bg);padding-top:10px;}
+
+/* TIPOS COLOR */
+.t-laboratorio{background:#EFF6FF;color:#1D4ED8;}
+.t-imagen{background:#F5F3FF;color:#5B21B6;}
+.t-cardiologia{background:#FEF2F2;color:#DC2626;}
+.t-otro{background:#F0FDF4;color:#15803D;}
+
+/* BTN AGREGAR FLOTANTE */
+.btn-flotante{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--verde);color:#fff;border:none;border-radius:20px;padding:15px 28px;font-family:'Nunito',sans-serif;font-weight:800;font-size:16px;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(34,197,94,0.35);z-index:50;transition:all 0.15s;max-width:320px;width:90%;}
+.btn-flotante:active{transform:translateX(-50%) scale(0.97);}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,0.55);z-index:200;align-items:flex-end;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;}
+.modal-handle{width:40px;height:4px;background:var(--gris-borde);border-radius:10px;margin:12px auto 0;}
+.modal-header{padding:16px 20px 12px;border-bottom:1px solid var(--gris-borde);display:flex;align-items:center;justify-content:space-between;}
+.modal-titulo{font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;}
+.modal-close{width:32px;height:32px;border-radius:8px;border:1px solid var(--gris-borde);background:var(--gris-bg);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;}
+.modal-body{padding:18px 20px 32px;}
+.fl{font-size:11px;font-weight:700;color:var(--gris-texto);text-transform:uppercase;letter-spacing:0.04em;display:block;margin-bottom:6px;}
+.fi,.fs{width:100%;padding:12px 14px;border:1.5px solid var(--gris-borde);border-radius:12px;font-size:15px;font-family:'Nunito Sans',sans-serif;color:var(--negro);background:#fff;transition:border 0.15s;}
+.fi:focus,.fs:focus{outline:none;border-color:var(--verde);}
+.fg{margin-bottom:16px;}
+.ft{width:100%;padding:12px 14px;border:1.5px solid var(--gris-borde);border-radius:12px;font-size:14px;font-family:'Nunito Sans',sans-serif;color:var(--negro);resize:none;background:#fff;}
+.ft:focus{outline:none;border-color:var(--verde);}
+
+/* FOTO SELECTOR */
+.foto-area{border:2.5px dashed var(--gris-borde);border-radius:16px;padding:20px;text-align:center;cursor:pointer;transition:all 0.15s;margin-bottom:6px;background:var(--gris-bg);}
+.foto-area:hover,.foto-area.tiene-foto{border-color:var(--verde);background:var(--verde-claro);}
+.foto-area img{max-width:100%;max-height:220px;border-radius:10px;object-fit:contain;}
+.foto-btns{display:flex;gap:8px;margin-bottom:16px;}
+.btn-foto{flex:1;padding:11px;border-radius:10px;border:1.5px solid var(--gris-borde);background:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;color:var(--azul-texto);display:flex;align-items:center;justify-content:center;gap:5px;transition:all 0.15s;}
+.btn-foto:hover{background:var(--azul-claro);border-color:var(--azul-texto);}
+
+/* VISOR FULL */
+.visor{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:300;flex-direction:column;}
+.visor.open{display:flex;}
+.visor-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;color:#fff;}
+.visor-nombre{font-family:'Nunito',sans-serif;font-weight:800;font-size:16px;}
+.visor-close{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.visor-img{flex:1;display:flex;align-items:center;justify-content:center;padding:10px;}
+.visor-img img{max-width:100%;max-height:100%;object-fit:contain;border-radius:10px;}
+.visor-footer{padding:16px 20px 32px;color:rgba(255,255,255,0.7);font-size:13px;text-align:center;}
+.visor-acciones{display:flex;gap:10px;justify-content:center;margin-top:12px;}
+.btn-visor{padding:10px 20px;border-radius:12px;border:1.5px solid rgba(255,255,255,0.3);background:transparent;color:#fff;font-family:'Nunito',sans-serif;font-weight:700;font-size:14px;cursor:pointer;}
+.btn-visor-rojo{border-color:#dc2626;color:#fca5a5;}
+
+/* GUARDAR */
+.btn-guardar{width:100%;padding:17px;border-radius:14px;border:none;background:var(--verde);color:#fff;font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;cursor:pointer;transition:all 0.15s;margin-top:8px;}
+.btn-guardar:hover{background:var(--verde-oscuro);}
+.btn-guardar:disabled{background:var(--gris-borde);color:var(--gris-muted);cursor:not-allowed;}
+
+/* EMPTY */
+.empty{text-align:center;padding:48px 20px;color:var(--gris-muted);}
+.empty-icon{font-size:52px;margin-bottom:14px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(40px);background:var(--negro);color:#fff;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:700;opacity:0;transition:all 0.3s;z-index:400;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.toast.ok{background:var(--verde-oscuro);}
+
+@media(min-width:480px){body{border-left:1px solid var(--gris-borde);border-right:1px solid var(--gris-borde);}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="btn-back" onclick="window.location.href='home.html'">←</div>
+  <div class="header-titulo">Mis exámenes</div>
+  <span id="conteo" style="font-size:12px;color:var(--gris-muted);"></span>
+</div>
+
+<div class="body">
+  <div class="filtros" id="filtros">
+    <div class="filtro activo" onclick="filtrar('todos',this)">Todos</div>
+    <div class="filtro" onclick="filtrar('laboratorio',this)">🔬 Laboratorio</div>
+    <div class="filtro" onclick="filtrar('imagen',this)">🩻 Imagen</div>
+    <div class="filtro" onclick="filtrar('cardiologia',this)">❤️ Cardiología</div>
+    <div class="filtro" onclick="filtrar('otro',this)">📋 Otro</div>
+  </div>
+  <div id="lista-examenes"></div>
+</div>
+
+<button class="btn-flotante" onclick="abrirModal()">
+  📷 Agregar examen
+</button>
+
+<!-- MODAL AGREGAR -->
+<div class="modal-overlay" id="modal-agregar" onclick="cerrarOverlay(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <span class="modal-titulo" id="modal-titulo-txt">Agregar examen</span>
+      <button class="modal-close" onclick="cerrarModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="fg">
+        <label class="fl">Foto del examen</label>
+        <div class="foto-area" id="foto-area" onclick="abrirGaleria()">
+          <div id="foto-placeholder">
+            <div style="font-size:36px;margin-bottom:8px;">📄</div>
+            <div style="font-size:14px;font-weight:600;color:var(--gris-texto);">Toca para seleccionar foto</div>
+            <div style="font-size:12px;color:var(--gris-muted);margin-top:4px;">Resultado, informe o imagen médica</div>
+          </div>
+          <img id="foto-preview" style="display:none;max-width:100%;max-height:220px;border-radius:10px;object-fit:contain;">
+        </div>
+        <div class="foto-btns">
+          <button class="btn-foto" onclick="abrirCamara()">📷 Tomar foto</button>
+          <button class="btn-foto" onclick="abrirGaleria()">🖼 Galería</button>
+        </div>
+        <input type="file" id="file-camara" accept="image/*" capture="environment" onchange="procesarFoto(this)" style="display:none;">
+        <input type="file" id="file-galeria" accept="image/*" onchange="procesarFoto(this)" style="display:none;">
+      </div>
+
+      <div class="fg">
+        <label class="fl">Nombre del examen</label>
+        <input class="fi" id="exam-nombre" placeholder="Ej: Hemograma completo, Eco abdominal...">
+      </div>
+
+      <div class="fg">
+        <label class="fl">Fecha del examen</label>
+        <input type="date" class="fi" id="exam-fecha">
+      </div>
+
+      <div class="fg">
+        <label class="fl">Tipo</label>
+        <select class="fs" id="exam-tipo">
+          <option value="laboratorio">🔬 Laboratorio (sangre, orina, etc.)</option>
+          <option value="imagen">🩻 Imagen (eco, radiografía, TAC, RMN)</option>
+          <option value="cardiologia">❤️ Cardiología (ECG, holter, ecocardiograma)</option>
+          <option value="otro">📋 Otro</option>
+        </select>
+      </div>
+
+      <div class="fg">
+        <label class="fl">Especialista / médico que lo solicitó (opcional)</label>
+        <input class="fi" id="exam-medico" placeholder="Ej: Dr. Martínez — Cardiología">
+      </div>
+
+      <div class="fg">
+        <label class="fl">Nota del médico o resultado relevante (opcional)</label>
+        <textarea class="ft" id="exam-nota" rows="3" placeholder="Ej: Hemoglobina baja, aumentar hierro. Próximo control en 3 meses..."></textarea>
+      </div>
+
+      <button class="btn-guardar" id="btn-guardar-exam" onclick="guardarExamen()">
+        Guardar examen
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- VISOR FOTO COMPLETA -->
+<div class="visor" id="visor">
+  <div class="visor-header">
+    <div class="visor-nombre" id="visor-nombre"></div>
+    <button class="visor-close" onclick="cerrarVisor()">✕</button>
+  </div>
+  <div class="visor-img">
+    <img id="visor-img" src="">
+  </div>
+  <div class="visor-footer">
+    <div id="visor-fecha"></div>
+    <div id="visor-nota" style="margin-top:4px;font-style:italic;"></div>
+    <div class="visor-acciones">
+      <button class="btn-visor" onclick="editarExamen()">✏️ Editar</button>
+      <button class="btn-visor btn-visor-rojo" onclick="eliminarExamen()">🗑 Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const perfil = JSON.parse(localStorage.getItem('misalud_usuario_actual')||'null');
+if(!perfil) window.location.href='index.html';
+
+const KEY = 'misalud_examenes_'+perfil.id;
+let filtroActual = 'todos';
+let fotoBase64 = '';
+let editandoId = null;
+let visorId = null;
+
+function getExamenes(){ return JSON.parse(localStorage.getItem(KEY)||'[]'); }
+function saveExamenes(ex){ localStorage.setItem(KEY,JSON.stringify(ex)); }
+
+const TIPOS = {
+  laboratorio:{label:'Laboratorio',clase:'t-laboratorio',icon:'🔬'},
+  imagen:{label:'Imagen',clase:'t-imagen',icon:'🩻'},
+  cardiologia:{label:'Cardiología',clase:'t-cardiologia',icon:'❤️'},
+  otro:{label:'Otro',clase:'t-otro',icon:'📋'},
+};
+
+function filtrar(f,el){
+  filtroActual=f;
+  document.querySelectorAll('.filtro').forEach(b=>b.classList.remove('activo'));
+  el.classList.add('activo');
+  render();
+}
+
+function render(){
+  const todos = getExamenes();
+  const lista = filtroActual==='todos' ? todos : todos.filter(e=>e.tipo===filtroActual);
+  const sorted = [...lista].sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
+  document.getElementById('conteo').textContent = todos.length+' examen'+(todos.length!==1?'es':'');
+
+  const cont = document.getElementById('lista-examenes');
+  if(sorted.length===0){
+    cont.innerHTML=`<div class="empty">
+      <div class="empty-icon">🩺</div>
+      <div style="font-family:'Nunito',sans-serif;font-weight:700;font-size:16px;margin-bottom:6px;">Sin exámenes aún</div>
+      <div style="font-size:13px;line-height:1.6;">Toca el botón verde para agregar<br>el primero.</div>
+    </div>`;
+    return;
+  }
+
+  cont.innerHTML = sorted.map(e=>{
+    const tipo = TIPOS[e.tipo]||TIPOS.otro;
+    const fechaFmt = e.fecha ? new Date(e.fecha+'T12:00:00').toLocaleDateString('es-CL',{day:'numeric',month:'long',year:'numeric'}) : 'Sin fecha';
+    return `
+    <div class="exam-card" onclick="abrirVisor('${e.id}')">
+      <div class="exam-header">
+        <div class="exam-foto">
+          ${e.foto ? `<img src="${e.foto}" alt="${e.nombre}">` : tipo.icon}
+        </div>
+        <div class="exam-info">
+          <div class="exam-nombre">${e.nombre}</div>
+          <div class="exam-fecha">📅 ${fechaFmt}</div>
+          <span class="exam-tipo ${tipo.clase}">${tipo.icon} ${tipo.label}</span>
+          ${e.medico?`<div style="font-size:11px;color:var(--gris-muted);margin-top:4px;">👨‍⚕️ ${e.medico}</div>`:''}
+        </div>
+      </div>
+      ${e.nota?`<div class="exam-nota">📝 ${e.nota}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ── MODAL ─────────────────────────────────────────────────────
+function abrirModal(){
+  editandoId=null;fotoBase64='';
+  document.getElementById('modal-titulo-txt').textContent='Agregar examen';
+  document.getElementById('exam-nombre').value='';
+  document.getElementById('exam-fecha').value=new Date().toISOString().split('T')[0];
+  document.getElementById('exam-tipo').value='laboratorio';
+  document.getElementById('exam-medico').value='';
+  document.getElementById('exam-nota').value='';
+  document.getElementById('foto-preview').style.display='none';
+  document.getElementById('foto-placeholder').style.display='block';
+  document.getElementById('foto-area').classList.remove('tiene-foto');
+  document.getElementById('modal-agregar').classList.add('open');
+  setTimeout(()=>document.getElementById('exam-nombre').focus(),200);
+}
+
+function cerrarModal(){ document.getElementById('modal-agregar').classList.remove('open'); }
+function cerrarOverlay(e){ if(e.target.classList.contains('modal-overlay')) cerrarModal(); }
+
+function abrirCamara(){ document.getElementById('file-camara').click(); }
+function abrirGaleria(){ document.getElementById('file-galeria').click(); }
+
+function procesarFoto(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    fotoBase64=e.target.result;
+    const prev=document.getElementById('foto-preview');
+    prev.src=fotoBase64;prev.style.display='block';
+    document.getElementById('foto-placeholder').style.display='none';
+    document.getElementById('foto-area').classList.add('tiene-foto');
+  };
+  reader.readAsDataURL(file);
+  input.value='';
+}
+
+function guardarExamen(){
+  const nombre=document.getElementById('exam-nombre').value.trim();
+  if(!nombre){mostrarToast('Escribe el nombre del examen',false);document.getElementById('exam-nombre').focus();return;}
+  const fecha=document.getElementById('exam-fecha').value;
+  if(!fecha){mostrarToast('Selecciona la fecha del examen',false);return;}
+
+  const examenes=getExamenes();
+  const exam={
+    id: editandoId || Date.now().toString(),
+    nombre,
+    fecha,
+    tipo: document.getElementById('exam-tipo').value,
+    medico: document.getElementById('exam-medico').value.trim(),
+    nota: document.getElementById('exam-nota').value.trim(),
+    foto: fotoBase64 || (editandoId ? examenes.find(e=>e.id===editandoId)?.foto||'' : ''),
+    fechaRegistro: new Date().toISOString()
+  };
+
+  if(editandoId){
+    const idx=examenes.findIndex(e=>e.id===editandoId);
+    if(idx>=0) examenes[idx]=exam;
+  } else {
+    examenes.push(exam);
+  }
+  saveExamenes(examenes);
+  cerrarModal();
+  render();
+  mostrarToast(editandoId?'✓ Examen actualizado':'✓ Examen guardado',true);
+}
+
+// ── VISOR ─────────────────────────────────────────────────────
+function abrirVisor(id){
+  const ex=getExamenes().find(e=>e.id===id);if(!ex)return;
+  visorId=id;
+  document.getElementById('visor-nombre').textContent=ex.nombre;
+  document.getElementById('visor-img').src=ex.foto||'';
+  const fechaFmt=ex.fecha?new Date(ex.fecha+'T12:00:00').toLocaleDateString('es-CL',{day:'numeric',month:'long',year:'numeric'}):'Sin fecha';
+  document.getElementById('visor-fecha').textContent='📅 '+fechaFmt+(ex.medico?' · 👨‍⚕️ '+ex.medico:'');
+  document.getElementById('visor-nota').textContent=ex.nota?'📝 '+ex.nota:'';
+  if(!ex.foto){
+    // No hay foto — mostrar info sin imagen
+    document.getElementById('visor-img').style.display='none';
+  } else {
+    document.getElementById('visor-img').style.display='block';
+  }
+  document.getElementById('visor').classList.add('open');
+}
+
+function cerrarVisor(){ document.getElementById('visor').classList.remove('open'); }
+
+function editarExamen(){
+  cerrarVisor();
+  const ex=getExamenes().find(e=>e.id===visorId);if(!ex)return;
+  editandoId=visorId;
+  fotoBase64=ex.foto||'';
+  document.getElementById('modal-titulo-txt').textContent='Editar examen';
+  document.getElementById('exam-nombre').value=ex.nombre;
+  document.getElementById('exam-fecha').value=ex.fecha;
+  document.getElementById('exam-tipo').value=ex.tipo;
+  document.getElementById('exam-medico').value=ex.medico||'';
+  document.getElementById('exam-nota').value=ex.nota||'';
+  if(fotoBase64){
+    document.getElementById('foto-preview').src=fotoBase64;
+    document.getElementById('foto-preview').style.display='block';
+    document.getElementById('foto-placeholder').style.display='none';
+    document.getElementById('foto-area').classList.add('tiene-foto');
+  } else {
+    document.getElementById('foto-preview').style.display='none';
+    document.getElementById('foto-placeholder').style.display='block';
+    document.getElementById('foto-area').classList.remove('tiene-foto');
+  }
+  document.getElementById('modal-agregar').classList.add('open');
+}
+
+function eliminarExamen(){
+  if(!confirm('¿Eliminar este examen? No se puede deshacer.'))return;
+  const examenes=getExamenes().filter(e=>e.id!==visorId);
+  saveExamenes(examenes);
+  cerrarVisor();
+  render();
+  mostrarToast('Examen eliminado',false);
+}
+
+function mostrarToast(msg,ok){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast'+(ok?' ok':'')+' show';
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// Defaults
+document.getElementById('exam-fecha').value=new Date().toISOString().split('T')[0];
+render();
+</script>
+</body>
+</html>
