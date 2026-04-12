@@ -298,6 +298,9 @@ body {
   <div class="metricas-titulo">Resumen del período</div>
   <div class="metricas-grid" id="metricas-grid"></div>
 
+  <!-- GRÁFICOS DE TENDENCIA -->
+  <div id="graficos-wrap"></div>
+
   <!-- MINI CALENDARIO -->
   <div class="mini-cal-wrap" id="mini-cal-wrap"></div>
 
@@ -566,6 +569,287 @@ function renderReporte() {
         }).join('')
     }
   `;
+
+  // ── GRÁFICOS ───────────────────────────────────────────────
+  setTimeout(() => renderGraficos(regs), 50);
+}
+
+// ── SISTEMA DE GRÁFICOS ────────────────────────────────────────
+function renderGraficos(regs) {
+  const wrap = document.getElementById('graficos-wrap');
+  if (!regs || regs.length === 0) { wrap.innerHTML = ''; return; }
+
+  // Agrupar check-ins por fecha
+  const checkins = regs.filter(r => r.tipo === 'checkin' && r.detalle);
+  const byFecha = {};
+  checkins.forEach(r => {
+    const f = new Date(r.fecha).toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit'});
+    byFecha[f] = r.detalle;
+  });
+
+  // Fechas ordenadas (últimas 30 máx)
+  const fechas = Object.keys(byFecha).slice(-30);
+  if (fechas.length < 2) { wrap.innerHTML = ''; return; }
+
+  // Mapear valores a número 0-4
+  const MAPA_SUENO = {bien:4,regular:2,mal:1,muy_mal:0,exceso:2};
+  const MAPA_DOLOR = {sin_dolor:4,leve:3,moderado:2,fuerte:1,muy_mal:0,mejor:4,igual:2,peor:1,brote:0,bien:4,leve:3,moderada:2,severa:0};
+  const MAPA_ANIMO = {bien:4,regular:2,triste:1,muy_mal:0};
+  const MAPA_MED   = {todos:4,pendiente_noche:4,algunos:2,extra:3,sin_remedio:1,cambio:3,ninguno:0};
+
+  const series = {
+    sueno:  fechas.map(f => byFecha[f]?.sueno   ? MAPA_SUENO[byFecha[f].sueno.valor]  ?? null : null),
+    dolor:  fechas.map(f => {
+      const d = byFecha[f];
+      const dv = d?.dolor?.valor || d?.fibromialgia?.valor || d?.artrosis?.valor;
+      return dv ? (MAPA_DOLOR[dv] ?? null) : null;
+    }),
+    animo:  fechas.map(f => byFecha[f]?.animo   ? MAPA_ANIMO[byFecha[f].animo.valor]  ?? null : null),
+    med:    fechas.map(f => byFecha[f]?.medicamentos ? MAPA_MED[byFecha[f].medicamentos.valor] ?? null : null),
+  };
+
+  // Presión / glicemia numérica si existe
+  const numPresion = fechas.map(f => byFecha[f]?.presion?.numero || byFecha[f]?.diabetes?.numero || null);
+  const tieneNumericos = numPresion.some(v => v !== null);
+
+  wrap.innerHTML = `
+    <div style="margin-bottom:8px;">
+      <div class="metricas-titulo">Tendencias del período</div>
+
+      <!-- GRÁFICO BIENESTAR GENERAL -->
+      <div style="background:#fff;border-radius:16px;border:1px solid var(--gris-borde);padding:16px;margin-bottom:12px;">
+        <div style="font-size:13px;font-weight:700;color:var(--negro);margin-bottom:4px;">📈 Bienestar día a día</div>
+        <div style="font-size:11px;color:var(--gris-muted);margin-bottom:10px;">Color del día según todos los registros</div>
+        <canvas id="canvas-heatmap" height="44" style="width:100%;display:block;border-radius:8px;"></canvas>
+        <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:var(--gris-muted);">
+          <span>${fechas[0]}</span><span>${fechas[Math.floor(fechas.length/2)]||''}</span><span>${fechas[fechas.length-1]}</span>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:8px;font-size:10px;color:var(--gris-texto);">
+          <span>🟢 Bien</span><span>🟡 Regular</span><span>🟠 Difícil</span><span>🔴 Mal</span><span>⬜ Sin dato</span>
+        </div>
+      </div>
+
+      <!-- GRÁFICO LÍNEAS -->
+      <div style="background:#fff;border-radius:16px;border:1px solid var(--gris-borde);padding:16px;margin-bottom:12px;">
+        <div style="font-size:13px;font-weight:700;color:var(--negro);margin-bottom:4px;">📊 Sueño · Dolor · Ánimo · Medicamentos</div>
+        <div style="font-size:11px;color:var(--gris-muted);margin-bottom:10px;">Tendencia de las últimas semanas (4 = muy bien, 0 = muy mal)</div>
+        <div style="overflow-x:auto;">
+          <canvas id="canvas-lineas" height="160" style="min-width:${Math.max(fechas.length*22, 300)}px;display:block;"></canvas>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;font-size:11px;">
+          <span style="color:#7C3AED;">🌙 Sueño</span>
+          <span style="color:#DC2626;">⚡ Dolor</span>
+          <span style="color:#DB2777;">💙 Ánimo</span>
+          <span style="color:#16A34A;">💊 Medicamentos</span>
+        </div>
+      </div>
+
+      <!-- CORRELACIÓN SUEÑO / DOLOR -->
+      <div style="background:#fff;border-radius:16px;border:1px solid var(--gris-borde);padding:16px;margin-bottom:12px;">
+        <div style="font-size:13px;font-weight:700;color:var(--negro);margin-bottom:4px;">🔗 Correlación: sueño → dolor al día siguiente</div>
+        <div style="font-size:11px;color:var(--gris-muted);margin-bottom:10px;">¿Cuándo duerme mal, sube el dolor al día siguiente?</div>
+        <canvas id="canvas-correlacion" height="120" style="width:100%;display:block;"></canvas>
+        <div id="correlacion-texto" style="font-size:12px;color:var(--gris-texto);margin-top:8px;line-height:1.5;"></div>
+      </div>
+
+      ${tieneNumericos ? `
+      <!-- PRESIÓN / GLICEMIA NUMÉRICA -->
+      <div style="background:#fff;border-radius:16px;border:1px solid var(--gris-borde);padding:16px;margin-bottom:12px;">
+        <div style="font-size:13px;font-weight:700;color:var(--negro);margin-bottom:4px;">📊 Valores de presión / glicemia</div>
+        <div style="font-size:11px;color:var(--gris-muted);margin-bottom:10px;">Registros numéricos del período</div>
+        <div id="tabla-numericos"></div>
+      </div>` : ''}
+
+    </div>`;
+
+  // Dibujar después de que el DOM esté listo
+  requestAnimationFrame(() => {
+    dibujarHeatmap(fechas);
+    dibujarLineas(fechas, series);
+    dibujarCorrelacion(fechas, series);
+    if (tieneNumericos) mostrarNumericos(fechas, byFecha);
+  });
+}
+
+function getColorDiaVal(fecha) {
+  const key = 'misalud_dia_' + perfil.id + '_' + new Date(fecha + ' 12:00').toDateString();
+  return localStorage.getItem(key);
+}
+
+function colorDiaHex(c) {
+  return {verde:'#22C55E',amarillo:'#EAB308',naranja:'#F97316',rojo:'#EF4444'}[c] || '#E2E8F0';
+}
+
+function dibujarHeatmap(fechas) {
+  const canvas = document.getElementById('canvas-heatmap');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 320;
+  canvas.width = W * 2; canvas.height = 88;
+  ctx.scale(2, 2);
+  const n = fechas.length;
+  const cw = W / n;
+  fechas.forEach((f, i) => {
+    const color = colorDiaHex(getColorDiaVal(f));
+    ctx.fillStyle = color;
+    const rx = i * cw + 1, ry = 1, rw = cw - 2, rh = 20;
+    ctx.beginPath();
+    ctx.roundRect(rx, ry, rw, rh, 3);
+    ctx.fill();
+  });
+}
+
+function dibujarLineas(fechas, series) {
+  const canvas = document.getElementById('canvas-lineas');
+  if (!canvas) return;
+  const minW = Math.max(fechas.length * 22, 300);
+  canvas.width = minW * 2; canvas.height = 320;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(2, 2);
+  const W = minW, H = 160;
+  const PAD = {t:10, b:30, l:24, r:10};
+  const gW = W - PAD.l - PAD.r;
+  const gH = H - PAD.t - PAD.b;
+  const n = fechas.length;
+
+  // Grid
+  ctx.strokeStyle = '#F1F5F9'; ctx.lineWidth = 0.5;
+  [0,1,2,3,4].forEach(v => {
+    const y = PAD.t + gH - (v/4)*gH;
+    ctx.beginPath(); ctx.moveTo(PAD.l, y); ctx.lineTo(W - PAD.r, y); ctx.stroke();
+    ctx.fillStyle = '#94A3B8'; ctx.font = '9px Nunito Sans'; ctx.textAlign = 'right';
+    ctx.fillText(v, PAD.l - 3, y + 3);
+  });
+
+  // Líneas por serie
+  const SERIES_CFG = [
+    {key:'sueno', color:'#7C3AED', label:'Sueño'},
+    {key:'dolor', color:'#DC2626', label:'Dolor'},
+    {key:'animo', color:'#DB2777', label:'Ánimo'},
+    {key:'med',   color:'#16A34A', label:'Med.'},
+  ];
+
+  SERIES_CFG.forEach(({key, color}) => {
+    const vals = series[key];
+    ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.lineJoin = 'round';
+    ctx.beginPath();
+    let started = false;
+    vals.forEach((v, i) => {
+      if (v === null) { started = false; return; }
+      const x = PAD.l + (i/(n-1||1))*gW;
+      const y = PAD.t + gH - (v/4)*gH;
+      if (!started) { ctx.moveTo(x, y); started = true; }
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    // Puntos
+    vals.forEach((v, i) => {
+      if (v === null) return;
+      const x = PAD.l + (i/(n-1||1))*gW;
+      const y = PAD.t + gH - (v/4)*gH;
+      ctx.fillStyle = color;
+      ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI*2); ctx.fill();
+    });
+  });
+
+  // Labels fecha cada N días
+  const step = Math.max(1, Math.floor(n / 6));
+  ctx.fillStyle = '#94A3B8'; ctx.font = '8px Nunito Sans'; ctx.textAlign = 'center';
+  fechas.forEach((f, i) => {
+    if (i % step !== 0 && i !== n-1) return;
+    const x = PAD.l + (i/(n-1||1))*gW;
+    ctx.fillText(f, x, H - PAD.b + 12);
+  });
+}
+
+function dibujarCorrelacion(fechas, series) {
+  const canvas = document.getElementById('canvas-correlacion');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 320;
+  canvas.width = W * 2; canvas.height = 240;
+  ctx.scale(2, 2);
+  const H = 120;
+
+  // Calcular correlación: días con sueño malo (≤1) → dolor siguiente día
+  const suenoVals = series.sueno;
+  const dolorVals = series.dolor;
+  let malDurmio = [], bienDurmio = [];
+  for (let i = 0; i < suenoVals.length - 1; i++) {
+    if (suenoVals[i] === null || dolorVals[i+1] === null) continue;
+    if (suenoVals[i] <= 1) malDurmio.push(dolorVals[i+1]);
+    else bienDurmio.push(dolorVals[i+1]);
+  }
+
+  const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : null;
+  const avgMal = avg(malDurmio);
+  const avgBien = avg(bienDurmio);
+
+  if (avgMal === null && avgBien === null) {
+    ctx.fillStyle = '#94A3B8'; ctx.font = '11px Nunito Sans'; ctx.textAlign = 'center';
+    ctx.fillText('Insuficientes datos para calcular correlación', W/2, H/2);
+    return;
+  }
+
+  // Barras comparativas
+  const barW = 60, gap = 30;
+  const totalW = 2*barW + gap;
+  const startX = (W - totalW) / 2;
+  const maxH = H - 40;
+
+  const maxVal = 4;
+
+  // Barra "durmió mal"
+  if (avgMal !== null) {
+    const bH = (avgMal/maxVal)*maxH;
+    ctx.fillStyle = '#FECACA';
+    ctx.beginPath(); ctx.roundRect(startX, H-25-bH, barW, bH, 4); ctx.fill();
+    ctx.fillStyle = '#DC2626'; ctx.font = 'bold 13px Nunito';
+    ctx.textAlign = 'center';
+    ctx.fillText((avgMal).toFixed(1), startX+barW/2, H-28-bH);
+    ctx.fillStyle = '#64748B'; ctx.font = '9px Nunito Sans';
+    ctx.fillText('Durmió mal', startX+barW/2, H-10);
+    ctx.fillText(`(${malDurmio.length} días)`, startX+barW/2, H);
+  }
+
+  // Barra "durmió bien"
+  if (avgBien !== null) {
+    const bH2 = (avgBien/maxVal)*maxH;
+    const x2 = startX+barW+gap;
+    ctx.fillStyle = '#DCFCE7';
+    ctx.beginPath(); ctx.roundRect(x2, H-25-bH2, barW, bH2, 4); ctx.fill();
+    ctx.fillStyle = '#16A34A'; ctx.font = 'bold 13px Nunito';
+    ctx.textAlign = 'center';
+    ctx.fillText((avgBien).toFixed(1), x2+barW/2, H-28-bH2);
+    ctx.fillStyle = '#64748B'; ctx.font = '9px Nunito Sans';
+    ctx.fillText('Durmió bien', x2+barW/2, H-10);
+    ctx.fillText(`(${bienDurmio.length} días)`, x2+barW/2, H);
+  }
+
+  // Texto interpretativo
+  const el = document.getElementById('correlacion-texto');
+  if (el && avgMal !== null && avgBien !== null) {
+    const diff = avgBien - avgMal;
+    if (diff > 0.5) el.textContent = `✓ Cuando descansa bien, el dolor al día siguiente es notablemente menor (${diff.toFixed(1)} puntos de diferencia). El sueño es un factor protector clave.`;
+    else if (diff > 0) el.textContent = `El dolor tiende a ser levemente menor después de dormir bien, aunque la diferencia es pequeña.`;
+    else el.textContent = `En este período, el sueño no muestra una correlación clara con el dolor del día siguiente. Otros factores podrían estar influyendo más.`;
+  }
+}
+
+function mostrarNumericos(fechas, byFecha) {
+  const el = document.getElementById('tabla-numericos');
+  if (!el) return;
+  const rows = fechas.map(f => {
+    const d = byFecha[f];
+    const pres = d?.presion?.numero || d?.diabetes?.numero || null;
+    if (!pres) return null;
+    return `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #F1F5F9;font-size:13px;">
+      <span style="color:var(--gris-texto);">${f}</span>
+      <span style="font-weight:700;">${pres}</span>
+    </div>`;
+  }).filter(Boolean);
+  el.innerHTML = rows.length ? rows.join('') : '<div style="color:var(--gris-muted);font-size:13px;">Sin valores numéricos registrados</div>';
 }
 
 function copiarResumen() {
