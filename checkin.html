@@ -186,13 +186,13 @@ medicamentos:{id:'medicamentos',emoji:'💊',texto:'¿Cómo vas con tus remedios
   {emoji:'💊',texto:'Tomé algo extra por dolor',sub:'Un analgésico u otro, no de mi rutina diaria',valor:'extra'},
   {emoji:'🔄',texto:'Me cambiaron el tratamiento',sub:'El médico me cambió algún remedio o dosis',valor:'cambio'},
 ],opcionesExtra:true},
-presion:{id:'presion',emoji:'📊',texto:'¿Cómo está tu presión hoy?',sub:'Si te la mediste, cuéntame cómo salió',tipo:'mixto',condicion:'Hipertensión',opciones:[
+presion:{id:'presion',emoji:'📊',texto:'¿Cómo está tu presión hoy?',sub:'Si te la mediste, cuéntame cómo salió',tipo:'mixto',condicion:'Hipertensión',tieneNumero:true,labelNumero:'Valor medido (opcional)',placeholderNumero:'Ej: 130/85',opciones:[
   {emoji:'✅',texto:'Normal, dentro del rango',sub:'La presión estuvo bien controlada',valor:'normal'},
   {emoji:'📈',texto:'Alta — salió elevada',sub:'Por encima de lo normal para mí',valor:'alta'},
   {emoji:'📉',texto:'Baja — me sentí mareada',sub:'Mareos, debilidad o vista borrosa',valor:'baja'},
   {emoji:'🤷',texto:'No me la medí hoy',sub:'No tuve cómo o no pude',valor:'no_medida'},
 ]},
-diabetes:{id:'diabetes',emoji:'🩸',texto:'¿Cómo estuvo tu azúcar hoy?',sub:'Si te la mediste, cuéntame',tipo:'mixto',condicion:'Diabetes',opciones:[
+diabetes:{id:'diabetes',emoji:'🩸',texto:'¿Cómo estuvo tu azúcar hoy?',sub:'Si te la mediste, cuéntame',tipo:'mixto',condicion:'Diabetes',tieneNumero:true,labelNumero:'Valor de glicemia (opcional)',placeholderNumero:'Ej: 115 mg/dL',opciones:[
   {emoji:'✅',texto:'Normal, dentro del rango',sub:'El azúcar estuvo controlada hoy',valor:'normal'},
   {emoji:'📈',texto:'Alta — sobre lo normal',sub:'Mucha sed, cansancio o muchas ganas de orinar',valor:'alta'},
   {emoji:'📉',texto:'Baja — tuve hipoglicemia',sub:'Temblor, sudor frío, mareos o mucha hambre',valor:'baja'},
@@ -280,6 +280,13 @@ function renderPregunta(){
       </div>`:''
       }
     </div>
+    ${p.tieneNumero?`
+    <div style="margin-bottom:12px;">
+      <label style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.04em;display:block;margin-bottom:6px;">${p.labelNumero}</label>
+      <input type="text" inputmode="decimal" id="num-${p.id}" placeholder="${p.placeholderNumero}" value="${respuestas[p.id]?.numero||''}"
+        style="width:100%;padding:13px 15px;border:2px solid #E2E8F0;border-radius:12px;font-size:18px;font-family:'Nunito',sans-serif;font-weight:700;color:#0F172A;text-align:center;"
+        oninput="guardarNumero('${p.id}',this.value)">
+    </div>`:''}
     ${p.tipo==='mixto'?`<div class="mic-checkin" id="mic-checkin-btn" onclick="toggleMicCheckin()">
       <div class="mic-checkin-icono">🎙️</div>
       <div class="mic-checkin-texto">O toca para contarme con tu voz</div>
@@ -357,6 +364,10 @@ function usarTrans(pregId){
   mostrarToast('✓ Respuesta guardada',true);
 }
 function rehacerVoz(){document.getElementById('trans-mini').classList.remove('visible');textoVozCheckin='';}
+function guardarNumero(pregId, val){
+  if(!respuestas[pregId]) respuestas[pregId]={valor:'no_medida',texto:'No se midió',emoji:'🤷'};
+  respuestas[pregId].numero=val;
+}
 
 function mostrarResumen(){
   document.getElementById('pregunta-contenido').style.display='none';
@@ -425,7 +436,7 @@ function guardarTodo(){
     if(['molestia','irritacion','problema'].includes(r.valor)&&id==='colostomia')cats.push('mov');
     if(['leve','moderado','nocturia'].includes(r.valor)&&id==='prostata')cats.push('mov');
   });
-  const registro={id:Date.now(),texto:textoResumen,categorias:[...new Set(cats)],hora:hora2,fecha:fechaStr,tipo:'checkin',detalle:respuestas};
+  const registro={id:Date.now(),texto:textoResumen,categorias:[...new Set(cats)],hora:hora2,fecha:fechaStr,tipo:'checkin',detalle:respuestas,numeros:Object.fromEntries(Object.entries(respuestas).filter(([,r])=>r.numero).map(([k,r])=>[k,r.numero]))};
   const key='misalud_registros_'+perfil.id;
   const registros=JSON.parse(localStorage.getItem(key)||'[]');
   registros.push(registro);
@@ -437,11 +448,19 @@ function guardarTodo(){
     <div style="text-align:center;padding:40px 20px;">
       <div style="font-size:72px;margin-bottom:20px;">🌿</div>
       <div style="font-family:'Nunito',sans-serif;font-weight:900;font-size:26px;color:#0F172A;margin-bottom:10px;">¡Gracias, ${nombreCorto}!</div>
-      <div style="font-size:16px;color:#64748B;line-height:1.7;margin-bottom:32px;">Tu check-in quedó guardado.<br>Esta información ayuda mucho a tu médico.</div>
-      <button onclick="window.location.href='home.html'" style="width:100%;padding:18px;border-radius:14px;border:none;background:#22C55E;color:#fff;font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;cursor:pointer;margin-bottom:12px;">Volver al inicio 🏠</button>
-      <button onclick="window.location.href='historial.html'" style="width:100%;padding:14px;border-radius:14px;border:1.5px solid #E2E8F0;background:#fff;color:#64748B;font-family:'Nunito',sans-serif;font-weight:700;font-size:15px;cursor:pointer;">Ver mis registros de hoy</button>
+      <div style="font-size:16px;color:#64748B;line-height:1.7;margin-bottom:20px;">Tu check-in quedó guardado.<br>Esta información ayuda mucho a tu médico.</div>
+      <div style="font-size:13px;color:#94A3B8;margin-bottom:20px;" id="countdown-txt">Volviendo al inicio en 3 segundos...</div>
+      <button onclick="window.location.href='home.html'" style="width:100%;padding:18px;border-radius:14px;border:none;background:#22C55E;color:#fff;font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;cursor:pointer;margin-bottom:12px;">Ir al inicio ahora 🏠</button>
+      <button onclick="window.location.href='historial.html'" style="width:100%;padding:14px;border-radius:14px;border:1.5px solid #E2E8F0;background:#fff;color:#64748B;font-family:'Nunito',sans-serif;font-weight:700;font-size:15px;cursor:pointer;">Ver mis registros</button>
     </div>`;
   window.scrollTo(0,0);
+  let secs = 3;
+  const countdown = setInterval(() => {
+    secs--;
+    const el = document.getElementById('countdown-txt');
+    if (el) el.textContent = secs > 0 ? `Volviendo al inicio en ${secs} segundo${secs!==1?'s':''}...` : 'Redirigiendo...';
+    if (secs <= 0) { clearInterval(countdown); window.location.href = 'home.html'; }
+  }, 1000);
 }
 
 function mostrarToast(msg,ok){
