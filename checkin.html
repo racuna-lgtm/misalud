@@ -444,7 +444,9 @@ function guardarTodo(){
   localStorage.setItem('misalud_checkin_'+perfil.id+'_'+fechaStr,'1');
   localStorage.setItem('misalud_dia_'+perfil.id+'_'+fechaStr,evaluarDia());
   // Pantalla de cierre cálida antes de volver al home
-  document.getElementById('resumen').innerHTML = `
+  const resumenEl = document.getElementById('resumen');
+  resumenEl.classList.add('visible');
+  resumenEl.innerHTML = `
     <div style="text-align:center;padding:40px 20px;">
       <div style="font-size:72px;margin-bottom:20px;">🌿</div>
       <div style="font-family:'Nunito',sans-serif;font-weight:900;font-size:26px;color:#0F172A;margin-bottom:10px;">¡Gracias, ${nombreCorto}!</div>
