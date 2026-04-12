@@ -258,55 +258,112 @@ function renderPregunta(){
   btn.disabled=!respuestas[p.id];
   const opcionesPrincipales = p.opcionesExtra ? p.opciones.slice(0,4) : p.opciones;
   const opcionesExtra = p.opcionesExtra ? p.opciones.slice(4) : [];
-  const cont=document.getElementById('pregunta-contenido');
-  cont.innerHTML=`<div class="pregunta-wrap">
-    <div class="pregunta-emoji">${p.emoji}</div>
-    ${p.condicion?`<span class="pregunta-badge">Para: ${p.condicion}</span>`:''}
-    <div class="pregunta-texto">${p.texto}</div>
-    <div class="pregunta-sub">${p.sub}</div>
-    <div class="opciones" id="opciones-cont">
-      ${opcionesPrincipales.map((o,i)=>{
-        const textoSeguro=o.texto.replace(/'/g,'&#39;').replace(/"/g,'&quot;');
-        return '<div class="opcion" id="op-'+i+'" onclick="selOp('+i+',''+o.valor+'',''+textoSeguro+'',''+p.id+'')">'+
-          '<span class="opcion-emoji">'+o.emoji+'</span>'+
-          '<div><div class="opcion-texto">'+o.texto+'</div>'+(o.sub?'<div class="opcion-sub">'+o.sub+'</div>':'')+
-          '</div></div>';
-      }).join('')}
-      ${opcionesExtra.length>0?`
-      <div id="ver-mas-wrap" style="text-align:center;margin-top:4px;">
-        <span onclick="mostrarMasOpciones()" style="font-size:13px;color:#64748B;font-weight:600;cursor:pointer;text-decoration:underline;">Ver más opciones ↓</span>
-      </div>
-      <div id="opciones-extra" style="display:none;margin-top:8px;">
-        `+opcionesExtra.map((o,i)=>{
-          const textoSeguro=o.texto.replace(/'/g,'&#39;').replace(/"/g,'&quot;');
-          return '<div class="opcion" id="op-'+(i+4)+'" onclick="selOp('+(i+4)+',''+o.valor+'',''+textoSeguro+'',''+p.id+'')" style="margin-bottom:9px;">'+
-            '<span class="opcion-emoji">'+o.emoji+'</span>'+
-            '<div><div class="opcion-texto">'+o.texto+'</div>'+(o.sub?'<div class="opcion-sub">'+o.sub+'</div>':'')+
-            '</div></div>';
-        }).join('')+`
-      </div>`:''
-      }
-    </div>
-    ${p.tieneNumero?`
-    <div style="margin-bottom:12px;">
-      <label style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.04em;display:block;margin-bottom:6px;">${p.labelNumero}</label>
-      <input type="text" inputmode="decimal" id="num-${p.id}" placeholder="${p.placeholderNumero}" value="${respuestas[p.id]?.numero||''}"
-        style="width:100%;padding:13px 15px;border:2px solid #E2E8F0;border-radius:12px;font-size:18px;font-family:'Nunito',sans-serif;font-weight:700;color:#0F172A;text-align:center;"
-        oninput="guardarNumero('${p.id}',this.value)">
-    </div>`:''}
-    ${p.tipo==='mixto'?`<div class="mic-checkin" id="mic-checkin-btn" onclick="toggleMicCheckin()">
-      <div class="mic-checkin-icono">🎙️</div>
-      <div class="mic-checkin-texto">O toca para contarme con tu voz</div>
-    </div>
-    <div class="transcripcion-mini" id="trans-mini">
-      <div class="trans-mini-label">Esto escuché — ¿está bien?</div>
-      <textarea class="trans-mini-texto" id="trans-mini-texto" rows="2"></textarea>
-      <div class="trans-mini-acciones">
-        <button class="btn-usar" onclick="usarTrans('${p.id}')">✓ Usar esta respuesta</button>
-        <button class="btn-rehace" onclick="rehacerVoz()">Repetir</button>
-      </div>
-    </div>`:''}
-  </div>`;
+  // Guardar opciones en variable global para que selOp las acceda de forma segura
+  window._opcionesActuales = p.opciones;
+  window._pregIdActual = p.id;
+
+  const cont = document.getElementById('pregunta-contenido');
+
+  // Construir wrap principal
+  const wrap = document.createElement('div');
+  wrap.className = 'pregunta-wrap';
+
+  // Emoji + badge + texto + sub
+  wrap.innerHTML =
+    '<div class="pregunta-emoji">' + p.emoji + '</div>' +
+    (p.condicion ? '<span class="pregunta-badge">Para: ' + p.condicion + '</span>' : '') +
+    '<div class="pregunta-texto">' + p.texto + '</div>' +
+    '<div class="pregunta-sub">' + p.sub + '</div>';
+
+  // Contenedor de opciones
+  const opsCont = document.createElement('div');
+  opsCont.className = 'opciones';
+  opsCont.id = 'opciones-cont';
+
+  // Renderizar opciones principales
+  opcionesPrincipales.forEach((o, i) => {
+    const div = document.createElement('div');
+    div.className = 'opcion';
+    div.id = 'op-' + i;
+    div.innerHTML = '<span class="opcion-emoji">' + o.emoji + '</span>' +
+      '<div><div class="opcion-texto">' + o.texto + '</div>' +
+      (o.sub ? '<div class="opcion-sub">' + o.sub + '</div>' : '') + '</div>';
+    div.addEventListener('click', function() { selOp(i, o.valor, o.texto, p.id); });
+    opsCont.appendChild(div);
+  });
+
+  // Opciones extra (medicamentos)
+  if (opcionesExtra.length > 0) {
+    const verMas = document.createElement('div');
+    verMas.id = 'ver-mas-wrap';
+    verMas.style.cssText = 'text-align:center;margin-top:4px;';
+    verMas.innerHTML = '<span onclick="mostrarMasOpciones()" style="font-size:13px;color:#64748B;font-weight:600;cursor:pointer;text-decoration:underline;">Ver más opciones ↓</span>';
+    opsCont.appendChild(verMas);
+
+    const extraCont = document.createElement('div');
+    extraCont.id = 'opciones-extra';
+    extraCont.style.cssText = 'display:none;margin-top:8px;';
+    opcionesExtra.forEach((o, i) => {
+      const div = document.createElement('div');
+      div.className = 'opcion';
+      div.id = 'op-' + (i + 4);
+      div.style.marginBottom = '9px';
+      div.innerHTML = '<span class="opcion-emoji">' + o.emoji + '</span>' +
+        '<div><div class="opcion-texto">' + o.texto + '</div>' +
+        (o.sub ? '<div class="opcion-sub">' + o.sub + '</div>' : '') + '</div>';
+      div.addEventListener('click', function() { selOp(i + 4, o.valor, o.texto, p.id); });
+      extraCont.appendChild(div);
+    });
+    opsCont.appendChild(extraCont);
+  }
+
+  wrap.appendChild(opsCont);
+
+  // Campo numérico (presión/glicemia) — solo si la pregunta lo tiene
+  if (p.tieneNumero) {
+    const numDiv = document.createElement('div');
+    numDiv.style.marginBottom = '12px';
+    const lbl = document.createElement('label');
+    lbl.style.cssText = 'font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.04em;display:block;margin-bottom:6px;';
+    lbl.textContent = p.labelNumero || 'Valor (opcional)';
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.inputMode = 'decimal';
+    inp.id = 'num-' + p.id;
+    inp.placeholder = p.placeholderNumero || '';
+    inp.value = (respuestas[p.id] && respuestas[p.id].numero) ? respuestas[p.id].numero : '';
+    inp.style.cssText = 'width:100%;padding:13px 15px;border:2px solid #E2E8F0;border-radius:12px;font-size:18px;font-family:Nunito,sans-serif;font-weight:700;color:#0F172A;text-align:center;';
+    inp.addEventListener('input', function() { guardarNumero(p.id, this.value); });
+    numDiv.appendChild(lbl);
+    numDiv.appendChild(inp);
+    wrap.appendChild(numDiv);
+  }
+
+  // Micrófono (tipo mixto)
+  if (p.tipo === 'mixto') {
+    const micDiv = document.createElement('div');
+    micDiv.className = 'mic-checkin';
+    micDiv.id = 'mic-checkin-btn';
+    micDiv.innerHTML = '<div class="mic-checkin-icono">🎙️</div><div class="mic-checkin-texto">O toca para contarme con tu voz</div>';
+    micDiv.addEventListener('click', toggleMicCheckin);
+    const transDiv = document.createElement('div');
+    transDiv.className = 'transcripcion-mini';
+    transDiv.id = 'trans-mini';
+    transDiv.innerHTML = '<div class="trans-mini-label">Esto escuché — ¿está bien?</div>' +
+      '<textarea class="trans-mini-texto" id="trans-mini-texto" rows="2"></textarea>' +
+      '<div class="trans-mini-acciones">' +
+      '<button class="btn-usar" id="btn-usar-trans">✓ Usar esta respuesta</button>' +
+      '<button class="btn-rehace" onclick="rehacerVoz()">Repetir</button></div>';
+    wrap.appendChild(micDiv);
+    wrap.appendChild(transDiv);
+  }
+
+  cont.innerHTML = '';
+  cont.appendChild(wrap);
+
+  // Botón usar transcripción (necesita referencia a p.id)
+  const btnUsar = document.getElementById('btn-usar-trans');
+  if (btnUsar) btnUsar.addEventListener('click', function() { usarTrans(p.id); });
   if(respuestas[p.id]){const idx=p.opciones.findIndex(o=>o.valor===respuestas[p.id].valor);if(idx>=0)document.getElementById('op-'+idx)?.classList.add('seleccionada');}
   window.scrollTo(0,0);
 }
