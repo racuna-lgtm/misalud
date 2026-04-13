@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MiSalud — Panel Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Nunito+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --verde: #22C55E;
+  --verde-claro: #DCFCE7;
+  --verde-texto: #15803D;
+  --azul: #0090F8;
+  --azul-claro: #EFF6FF;
+  --azul-texto: #1D4ED8;
+  --rojo: #FEE2E2;
+  --rojo-texto: #991B1B;
+  --gris-bg: #F1F5F9;
+  --gris-card: #FFFFFF;
+  --gris-borde: #E2E8F0;
+  --gris-texto: #64748B;
+  --gris-muted: #94A3B8;
+  --negro: #0F172A;
+  --radio: 14px;
+  --radio-sm: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Nunito Sans', sans-serif; background: var(--gris-bg); color: var(--negro); min-height: 100vh; font-size: 15px; }
+
+.topbar {
+  background: #fff;
+  border-bottom: 1px solid var(--gris-borde);
+  padding: 0 28px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo-icon {
+  width: 38px; height: 38px;
+  background: var(--verde);
+  border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+}
+.logo-text { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 20px; color: var(--negro); }
+.logo-badge {
+  font-size: 11px; font-weight: 700;
+  background: var(--azul-claro); color: var(--azul);
+  padding: 2px 9px; border-radius: 20px;
+}
+.admin-info { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--gris-texto); }
+.admin-avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: #fff;
+}
+
+.main { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
+
+.page-title { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 26px; color: var(--negro); margin-bottom: 4px; }
+.page-sub { font-size: 14px; color: var(--gris-texto); margin-bottom: 28px; }
+
+.stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
+.stat-card {
+  background: #fff;
+  border-radius: var(--radio);
+  padding: 18px 20px;
+  border: 1px solid var(--gris-borde);
+}
+.stat-label { font-size: 12px; color: var(--gris-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+.stat-value { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 32px; color: var(--negro); }
+.stat-sub { font-size: 12px; color: var(--gris-texto); margin-top: 4px; }
+
+.card {
+  background: #fff;
+  border-radius: var(--radio);
+  border: 1px solid var(--gris-borde);
+  margin-bottom: 20px;
+}
+.card-header {
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid var(--gris-borde);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card-title { font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 16px; color: var(--negro); }
+.card-body { padding: 20px 22px; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 10px 18px; border-radius: var(--radio-sm);
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  border: none; transition: all 0.15s;
+}
+.btn-primary { background: var(--verde); color: #fff; }
+.btn-primary:hover { background: #16A34A; }
+.btn-secondary { background: var(--gris-bg); color: var(--negro); border: 1px solid var(--gris-borde); }
+.btn-secondary:hover { background: #E2E8F0; }
+.btn-danger { background: var(--rojo); color: var(--rojo-texto); }
+.btn-danger:hover { background: #FECACA; }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-icon { width: 34px; height: 34px; padding: 0; justify-content: center; border-radius: 8px; }
+
+/* FORM */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-full { grid-column: 1 / -1; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-label { font-size: 12px; font-weight: 600; color: var(--gris-texto); text-transform: uppercase; letter-spacing: 0.04em; }
+.form-input, .form-select {
+  padding: 10px 13px; border-radius: var(--radio-sm);
+  border: 1.5px solid var(--gris-borde);
+  font-size: 14px; color: var(--negro);
+  font-family: 'Nunito Sans', sans-serif;
+  background: #fff; transition: border 0.15s;
+  width: 100%;
+}
+.form-input:focus, .form-select:focus { outline: none; border-color: var(--verde); }
+.form-hint { font-size: 11px; color: var(--gris-muted); }
+
+.checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.checkbox-item {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 11px; border-radius: 20px;
+  border: 1.5px solid var(--gris-borde);
+  cursor: pointer; font-size: 12px; font-weight: 600;
+  color: var(--gris-texto); transition: all 0.15s;
+  background: #fff;
+}
+.checkbox-item input { display: none; }
+.checkbox-item.checked { border-color: var(--verde); background: var(--verde-claro); color: var(--verde-texto); }
+
+.condiciones-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 4px; }
+.cond-item {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 10px; border-radius: var(--radio-sm);
+  border: 1.5px solid var(--gris-borde);
+  cursor: pointer; font-size: 12px; color: var(--gris-texto);
+  transition: all 0.15s; background: #fff;
+}
+.cond-item input { display: none; }
+.cond-item.checked { border-color: var(--azul); background: var(--azul-claro); color: var(--azul-texto); }
+
+/* TABLA DE USUARIOS */
+.user-table { width: 100%; border-collapse: collapse; }
+.user-table th {
+  text-align: left; font-size: 11px; font-weight: 700;
+  color: var(--gris-muted); text-transform: uppercase;
+  letter-spacing: 0.05em; padding: 0 12px 10px;
+  border-bottom: 1px solid var(--gris-borde);
+}
+.user-table td {
+  padding: 14px 12px; border-bottom: 1px solid #F8FAFC;
+  font-size: 14px; vertical-align: middle;
+}
+.user-table tr:last-child td { border-bottom: none; }
+.user-table tr:hover td { background: #FAFCFF; }
+
+.avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; flex-shrink: 0;
+}
+.user-info { display: flex; align-items: center; gap: 10px; }
+.user-name { font-weight: 600; font-size: 14px; color: var(--negro); }
+.user-age { font-size: 12px; color: var(--gris-texto); }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px;
+}
+.badge-activo { background: var(--verde-claro); color: var(--verde-texto); }
+.badge-inactivo { background: var(--rojo); color: var(--rojo-texto); }
+.badge-f { background: #FCE7F3; color: #9D174D; }
+.badge-m { background: #EFF6FF; color: #1D4ED8; }
+
+.codigo-box {
+  font-family: monospace; font-size: 16px; font-weight: 700;
+  letter-spacing: 3px; background: var(--gris-bg);
+  padding: 4px 10px; border-radius: 6px; color: var(--negro);
+  border: 1px solid var(--gris-borde); cursor: pointer;
+  transition: all 0.15s;
+}
+.codigo-box:hover { background: #E2E8F0; }
+.codigo-box.copiado { background: var(--verde-claro); color: var(--verde-texto); border-color: var(--verde); }
+
+.condicion-tag {
+  display: inline-block; font-size: 11px;
+  background: var(--azul-claro); color: var(--azul-texto);
+  padding: 2px 7px; border-radius: 10px; margin: 2px 2px 0 0;
+}
+
+/* MODAL */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(15,23,42,0.5); z-index: 200;
+  align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: #fff; border-radius: 20px;
+  width: 100%; max-width: 580px; max-height: 90vh;
+  overflow-y: auto; margin: 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+.modal-header {
+  padding: 22px 24px 16px;
+  border-bottom: 1px solid var(--gris-borde);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-title { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 18px; }
+.modal-close {
+  width: 32px; height: 32px; border-radius: 8px;
+  border: none; background: var(--gris-bg); cursor: pointer;
+  font-size: 16px; display: flex; align-items: center; justify-content: center;
+}
+.modal-body { padding: 22px 24px; }
+.modal-footer {
+  padding: 16px 24px 20px;
+  border-top: 1px solid var(--gris-borde);
+  display: flex; justify-content: flex-end; gap: 10px;
+}
+
+/* CODIGO GENERADO */
+.codigo-generado {
+  display: none; background: var(--verde-claro);
+  border: 2px dashed var(--verde);
+  border-radius: var(--radio); padding: 20px;
+  text-align: center; margin-top: 16px;
+}
+.codigo-generado.show { display: block; }
+.codigo-grande {
+  font-family: monospace; font-size: 36px; font-weight: 800;
+  letter-spacing: 6px; color: var(--verde-texto);
+  margin: 8px 0;
+}
+.codigo-instruccion { font-size: 13px; color: var(--verde-texto); }
+
+.empty-state {
+  text-align: center; padding: 40px 20px;
+  color: var(--gris-muted); font-size: 14px;
+}
+.empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+.acciones { display: flex; gap: 6px; }
+
+.section-divider {
+  font-size: 12px; font-weight: 700; color: var(--gris-muted);
+  text-transform: uppercase; letter-spacing: 0.05em;
+  margin: 18px 0 10px; padding-bottom: 6px;
+  border-bottom: 1px solid var(--gris-borde);
+}
+
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--negro); color: #fff;
+  padding: 12px 18px; border-radius: 10px;
+  font-size: 13px; font-weight: 600;
+  transform: translateY(80px); opacity: 0;
+  transition: all 0.3s; z-index: 300;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+@media (max-width: 640px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .stats-row { grid-template-columns: 1fr; }
+  .condiciones-grid { grid-template-columns: 1fr 1fr; }
+  .main { padding: 20px 16px; }
+  .topbar { padding: 0 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-icon">💚</div>
+    <span class="logo-text">MiSalud</span>
+    <span class="logo-badge">Admin</span>
+  </div>
+  <div class="admin-info">
+    <span>Panel de administración</span>
+    <div class="admin-avatar">N</div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="page-title">Gestión de perfiles</div>
+  <div class="page-sub">Crea y administra los perfiles de tu familia. Solo tú puedes agregar nuevos usuarios.</div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Perfiles activos</div>
+      <div class="stat-value" id="stat-activos">0</div>
+      <div class="stat-sub">de tu grupo familiar</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Mujeres</div>
+      <div class="stat-value" id="stat-mujeres">0</div>
+      <div class="stat-sub">perfiles femeninos</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Hombres</div>
+      <div class="stat-value" id="stat-hombres">0</div>
+      <div class="stat-sub">perfiles masculinos</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Perfiles registrados</span>
+      <button class="btn btn-primary" onclick="abrirModal()">
+        + Nuevo perfil
+      </button>
+    </div>
+    <div class="card-body" style="padding: 0;">
+      <div id="empty-state" class="empty-state">
+        <div class="empty-icon">👨‍👩‍👧‍👦</div>
+        <div style="font-weight: 600; color: var(--negro); margin-bottom: 6px;">Aún no hay perfiles</div>
+        <div>Crea el primer perfil haciendo clic en "Nuevo perfil"</div>
+      </div>
+      <table class="user-table" id="tabla-usuarios" style="display:none;">
+        <thead>
+          <tr>
+            <th>Persona</th>
+            <th>Edad / Sexo</th>
+            <th>Condiciones</th>
+            <th>Código de acceso</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-usuarios"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Instrucciones para compartir</span>
+    </div>
+    <div class="card-body">
+      <ol style="font-size: 14px; color: var(--gris-texto); line-height: 2; padding-left: 18px;">
+        <li>Crea el perfil de tu familiar con sus datos y condiciones de salud.</li>
+        <li>Copia el código de 6 dígitos generado automáticamente.</li>
+        <li>Envíaselo por WhatsApp junto con el enlace de la app.</li>
+        <li>Ella ingresa el código y ya puede empezar a registrar.</li>
+        <li>Si deja de usarla, puedes desactivar su perfil desde acá.</li>
+      </ol>
+      <div style="margin-top: 16px; background: var(--azul-claro); border-radius: var(--radio-sm); padding: 14px 16px; font-size: 13px; color: var(--azul-texto);">
+        <strong>Enlace de la app:</strong> <span style="font-family: monospace;">misalud.app/entrar</span>
+        — compártelo junto con el código personal de cada persona.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NUEVO PERFIL -->
+<div class="modal-overlay" id="modal" onclick="cerrarModalOverlay(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-titulo">Nuevo perfil</span>
+      <button class="modal-close" onclick="cerrarModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+
+        <div class="form-group form-full">
+          <label class="form-label">Nombre completo</label>
+          <input class="form-input" id="f-nombre" placeholder="Ej: Carmen González" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Edad</label>
+          <input class="form-input" id="f-edad" type="number" min="1" max="120" placeholder="Ej: 70" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Sexo biológico</label>
+          <select class="form-select" id="f-sexo" onchange="actualizarCondiciones()">
+            <option value="">Seleccionar...</option>
+            <option value="f">Mujer</option>
+            <option value="m">Hombre</option>
+          </select>
+          <span class="form-hint">Activa las categorías de salud relevantes</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Relación contigo</label>
+          <select class="form-select" id="f-relacion">
+            <option value="">Seleccionar...</option>
+            <option>Mamá</option>
+            <option>Papá</option>
+            <option>Tía</option>
+            <option>Tío</option>
+            <option>Abuela</option>
+            <option>Abuelo</option>
+            <option>Hermana</option>
+            <option>Hermano</option>
+            <option>Otra</option>
+          </select>
+        </div>
+
+        <div class="form-group form-full">
+          <label class="form-label">Condiciones de salud conocidas</label>
+          <span class="form-hint" style="margin-bottom: 6px;">Selecciona las que apliquen — puedes agregar más después</span>
+          <div class="condiciones-grid" id="condiciones-grid">
+            <div style="font-size: 13px; color: var(--gris-muted); padding: 8px; grid-column: 1/-1;">
+              Primero selecciona el sexo biológico para ver las condiciones relevantes
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group form-full">
+          <label class="form-label">Categorías activas en la app</label>
+          <div class="checkbox-group" id="categorias-activas">
+            <div class="checkbox-item checked"><input type="checkbox" checked>🌙 Sueño</div>
+            <div class="checkbox-item checked"><input type="checkbox" checked>⚡ Dolor</div>
+            <div class="checkbox-item checked"><input type="checkbox" checked>💙 Ánimo</div>
+            <div class="checkbox-item checked"><input type="checkbox" checked>💊 Medicamentos</div>
+            <div class="checkbox-item checked"><input type="checkbox" checked>📊 Presión</div>
+            <div class="checkbox-item checked"><input type="checkbox" checked>🥗 Alimentación</div>
+            <div class="checkbox-item checked"><input type="checkbox" checked>🚶 Movilidad</div>
+            <div class="checkbox-item checked"><input type="checkbox" checked>🩺 Visitas médicas</div>
+          </div>
+        </div>
+
+        <div class="form-group form-full">
+          <label class="form-label">Notas para el reporte médico</label>
+          <input class="form-input" id="f-notas" placeholder="Ej: Paciente con fibromialgia y depresión desde 2018, en tratamiento con reumatólogo..." />
+          <span class="form-hint">Aparecerá en el encabezado del reporte para el médico</span>
+        </div>
+
+      </div>
+
+      <div class="codigo-generado" id="codigo-generado">
+        <div style="font-size: 13px; font-weight: 600; color: var(--verde-texto);">✓ Perfil creado exitosamente</div>
+        <div class="codigo-grande" id="codigo-display">------</div>
+        <div class="codigo-instruccion">Envía este código por WhatsApp a tu familiar</div>
+        <button class="btn btn-primary" style="margin-top: 12px;" onclick="copiarCodigo()">
+          Copiar código
+        </button>
+      </div>
+
+    </div>
+    <div class="modal-footer" id="modal-footer">
+      <button class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarPerfil()">Crear perfil y generar código</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CONDICIONES_COMUNES = [
+  "Hipertensión","Diabetes tipo 2","Colesterol alto","Sobrepeso / obesidad",
+  "Artritis / artrosis","Dolor crónico","Depresión","Ansiedad",
+  "Fibromialgia","Hipotiroidismo","Gastritis / reflujo","Insuficiencia renal",
+  "EPOC / asma","Anemia","Problemas de sueño","Deterioro cognitivo leve"
+];
+const CONDICIONES_MUJER = [
+  "Menopausia","Osteoporosis","Endometriosis","SOP",
+  "Infecciones urinarias recurrentes","Prolapso"
+];
+const CONDICIONES_HOMBRE = [
+  "Hiperplasia de próstata","Cáncer de próstata","Gota","Hernia",
+  "Sarcopenia","Disfunción eréctil","Incontinencia urinaria"
+];
+
+let perfiles = JSON.parse(localStorage.getItem('misalud_perfiles') || '[]');
+let editandoId = null;
+
+function generarCodigo() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+function iniciales(nombre) {
+  return nombre.split(' ').map(p => p[0]).join('').substring(0,2).toUpperCase();
+}
+
+const COLORES_AVATAR = [
+  ['#DBEAFE','#1D4ED8'],['#DCF0EA','#15803D'],['#FCE7F3','#9D174D'],
+  ['#FEF9C3','#854D0E'],['#EDE9FE','#5B21B6'],['#FFEDD5','#9A3412']
+];
+
+function colorAvatar(idx) {
+  return COLORES_AVATAR[idx % COLORES_AVATAR.length];
+}
+
+function actualizarCondiciones() {
+  const sexo = document.getElementById('f-sexo').value;
+  const grid = document.getElementById('condiciones-grid');
+  if (!sexo) {
+    grid.innerHTML = '<div style="font-size:13px;color:var(--gris-muted);padding:8px;grid-column:1/-1;">Primero selecciona el sexo biológico para ver las condiciones relevantes</div>';
+    return;
+  }
+  let lista = [...CONDICIONES_COMUNES];
+  if (sexo === 'f') lista = [...lista, ...CONDICIONES_MUJER];
+  if (sexo === 'm') lista = [...lista, ...CONDICIONES_HOMBRE];
+
+  grid.innerHTML = lista.map(c => `
+    <div class="cond-item" onclick="toggleCond(this)">
+      <input type="checkbox">
+      <span>${c}</span>
+    </div>
+  `).join('');
+}
+
+function toggleCond(el) {
+  el.classList.toggle('checked');
+  el.querySelector('input').checked = el.classList.contains('checked');
+}
+
+document.querySelectorAll('.checkbox-item').forEach(el => {
+  el.addEventListener('click', () => el.classList.toggle('checked'));
+});
+
+function abrirModal() {
+  editandoId = null;
+  document.getElementById('modal-titulo').textContent = 'Nuevo perfil';
+  document.getElementById('f-nombre').value = '';
+  document.getElementById('f-edad').value = '';
+  document.getElementById('f-sexo').value = '';
+  document.getElementById('f-relacion').value = '';
+  document.getElementById('f-notas').value = '';
+  document.getElementById('condiciones-grid').innerHTML = '<div style="font-size:13px;color:var(--gris-muted);padding:8px;grid-column:1/-1;">Primero selecciona el sexo biológico</div>';
+  document.getElementById('codigo-generado').classList.remove('show');
+  document.getElementById('modal-footer').style.display = 'flex';
+  document.getElementById('modal').classList.add('open');
+}
+
+function cerrarModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+function cerrarModalOverlay(e) {
+  if (e.target === document.getElementById('modal')) cerrarModal();
+}
+
+function guardarPerfil() {
+  const nombre = document.getElementById('f-nombre').value.trim();
+  const edad = document.getElementById('f-edad').value;
+  const sexo = document.getElementById('f-sexo').value;
+  const relacion = document.getElementById('f-relacion').value;
+  const notas = document.getElementById('f-notas').value.trim();
+
+  if (!nombre || !edad || !sexo) {
+    mostrarToast('Completa nombre, edad y sexo biológico');
+    return;
+  }
+
+  const condiciones = [...document.querySelectorAll('#condiciones-grid .cond-item.checked')]
+    .map(el => el.querySelector('span').textContent);
+
+  const codigo = generarCodigo();
+  const perfil = {
+    id: Date.now(),
+    nombre, edad: parseInt(edad), sexo, relacion, notas, condiciones, codigo,
+    activo: true, creado: new Date().toLocaleDateString('es-CL')
+  };
+
+  perfiles.push(perfil);
+  localStorage.setItem('misalud_perfiles', JSON.stringify(perfiles));
+
+  document.getElementById('codigo-display').textContent = codigo;
+  document.getElementById('codigo-generado').classList.add('show');
+  document.getElementById('modal-footer').style.display = 'none';
+
+  renderTabla();
+  actualizarStats();
+}
+
+function toggleActivo(id) {
+  perfiles = perfiles.map(p => p.id === id ? {...p, activo: !p.activo} : p);
+  localStorage.setItem('misalud_perfiles', JSON.stringify(perfiles));
+  renderTabla();
+  actualizarStats();
+  mostrarToast('Estado actualizado');
+}
+
+function eliminarPerfil(id) {
+  if (!confirm('¿Eliminar este perfil? Se perderán todos sus registros.')) return;
+  perfiles = perfiles.filter(p => p.id !== id);
+  localStorage.setItem('misalud_perfiles', JSON.stringify(perfiles));
+  renderTabla();
+  actualizarStats();
+  mostrarToast('Perfil eliminado');
+}
+
+function copiarCodigo(codigo) {
+  const c = codigo || document.getElementById('codigo-display').textContent;
+  navigator.clipboard.writeText(c).catch(() => {});
+  mostrarToast('¡Código copiado!');
+}
+
+function renderTabla() {
+  const tbody = document.getElementById('tbody-usuarios');
+  const tabla = document.getElementById('tabla-usuarios');
+  const empty = document.getElementById('empty-state');
+
+  if (perfiles.length === 0) {
+    tabla.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+  tabla.style.display = 'table';
+  empty.style.display = 'none';
+
+  tbody.innerHTML = perfiles.map((p, i) => {
+    const [bgAv, textAv] = colorAvatar(i);
+    return `
+    <tr>
+      <td>
+        <div class="user-info">
+          <div class="avatar" style="background:${bgAv};color:${textAv}">${iniciales(p.nombre)}</div>
+          <div>
+            <div class="user-name">${p.nombre}</div>
+            <div class="user-age">${p.relacion || ''} · desde ${p.creado}</div>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div>${p.edad} años</div>
+        <span class="badge ${p.sexo === 'f' ? 'badge-f' : 'badge-m'}">${p.sexo === 'f' ? '♀ Mujer' : '♂ Hombre'}</span>
+      </td>
+      <td style="max-width:200px;">
+        ${p.condiciones.length === 0
+          ? '<span style="color:var(--gris-muted);font-size:12px;">Sin condiciones registradas</span>'
+          : p.condiciones.slice(0,3).map(c => `<span class="condicion-tag">${c}</span>`).join('') +
+            (p.condiciones.length > 3 ? `<span class="condicion-tag">+${p.condiciones.length - 3}</span>` : '')
+        }
+      </td>
+      <td>
+        <span class="codigo-box" onclick="copiarCodigo('${p.codigo}')" title="Clic para copiar">${p.codigo}</span>
+      </td>
+      <td>
+        <span class="badge ${p.activo ? 'badge-activo' : 'badge-inactivo'}">
+          ${p.activo ? '● Activo' : '○ Inactivo'}
+        </span>
+      </td>
+      <td>
+        <div class="acciones">
+          <button class="btn btn-sm btn-secondary btn-icon" onclick="toggleActivo(${p.id})" title="${p.activo ? 'Desactivar' : 'Activar'}">
+            ${p.activo ? '⏸' : '▶'}
+          </button>
+          <button class="btn btn-sm btn-danger btn-icon" onclick="eliminarPerfil(${p.id})" title="Eliminar">
+            🗑
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function actualizarStats() {
+  const activos = perfiles.filter(p => p.activo);
+  document.getElementById('stat-activos').textContent = activos.length;
+  document.getElementById('stat-mujeres').textContent = activos.filter(p => p.sexo === 'f').length;
+  document.getElementById('stat-hombres').textContent = activos.filter(p => p.sexo === 'm').length;
+}
+
+function mostrarToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+renderTabla();
+actualizarStats();
+</script>
+</body>
+</html>
