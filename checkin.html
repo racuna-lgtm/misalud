@@ -6,93 +6,95 @@
 <title>MiSalud — Check-in</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root {
-  --verde: #22C55E; --verde-claro: #DCFCE7; --verde-texto: #15803D; --verde-oscuro: #16A34A;
-  --gris-bg: #F8FAFC; --gris-borde: #E2E8F0; --gris-texto: #64748B; --gris-muted: #94A3B8; --negro: #0F172A;
-  --radio: 20px; --radio-sm: 12px;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body { font-family: 'Nunito Sans', sans-serif; background: var(--gris-bg); color: var(--negro); min-height: 100vh; max-width: 480px; margin: 0 auto; }
-.header { background: #fff; padding: 18px 22px; border-bottom: 1px solid var(--gris-borde); display: flex; align-items: center; gap: 14px; }
-.btn-back { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--gris-borde); background: var(--gris-bg); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; flex-shrink: 0; }
-.header-info { flex: 1; }
-.header-titulo { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 17px; }
-.header-sub { font-size: 12px; color: var(--gris-texto); margin-top: 2px; }
-.aviso-momento { display: flex; align-items: center; gap: 8px; padding: 10px 22px; font-size: 13px; font-weight: 600; border-bottom: 1px solid var(--gris-borde); }
-.progreso-wrap { padding: 16px 22px 0; }
-.progreso-bar { height: 6px; background: var(--gris-borde); border-radius: 10px; overflow: hidden; margin-bottom: 6px; }
-.progreso-fill { height: 100%; background: var(--verde); border-radius: 10px; transition: width 0.4s ease; }
-.progreso-texto { font-size: 12px; color: var(--gris-muted); text-align: right; }
-.pregunta-wrap { padding: 22px 20px; animation: slideIn 0.3s ease; }
-@keyframes slideIn { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: translateX(0); } }
-.pregunta-emoji { font-size: 44px; text-align: center; margin-bottom: 14px; }
-.pregunta-badge { display: block; text-align: center; font-size: 10px; font-weight: 700; padding: 2px 10px; border-radius: 8px; background: #EFF6FF; color: #1D4ED8; margin-bottom: 10px; }
-.pregunta-texto { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 21px; color: var(--negro); text-align: center; line-height: 1.3; margin-bottom: 6px; }
-.pregunta-sub { font-size: 13px; color: var(--gris-texto); text-align: center; margin-bottom: 22px; line-height: 1.5; }
-.opciones { display: flex; flex-direction: column; gap: 9px; margin-bottom: 20px; }
-.opcion { padding: 14px 16px; border-radius: var(--radio-sm); border: 2px solid var(--gris-borde); background: #fff; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.15s; min-height: 58px; }
-.opcion:active { transform: scale(0.98); }
-.opcion.seleccionada { border-color: var(--verde); background: var(--verde-claro); }
-.opcion-emoji { font-size: 22px; flex-shrink: 0; }
-.opcion-texto { font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 14px; color: var(--negro); }
-.opcion-sub { font-size: 11px; color: var(--gris-texto); margin-top: 2px; line-height: 1.4; }
-.opcion.seleccionada .opcion-texto { color: var(--verde-texto); }
-.opcion.seleccionada .opcion-sub { color: var(--verde-texto); opacity: 0.8; }
-.mic-checkin { background: #fff; border: 2px dashed var(--gris-borde); border-radius: var(--radio-sm); padding: 14px; text-align: center; cursor: pointer; transition: all 0.15s; margin-bottom: 8px; }
-.mic-checkin.grabando { border-color: var(--verde); background: var(--verde-claro); }
-.mic-checkin-icono { font-size: 26px; margin-bottom: 4px; }
-.mic-checkin-texto { font-size: 13px; color: var(--gris-texto); font-weight: 600; }
-.mic-checkin.grabando .mic-checkin-texto { color: var(--verde-texto); }
-.transcripcion-mini { display: none; background: var(--verde-claro); border: 1.5px solid var(--verde); border-radius: var(--radio-sm); padding: 12px 14px; margin-bottom: 8px; }
-.transcripcion-mini.visible { display: block; }
-.trans-mini-label { font-size: 11px; font-weight: 700; color: var(--verde-texto); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
-.trans-mini-texto { font-size: 14px; color: var(--negro); border: none; background: transparent; width: 100%; outline: none; font-family: 'Nunito Sans', sans-serif; resize: none; }
-.trans-mini-acciones { display: flex; gap: 8px; margin-top: 8px; }
-.btn-usar { flex: 1; padding: 10px; border-radius: 8px; border: none; background: var(--verde); color: #fff; font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 13px; cursor: pointer; }
-.btn-rehace { padding: 10px 14px; border-radius: 8px; border: 1.5px solid var(--gris-borde); background: #fff; color: var(--gris-texto); font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 13px; cursor: pointer; }
-.nav-btns { display: flex; gap: 10px; padding: 0 20px 32px; }
-.btn-siguiente { flex: 1; padding: 16px; border-radius: var(--radio-sm); border: none; background: var(--verde); color: #fff; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 17px; cursor: pointer; transition: all 0.15s; min-height: 56px; }
-.btn-siguiente:hover { background: var(--verde-oscuro); }
-.btn-siguiente:disabled { background: var(--gris-borde); color: var(--gris-muted); cursor: not-allowed; }
-.btn-saltar { padding: 16px 18px; border-radius: var(--radio-sm); border: 1.5px solid var(--gris-borde); background: #fff; color: var(--gris-texto); font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 14px; cursor: pointer; min-height: 56px; }
-.resumen { display: none; padding: 22px 20px; animation: slideIn 0.3s ease; }
-.resumen.visible { display: block; }
-.resumen-titulo { font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 22px; text-align: center; margin-bottom: 6px; }
-.resumen-sub { font-size: 14px; color: var(--gris-texto); text-align: center; margin-bottom: 20px; }
-.resumen-item { background: #fff; border: 1px solid var(--gris-borde); border-radius: var(--radio-sm); padding: 12px 14px; margin-bottom: 9px; display: flex; align-items: flex-start; gap: 10px; }
-.resumen-item-emoji { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
-.resumen-pregunta { font-size: 11px; color: var(--gris-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 2px; }
-.resumen-respuesta { font-size: 14px; color: var(--negro); font-weight: 600; line-height: 1.4; }
-.btn-guardar-todo { width: 100%; padding: 18px; border-radius: var(--radio-sm); border: none; background: var(--verde); color: #fff; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 18px; cursor: pointer; transition: all 0.15s; margin-bottom: 10px; }
-.btn-guardar-todo:hover { background: var(--verde-oscuro); }
-.btn-volver-editar { width: 100%; padding: 14px; border-radius: var(--radio-sm); border: 1.5px solid var(--gris-borde); background: #fff; color: var(--gris-texto); font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 14px; cursor: pointer; }
-.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--negro); color: #fff; padding: 14px 22px; border-radius: 14px; font-size: 14px; font-weight: 600; opacity: 0; transition: all 0.3s; z-index: 200; white-space: nowrap; }
-.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-.toast.verde { background: var(--verde-oscuro); }
-@media (min-width: 480px) { body { border-left: 1px solid var(--gris-borde); border-right: 1px solid var(--gris-borde); } }
+:root{--verde:#22C55E;--verde-claro:#DCFCE7;--verde-oscuro:#16A34A;--gris-bg:#F8FAFC;--gris-borde:#E2E8F0;--gris-texto:#64748B;--gris-muted:#94A3B8;--negro:#0F172A;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Nunito Sans',sans-serif;background:var(--gris-bg);color:var(--negro);min-height:100vh;max-width:480px;margin:0 auto;}
+.header{background:#fff;padding:14px 18px;border-bottom:1px solid var(--gris-borde);display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50;}
+.btn-back{width:40px;height:40px;border-radius:12px;border:1px solid var(--gris-borde);background:var(--gris-bg);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;text-decoration:none;color:var(--negro);}
+.header-info{flex:1;}
+.header-titulo{font-family:'Nunito',sans-serif;font-weight:800;font-size:17px;}
+.header-sub{font-size:12px;color:var(--gris-texto);margin-top:2px;}
+.aviso-momento{display:flex;align-items:center;gap:8px;padding:10px 18px;font-size:13px;font-weight:600;border-bottom:1px solid;}
+.aviso-icono{font-size:16px;}
+.progreso-wrap{padding:12px 18px 8px;background:#fff;}
+.progreso-bar{height:6px;background:#E2E8F0;border-radius:10px;overflow:hidden;margin-bottom:6px;}
+.progreso-fill{height:100%;background:var(--verde);border-radius:10px;transition:width 0.4s ease;}
+.progreso-texto{font-size:11px;color:var(--gris-muted);text-align:right;font-weight:600;}
+.cuerpo{padding:16px;}
+.pregunta-wrap{background:#fff;border-radius:18px;border:1px solid var(--gris-borde);padding:20px 18px;margin-bottom:14px;}
+.pregunta-emoji{font-size:42px;text-align:center;margin-bottom:10px;}
+.pregunta-badge{display:inline-block;background:#EFF6FF;color:#1D4ED8;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:8px;}
+.pregunta-texto{font-family:'Nunito',sans-serif;font-weight:800;font-size:20px;text-align:center;margin-bottom:6px;line-height:1.3;}
+.pregunta-sub{font-size:13px;color:var(--gris-texto);text-align:center;margin-bottom:16px;line-height:1.5;}
+.opcion{display:flex;align-items:center;gap:12px;padding:13px 15px;border:2px solid var(--gris-borde);border-radius:14px;cursor:pointer;margin-bottom:9px;background:#fff;transition:all 0.15s;-webkit-tap-highlight-color:transparent;}
+.opcion:last-child{margin-bottom:0;}
+.opcion.seleccionada{border-color:var(--verde);background:var(--verde-claro);}
+.opcion:active{transform:scale(0.98);}
+.opcion-emoji{font-size:24px;flex-shrink:0;}
+.opcion-texto{font-family:'Nunito',sans-serif;font-weight:700;font-size:14px;color:var(--negro);}
+.opcion-sub{font-size:12px;color:var(--gris-texto);margin-top:2px;line-height:1.4;}
+.mic-checkin{display:flex;align-items:center;gap:12px;padding:13px 15px;border:2px dashed var(--gris-borde);border-radius:14px;cursor:pointer;margin-top:10px;background:var(--gris-bg);transition:all 0.15s;}
+.mic-checkin.grabando{border-color:var(--verde);background:var(--verde-claro);}
+.mic-checkin-icono{font-size:24px;}
+.mic-checkin-texto{font-size:13px;font-weight:600;color:var(--gris-texto);}
+.transcripcion-mini{display:none;background:#fff;border:1.5px solid var(--verde);border-radius:12px;padding:12px;margin-top:8px;}
+.transcripcion-mini.visible{display:block;}
+.trans-mini-label{font-size:11px;font-weight:700;color:var(--verde-oscuro);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px;}
+.trans-mini-texto{width:100%;border:none;background:transparent;font-size:14px;font-family:'Nunito Sans',sans-serif;color:var(--negro);resize:none;outline:none;}
+.trans-mini-acciones{display:flex;gap:8px;margin-top:8px;}
+.btn-usar{flex:1;padding:9px;border-radius:8px;border:none;background:var(--verde);color:#fff;font-family:'Nunito',sans-serif;font-weight:700;font-size:14px;cursor:pointer;}
+.btn-rehace{padding:9px 12px;border-radius:8px;border:1.5px solid var(--gris-borde);background:#fff;color:var(--gris-texto);font-family:'Nunito Sans',sans-serif;font-size:13px;cursor:pointer;}
+.ver-mas-link{text-align:center;margin-top:8px;font-size:13px;color:var(--gris-texto);font-weight:600;cursor:pointer;text-decoration:underline;padding:6px;}
+.nav-btns{display:flex;gap:10px;padding:0 16px 24px;}
+.btn-saltar{padding:16px 20px;border-radius:14px;border:1.5px solid var(--gris-borde);background:#fff;font-family:'Nunito',sans-serif;font-weight:700;font-size:15px;cursor:pointer;color:var(--gris-texto);}
+.btn-siguiente{flex:1;padding:16px;border-radius:14px;border:none;background:var(--verde);color:#fff;font-family:'Nunito',sans-serif;font-weight:800;font-size:17px;cursor:pointer;transition:all 0.15s;}
+.btn-siguiente:disabled{background:#E2E8F0;color:var(--gris-muted);cursor:not-allowed;}
+.resumen{display:none;padding:20px 16px;}
+.resumen.visible{display:block;}
+.resumen-titulo{font-family:'Nunito',sans-serif;font-weight:900;font-size:22px;text-align:center;margin-bottom:6px;}
+.resumen-sub{font-size:14px;color:var(--gris-texto);text-align:center;margin-bottom:18px;}
+.resumen-item{background:#fff;border:1px solid var(--gris-borde);border-radius:12px;padding:12px 14px;margin-bottom:9px;display:flex;align-items:flex-start;gap:10px;cursor:pointer;}
+.resumen-item-emoji{font-size:20px;flex-shrink:0;margin-top:2px;}
+.resumen-pregunta{font-size:11px;color:var(--gris-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:2px;}
+.resumen-respuesta{font-size:14px;color:var(--negro);font-weight:600;line-height:1.4;}
+.btn-guardar-todo{width:100%;padding:18px;border-radius:14px;border:none;background:var(--verde);color:#fff;font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;cursor:pointer;margin-bottom:10px;}
+.btn-volver-editar{width:100%;padding:14px;border-radius:14px;border:1.5px solid var(--gris-borde);background:#fff;color:var(--gris-texto);font-family:'Nunito Sans',sans-serif;font-weight:600;font-size:15px;cursor:pointer;}
+.pantalla-cierre{display:none;padding:20px 16px;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(40px);background:var(--negro);color:#fff;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:700;opacity:0;transition:all 0.3s;z-index:200;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.toast.verde{background:var(--verde-oscuro);}
+@media(min-width:480px){body{border-left:1px solid var(--gris-borde);border-right:1px solid var(--gris-borde);}}
 </style>
 </head>
 <body>
+
 <div class="header">
-  <div class="btn-back" onclick="window.location.href='home.html'">←</div>
+  <a href="home.html" class="btn-back">←</a>
   <div class="header-info">
     <div class="header-titulo">Check-in de hoy</div>
-    <div class="header-sub" id="header-nombre-sub">Cargando...</div>
+    <div class="header-sub" id="header-sub">Cargando...</div>
   </div>
 </div>
-<div class="aviso-momento" id="aviso-momento" style="background:#FFF7ED;color:#9A3412;border-bottom:1px solid #FED7AA;">
-  <span id="aviso-icono">🌅</span>
-  <span id="aviso-texto">Ideal hacerlo en la mañana</span>
+
+<div class="aviso-momento" id="aviso-momento">
+  <span class="aviso-icono" id="aviso-icono">🌅</span>
+  <span id="aviso-texto">Una vez al día</span>
 </div>
-<div class="progreso-wrap">
+
+<div class="progreso-wrap" id="progreso-wrap">
   <div class="progreso-bar"><div class="progreso-fill" id="progreso-fill" style="width:0%"></div></div>
   <div class="progreso-texto" id="progreso-texto">Pregunta 1</div>
 </div>
-<div id="pregunta-contenido"></div>
+
+<div class="cuerpo">
+  <div id="pregunta-contenido"></div>
+</div>
+
 <div class="nav-btns" id="nav-btns">
   <button class="btn-saltar" onclick="saltar()">Saltar</button>
   <button class="btn-siguiente" id="btn-siguiente" onclick="siguiente()" disabled>Siguiente →</button>
 </div>
+
 <div class="resumen" id="resumen">
   <div style="font-size:48px;text-align:center;margin-bottom:14px;">✅</div>
   <div class="resumen-titulo">Check-in listo</div>
@@ -101,60 +103,71 @@ body { font-family: 'Nunito Sans', sans-serif; background: var(--gris-bg); color
   <button class="btn-guardar-todo" onclick="guardarTodo()">Guardar y volver al inicio</button>
   <button class="btn-volver-editar" onclick="volverEditar()">Revisar respuestas</button>
 </div>
-<div id="pantalla-cierre" style="display:none;padding:20px;"></div>
+
+<div class="pantalla-cierre" id="pantalla-cierre"></div>
 <div class="toast" id="toast"></div>
+
 <script>
-const perfil = JSON.parse(localStorage.getItem('misalud_usuario_actual') || 'null');
-if (!perfil) { window.location.href = 'index.html'; throw new Error('Sin perfil'); }
+// ── PERFIL ────────────────────────────────────────────────────
+var perfil = JSON.parse(localStorage.getItem('misalud_usuario_actual') || 'null');
+if (!perfil) { window.location.href = 'index.html'; }
 
-// Si ya hizo check-in hoy Y tiene registros reales, redirigir
-const _hoy = new Date().toDateString();
-const _checkinKey = 'misalud_checkin_' + perfil.id + '_' + _hoy;
-const _regsHoy = JSON.parse(localStorage.getItem('misalud_registros_' + perfil.id) || '[]').filter(r => r.fecha === _hoy && r.tipo === 'checkin');
-if (localStorage.getItem(_checkinKey) && _regsHoy.length > 0) {
-  // Ya lo hizo — mostrar mensaje amigable antes de redirigir
-  document.body.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:32px;text-align:center;font-family:'Nunito Sans',sans-serif;">
-      <div style="font-size:64px;margin-bottom:20px;">✅</div>
-      <div style="font-family:'Nunito',sans-serif;font-weight:900;font-size:24px;color:#0F172A;margin-bottom:8px;">¡Ya hiciste tu check-in hoy!</div>
-      <div style="font-size:15px;color:#64748B;margin-bottom:32px;line-height:1.6;">El check-in es una vez al día.<br>Si quieres contar algo más, usa el micrófono verde.</div>
-      <button onclick="window.location.href='home.html'" style="padding:16px 32px;border-radius:14px;border:none;background:#22C55E;color:#fff;font-family:'Nunito',sans-serif;font-weight:800;font-size:17px;cursor:pointer;">Volver al inicio</button>
-    </div>`;
+// ── CHEQUEAR SI YA HIZO CHECK-IN HOY ─────────────────────────
+var hoy = new Date().toDateString();
+var checkinKey = 'misalud_checkin_' + perfil.id + '_' + hoy;
+var regsHoy = JSON.parse(localStorage.getItem('misalud_registros_' + perfil.id) || '[]')
+  .filter(function(r){ return r.fecha === hoy && r.tipo === 'checkin'; });
+if (localStorage.getItem(checkinKey) && regsHoy.length > 0) {
+  document.getElementById('pregunta-contenido').innerHTML =
+    '<div style="text-align:center;padding:40px 20px;">' +
+    '<div style="font-size:64px;margin-bottom:16px;">✅</div>' +
+    '<div style="font-family:Nunito,sans-serif;font-weight:900;font-size:22px;margin-bottom:10px;">Ya hiciste tu check-in hoy</div>' +
+    '<div style="font-size:14px;color:#64748B;margin-bottom:28px;">Vuelve mañana. Si quieres contar algo más, usa el micrófono verde.</div>' +
+    '<button onclick="window.location.href=\'home.html\'" style="padding:16px 32px;border-radius:14px;border:none;background:#22C55E;color:#fff;font-family:Nunito,sans-serif;font-weight:800;font-size:17px;cursor:pointer;">Volver al inicio</button>' +
+    '</div>';
+  document.getElementById('nav-btns').style.display = 'none';
+  document.getElementById('progreso-wrap').style.display = 'none';
 }
-const condiciones = (perfil.condiciones || []).map(c => c.toLowerCase());
-const hora = new Date().getHours();
-const esTarde = hora >= 14, esNoche = hora >= 20;
-const nombreCorto = perfil.nombre.split(' ')[0];
 
-let avisoIcono='🌅',avisoTexto='Una vez al día · ideal en la mañana',avisoColor='#FFF7ED',avisoTxt='#9A3412',avisoBorde='#FED7AA',saludo='buenos días';
-if(hora>=12&&hora<20){avisoIcono='☀️';avisoTexto='Una vez al día · check-in de la tarde';avisoColor='#EFF6FF';avisoTxt='#1D4ED8';avisoBorde='#BFDBFE';saludo='buenas tardes';}
-else if(hora>=20){avisoIcono='🌙';avisoTexto='Una vez al día · check-in nocturno';avisoColor='#F5F3FF';avisoTxt='#5B21B6';avisoBorde='#DDD6FE';saludo='buenas noches';}
-document.getElementById('header-nombre-sub').textContent = 'Hola '+nombreCorto+', '+saludo;
-const av=document.getElementById('aviso-momento');
-av.style.background=avisoColor;av.style.color=avisoTxt;av.style.borderBottomColor=avisoBorde;
-document.getElementById('aviso-icono').textContent=avisoIcono;
-document.getElementById('aviso-texto').textContent=avisoTexto;
+// ── CONTEXTO ──────────────────────────────────────────────────
+var condiciones = (perfil.condiciones || []).map(function(c){ return c.toLowerCase(); });
+var hora = new Date().getHours();
+var esTarde = hora >= 14, esNoche = hora >= 20;
+var nombreCorto = perfil.nombre.split(' ')[0];
 
-function tiene(kws){return kws.some(kw=>condiciones.some(c=>c.includes(kw)));}
-const tieneDiabetes=tiene(['diabetes','diabética','diabetica','glicemia']);
-const tieneHTA=tiene(['hipertensión','hipertension','presión alta','presion alta']);
-const tieneFibro=tiene(['fibromialgia']);
-const tieneDepresion=tiene(['depresión','depresion','depresiva']);
-const tieneAnsiedad=tiene(['ansiedad','ansiosa']);
-const tieneArtrosis=tiene(['artritis','artrosis','articular']);
-const tieneColostomia=tiene(['colostomía','colostomia','bolsa','colon','ostomía','ostomia']);
-const tieneProstata=tiene(['próstata','prostata','hiperplasia']);
-const tienePostop=tiene(['postoperatorio','operada','operado','cirugía','cirugia','recuperación']);
+var avisoIcono='🌅', avisoTexto='Una vez al día · ideal hacerlo en la mañana';
+var avisoColor='#FFF7ED', avisoTxt='#9A3412', avisoBorde='#FED7AA', saludo='buenos días';
+if(hora>=12&&hora<20){ avisoIcono='☀️'; avisoTexto='Una vez al día · check-in de la tarde'; avisoColor='#EFF6FF'; avisoTxt='#1D4ED8'; avisoBorde='#BFDBFE'; saludo='buenas tardes'; }
+else if(hora>=20){ avisoIcono='🌙'; avisoTexto='Una vez al día · check-in nocturno'; avisoColor='#F5F3FF'; avisoTxt='#5B21B6'; avisoBorde='#DDD6FE'; saludo='buenas noches'; }
 
-const BANCO = {
-sueno:{id:'sueno',emoji:'🌙',texto:esTarde||esNoche?'¿Cómo dormiste la noche pasada?':'¿Cómo dormiste anoche?',sub:'Tu descanso afecta todo lo demás',tipo:'opciones',esTransversal:true,opciones:[
+document.getElementById('aviso-momento').style.background = avisoColor;
+document.getElementById('aviso-momento').style.color = avisoTxt;
+document.getElementById('aviso-momento').style.borderBottomColor = avisoBorde;
+document.getElementById('aviso-icono').textContent = avisoIcono;
+document.getElementById('aviso-texto').textContent = avisoTexto;
+
+// ── CONDICIONES ───────────────────────────────────────────────
+function tiene(kws){ return kws.some(function(kw){ return condiciones.some(function(c){ return c.indexOf(kw) >= 0; }); }); }
+var tieneDiabetes = tiene(['diabetes','diabetica','glicemia']);
+var tieneHTA      = tiene(['hipertension','presion alta']);
+var tieneFibro    = tiene(['fibromialgia']);
+var tieneDepresion= tiene(['depresion','depresiva']);
+var tieneAnsiedad = tiene(['ansiedad','ansiosa']);
+var tieneArtrosis = tiene(['artritis','artrosis','articular']);
+var tieneColostomia=tiene(['colostomia','bolsa','colon','ostomia']);
+var tieneProstata = tiene(['prostata','hiperplasia']);
+var tienePostop   = tiene(['postoperatorio','operada','operado','cirugia','recuperacion']);
+
+// ── BANCO DE PREGUNTAS ────────────────────────────────────────
+var BANCO = {
+sueno:{id:'sueno',emoji:'🌙',texto:(esTarde||esNoche)?'¿Cómo dormiste la noche pasada?':'¿Cómo dormiste anoche?',sub:'Tu descanso afecta todo lo demás',tipo:'opciones',opciones:[
   {emoji:'😴',texto:'Dormí muy bien',sub:'Descansé de corrido, me desperté con energía',valor:'bien'},
   {emoji:'😐',texto:'Más o menos',sub:'Algunos despertares pero dormí algo',valor:'regular'},
   {emoji:'😫',texto:'Dormí mal',sub:'Me desperté varias veces o tuve pesadillas',valor:'mal'},
   {emoji:'😰',texto:'Casi no dormí',sub:'Insomnio, dolor o ansiedad no me dejaron dormir',valor:'muy_mal'},
   {emoji:'🛌',texto:'Dormí demasiado',sub:'No me pude levantar, mucho sueño todo el día',valor:'exceso'},
 ]},
-dolor:{id:'dolor',emoji:'⚡',texto:'¿Cómo está tu cuerpo hoy?',sub:'Cualquier molestia o dolor que tengas ahora',tipo:'mixto',esTransversal:true,opciones:[
+dolor:{id:'dolor',emoji:'⚡',texto:'¿Cómo está tu cuerpo hoy?',sub:'Cualquier molestia o dolor que tengas ahora',tipo:'mixto',opciones:[
   {emoji:'✅',texto:'Sin dolor ni molestias',sub:'Me siento bien físicamente',valor:'sin_dolor'},
   {emoji:'😬',texto:'Molestia leve',sub:'Algo incómoda pero puedo hacer mis cosas',valor:'leve'},
   {emoji:'😣',texto:'Dolor moderado',sub:'Me limita en algunas actividades del día',valor:'moderado'},
@@ -166,7 +179,7 @@ fibromialgia:{id:'fibromialgia',emoji:'🌡️',texto:'¿Cómo están los puntos
   {emoji:'😣',texto:'Más activos que ayer',sub:'Más puntos o más intensidad de dolor',valor:'peor'},
   {emoji:'😰',texto:'Brote fuerte hoy',sub:'Muy difícil de manejar, peor que lo habitual',valor:'brote'},
 ]},
-animo:{id:'animo',emoji:'💙',texto:'¿Cómo está tu ánimo?',sub:'No hay respuesta correcta, solo cuéntame',tipo:'opciones',esTransversal:true,opciones:[
+animo:{id:'animo',emoji:'💙',texto:'¿Cómo está tu ánimo?',sub:'No hay respuesta correcta, solo cuéntame',tipo:'opciones',opciones:[
   {emoji:'😊',texto:'Bien, tranquila',sub:'Me siento en paz y con energía',valor:'bien'},
   {emoji:'😌',texto:'Regular nomás',sub:'Ni muy bien ni muy mal',valor:'regular'},
   {emoji:'😔',texto:'Triste o irritable',sub:'Decaída, de mal humor o con poca gana de nada',valor:'triste'},
@@ -178,44 +191,44 @@ depresion:{id:'depresion',emoji:'🫂',texto:'¿Cómo estuvo tu energía y motiv
   {emoji:'😔',texto:'Sin energía ni ganas',sub:'Me costó mucho hacer cualquier cosa',valor:'bajo'},
   {emoji:'🛌',texto:'Muy apagada',sub:'No quise hacer nada, me quedé en cama',valor:'muy_bajo'},
 ]},
-medicamentos:{id:'medicamentos',emoji:'💊',texto:'¿Cómo vas con tus remedios?',sub:esNoche?'Los de hoy en total':'Los que debías tomar hasta este momento',tipo:'opciones',esTransversal:true,opciones:[
-  {emoji:'✅',texto:esNoche?'Tomé todos mis remedios':'Tomé los que me tocaban hasta ahora',sub:'Todo en orden con mis remedios',valor:'todos'},
-  {emoji:'⏰',texto:'Los de la tarde o noche los tomo después',sub:'Aún no es la hora — esto no es un olvido',valor:'pendiente_noche'},
+medicamentos:{id:'medicamentos',emoji:'💊',texto:'¿Cómo vas con tus remedios?',sub:esNoche?'Los de hoy en total':'Los que debías tomar hasta este momento',tipo:'opciones',opciones:[
+  {emoji:'✅',texto:esNoche?'Tomé todos mis remedios':'Tomé los que me tocaban hasta ahora',sub:'Todo en orden',valor:'todos'},
+  {emoji:'⏰',texto:'Los de la tarde o noche los tomo después',sub:'Aún no es la hora',valor:'pendiente_noche'},
   {emoji:'🤔',texto:'Se me olvidó alguno',sub:'Ya era la hora y no lo tomé',valor:'algunos'},
   {emoji:'❌',texto:'No tomé ningún remedio hoy',sub:'Se me olvidó por completo',valor:'ninguno'},
-  {emoji:'📦',texto:'No los tenía — se acabaron',sub:'Quise tomarlos pero no tenía el remedio',valor:'sin_remedio'},
-  {emoji:'💊',texto:'Tomé algo extra por dolor',sub:'Un analgésico u otro, no de mi rutina diaria',valor:'extra'},
-  {emoji:'🔄',texto:'Me cambiaron el tratamiento',sub:'El médico me cambió algún remedio o dosis',valor:'cambio'},
-],opcionesExtra:true},
-presion:{id:'presion',emoji:'📊',texto:'¿Cómo está tu presión hoy?',sub:'Si te la mediste, cuéntame cómo salió',tipo:'mixto',condicion:'Hipertensión',tieneNumero:true,labelNumero:'Valor medido (opcional)',placeholderNumero:'Ej: 130/85',opciones:[
+  {emoji:'📦',texto:'No los tenía, se acabaron',sub:'Quise tomarlos pero no tenía el remedio',valor:'sin_remedio'},
+  {emoji:'💊',texto:'Tomé algo extra por dolor',sub:'Un analgésico u otro',valor:'extra'},
+  {emoji:'🔄',texto:'Me cambiaron el tratamiento',sub:'El médico me cambió algún remedio',valor:'cambio'},
+],tieneExtra:true},
+presion:{id:'presion',emoji:'📊',texto:'¿Cómo está tu presión hoy?',sub:'Si te la mediste, cuéntame',tipo:'mixto',condicion:'Hipertensión',opciones:[
   {emoji:'✅',texto:'Normal, dentro del rango',sub:'La presión estuvo bien controlada',valor:'normal'},
-  {emoji:'📈',texto:'Alta — salió elevada',sub:'Por encima de lo normal para mí',valor:'alta'},
-  {emoji:'📉',texto:'Baja — me sentí mareada',sub:'Mareos, debilidad o vista borrosa',valor:'baja'},
+  {emoji:'📈',texto:'Alta, salió elevada',sub:'Por encima de lo normal para mí',valor:'alta'},
+  {emoji:'📉',texto:'Baja, me sentí mareada',sub:'Mareos, debilidad o vista borrosa',valor:'baja'},
   {emoji:'🤷',texto:'No me la medí hoy',sub:'No tuve cómo o no pude',valor:'no_medida'},
 ]},
-diabetes:{id:'diabetes',emoji:'🩸',texto:'¿Cómo estuvo tu azúcar hoy?',sub:'Si te la mediste, cuéntame',tipo:'mixto',condicion:'Diabetes',tieneNumero:true,labelNumero:'Valor de glicemia (opcional)',placeholderNumero:'Ej: 115 mg/dL',opciones:[
+diabetes:{id:'diabetes',emoji:'🩸',texto:'¿Cómo estuvo tu azúcar hoy?',sub:'Si te la mediste, cuéntame',tipo:'mixto',condicion:'Diabetes',opciones:[
   {emoji:'✅',texto:'Normal, dentro del rango',sub:'El azúcar estuvo controlada hoy',valor:'normal'},
-  {emoji:'📈',texto:'Alta — sobre lo normal',sub:'Mucha sed, cansancio o muchas ganas de orinar',valor:'alta'},
-  {emoji:'📉',texto:'Baja — tuve hipoglicemia',sub:'Temblor, sudor frío, mareos o mucha hambre',valor:'baja'},
+  {emoji:'📈',texto:'Alta, sobre lo normal',sub:'Mucha sed, cansancio o muchas ganas de orinar',valor:'alta'},
+  {emoji:'📉',texto:'Baja, tuve hipoglicemia',sub:'Temblor, sudor frío, mareos o mucha hambre',valor:'baja'},
   {emoji:'🤷',texto:'No me la medí hoy',sub:'',valor:'no_medida'},
-]},
-colostomia:{id:'colostomia',emoji:'🫁',texto:'¿Cómo estuvo tu bolsa hoy?',sub:'Cuéntame sobre la bolsa y cómo te sentiste',tipo:'mixto',condicion:'Colostomía',opciones:[
-  {emoji:'✅',texto:'Todo bien, sin problemas',sub:'La bolsa funcionó con normalidad',valor:'bien'},
-  {emoji:'😬',texto:'Alguna molestia leve',sub:'Pequeña irritación o incomodidad',valor:'molestia'},
-  {emoji:'😣',texto:'Irritación en la piel',sub:'La zona alrededor de la bolsa está irritada o con escozor',valor:'irritacion'},
-  {emoji:'🚨',texto:'Problema importante',sub:'Fuga, mal olor fuerte, dolor intenso o algo preocupante',valor:'problema'},
-]},
-prostata:{id:'prostata',emoji:'🫁',texto:'¿Cómo estuvo la orina hoy?',sub:'Dificultades o frecuencia al orinar',tipo:'opciones',condicion:'Próstata / urología',opciones:[
-  {emoji:'✅',texto:'Sin problemas, todo normal',sub:'',valor:'normal'},
-  {emoji:'😬',texto:'Algo de dificultad al orinar',sub:'Chorro débil o tardé un poco más',valor:'leve'},
-  {emoji:'😣',texto:'Bastante dificultad',sub:'Me costó mucho o fui muchas veces al baño',valor:'moderado'},
-  {emoji:'🌙',texto:'Me levanté varias veces en la noche',sub:'Más de 2 veces a orinar mientras dormía',valor:'nocturia'},
 ]},
 artrosis:{id:'artrosis',emoji:'🦴',texto:'¿Cómo estuvo la rigidez hoy?',sub:'Especialmente al levantarte en la mañana',tipo:'opciones',condicion:'Artritis / artrosis',opciones:[
   {emoji:'✅',texto:'Sin rigidez, me moví bien',sub:'Las articulaciones respondieron bien',valor:'bien'},
   {emoji:'😐',texto:'Rigidez leve al despertar',sub:'Pasó en menos de 30 minutos',valor:'leve'},
   {emoji:'😣',texto:'Rigidez moderada',sub:'Me costó moverme por más de 30 minutos',valor:'moderada'},
   {emoji:'😰',texto:'Muy rígida o con mucho dolor',sub:'Me costó hacer cosas básicas del día',valor:'severa'},
+]},
+colostomia:{id:'colostomia',emoji:'🫁',texto:'¿Cómo estuvo tu bolsa hoy?',sub:'Cuéntame sobre la bolsa y cómo te sentiste',tipo:'mixto',condicion:'Colostomía',opciones:[
+  {emoji:'✅',texto:'Todo bien, sin problemas',sub:'La bolsa funcionó con normalidad',valor:'bien'},
+  {emoji:'😬',texto:'Alguna molestia leve',sub:'Pequeña irritación o incomodidad',valor:'molestia'},
+  {emoji:'😣',texto:'Irritación en la piel',sub:'La zona alrededor de la bolsa está irritada',valor:'irritacion'},
+  {emoji:'🚨',texto:'Problema importante',sub:'Fuga, mal olor fuerte, dolor intenso',valor:'problema'},
+]},
+prostata:{id:'prostata',emoji:'🫁',texto:'¿Cómo estuvo la orina hoy?',sub:'Dificultades o frecuencia al orinar',tipo:'opciones',condicion:'Próstata / urología',opciones:[
+  {emoji:'✅',texto:'Sin problemas, todo normal',sub:'',valor:'normal'},
+  {emoji:'😬',texto:'Algo de dificultad al orinar',sub:'Chorro débil o tardé un poco más',valor:'leve'},
+  {emoji:'😣',texto:'Bastante dificultad',sub:'Me costó mucho o fui muchas veces',valor:'moderado'},
+  {emoji:'🌙',texto:'Me levanté varias veces en la noche',sub:'Más de 2 veces a orinar',valor:'nocturia'},
 ]},
 postop:{id:'postop',emoji:'🩹',texto:'¿Cómo está la zona operada?',sub:'Herida, cicatriz o zona de la cirugía',tipo:'mixto',condicion:'Postoperatorio',opciones:[
   {emoji:'✅',texto:'Bien, sanando normalmente',sub:'Sin signos de alerta',valor:'bien'},
@@ -226,327 +239,389 @@ postop:{id:'postop',emoji:'🩹',texto:'¿Cómo está la zona operada?',sub:'Her
 };
 
 function armarPreguntas(){
-  const p=[];
+  var p = [];
   p.push(BANCO.sueno);
   p.push(BANCO.dolor);
   if(tieneFibro) p.push(BANCO.fibromialgia);
-  if(tieneArtrosis&&!tieneFibro) p.push(BANCO.artrosis);
+  if(tieneArtrosis && !tieneFibro) p.push(BANCO.artrosis);
   if(tieneColostomia) p.push(BANCO.colostomia);
-  if(tienePostop&&!tieneColostomia) p.push(BANCO.postop);
+  if(tienePostop && !tieneColostomia) p.push(BANCO.postop);
   p.push(BANCO.animo);
-  if(tieneDepresion||tieneAnsiedad) p.push(BANCO.depresion);
+  if(tieneDepresion || tieneAnsiedad) p.push(BANCO.depresion);
   p.push(BANCO.medicamentos);
   if(tieneHTA) p.push(BANCO.presion);
   if(tieneDiabetes) p.push(BANCO.diabetes);
   if(tieneProstata) p.push(BANCO.prostata);
-  return p.slice(0,6);
+  return p.slice(0, 6);
 }
 
-const PREGUNTAS=armarPreguntas();
-let preguntaActual=0,respuestas={},recognition=null,grabandoCheckin=false,textoVozCheckin='';
+var PREGUNTAS = armarPreguntas();
+var preguntaActual = 0;
+var respuestas = {};
+var recognition = null, grabando = false, textoVoz = '';
 
-// Actualizar subtítulo del header con cantidad real de preguntas
-document.getElementById('header-nombre-sub').textContent = 'Hola '+nombreCorto+', '+saludo+' · '+PREGUNTAS.length+' preguntas';
+document.getElementById('header-sub').textContent = 'Hola ' + nombreCorto + ', ' + saludo + ' · ' + PREGUNTAS.length + ' preguntas';
 
-function renderPregunta(){
-  const p=PREGUNTAS[preguntaActual];
-  const total=PREGUNTAS.length;
-  document.getElementById('progreso-fill').style.width=(preguntaActual/total*100)+'%';
-  document.getElementById('progreso-texto').textContent='Pregunta '+(preguntaActual+1)+' de '+total;
-  const btn=document.getElementById('btn-siguiente');
-  btn.textContent=preguntaActual===total-1?'Ver resumen →':'Siguiente →';
-  btn.disabled=!respuestas[p.id];
-  const opcionesPrincipales = p.opcionesExtra ? p.opciones.slice(0,4) : p.opciones;
-  const opcionesExtra = p.opcionesExtra ? p.opciones.slice(4) : [];
-  // Guardar opciones en variable global para que selOp las acceda de forma segura
-  window._opcionesActuales = p.opciones;
-  window._pregIdActual = p.id;
+// ── RENDER PREGUNTA ───────────────────────────────────────────
+function renderPregunta() {
+  var p = PREGUNTAS[preguntaActual];
+  var total = PREGUNTAS.length;
 
-  const cont = document.getElementById('pregunta-contenido');
+  // Progreso
+  document.getElementById('progreso-fill').style.width = Math.round((preguntaActual / total) * 100) + '%';
+  document.getElementById('progreso-texto').textContent = 'Pregunta ' + (preguntaActual + 1) + ' de ' + total;
 
-  // Construir wrap principal
-  const wrap = document.createElement('div');
-  wrap.className = 'pregunta-wrap';
+  // Botón siguiente
+  var btn = document.getElementById('btn-siguiente');
+  btn.textContent = (preguntaActual === total - 1) ? 'Ver resumen →' : 'Siguiente →';
+  btn.disabled = !respuestas[p.id];
 
-  // Emoji + badge + texto + sub
-  wrap.innerHTML =
-    '<div class="pregunta-emoji">' + p.emoji + '</div>' +
-    (p.condicion ? '<span class="pregunta-badge">Para: ' + p.condicion + '</span>' : '') +
-    '<div class="pregunta-texto">' + p.texto + '</div>' +
-    '<div class="pregunta-sub">' + p.sub + '</div>';
-
-  // Contenedor de opciones
-  const opsCont = document.createElement('div');
-  opsCont.className = 'opciones';
-  opsCont.id = 'opciones-cont';
-
-  // Renderizar opciones principales
-  opcionesPrincipales.forEach((o, i) => {
-    const div = document.createElement('div');
-    div.className = 'opcion';
-    div.id = 'op-' + i;
-    div.innerHTML = '<span class="opcion-emoji">' + o.emoji + '</span>' +
-      '<div><div class="opcion-texto">' + o.texto + '</div>' +
-      (o.sub ? '<div class="opcion-sub">' + o.sub + '</div>' : '') + '</div>';
-    div.addEventListener('click', function() { selOp(i, o.valor, o.texto, p.id); });
-    opsCont.appendChild(div);
-  });
-
-  // Opciones extra (medicamentos)
-  if (opcionesExtra.length > 0) {
-    const verMas = document.createElement('div');
-    verMas.id = 'ver-mas-wrap';
-    verMas.style.cssText = 'text-align:center;margin-top:4px;';
-    verMas.innerHTML = '<span onclick="mostrarMasOpciones()" style="font-size:13px;color:#64748B;font-weight:600;cursor:pointer;text-decoration:underline;">Ver más opciones ↓</span>';
-    opsCont.appendChild(verMas);
-
-    const extraCont = document.createElement('div');
-    extraCont.id = 'opciones-extra';
-    extraCont.style.cssText = 'display:none;margin-top:8px;';
-    opcionesExtra.forEach((o, i) => {
-      const div = document.createElement('div');
-      div.className = 'opcion';
-      div.id = 'op-' + (i + 4);
-      div.style.marginBottom = '9px';
-      div.innerHTML = '<span class="opcion-emoji">' + o.emoji + '</span>' +
-        '<div><div class="opcion-texto">' + o.texto + '</div>' +
-        (o.sub ? '<div class="opcion-sub">' + o.sub + '</div>' : '') + '</div>';
-      div.addEventListener('click', function() { selOp(i + 4, o.valor, o.texto, p.id); });
-      extraCont.appendChild(div);
-    });
-    opsCont.appendChild(extraCont);
-  }
-
-  wrap.appendChild(opsCont);
-
-  // Campo numérico (presión/glicemia) — solo si la pregunta lo tiene
-  if (p.tieneNumero) {
-    const numDiv = document.createElement('div');
-    numDiv.style.marginBottom = '12px';
-    const lbl = document.createElement('label');
-    lbl.style.cssText = 'font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.04em;display:block;margin-bottom:6px;';
-    lbl.textContent = p.labelNumero || 'Valor (opcional)';
-    const inp = document.createElement('input');
-    inp.type = 'text';
-    inp.inputMode = 'decimal';
-    inp.id = 'num-' + p.id;
-    inp.placeholder = p.placeholderNumero || '';
-    inp.value = (respuestas[p.id] && respuestas[p.id].numero) ? respuestas[p.id].numero : '';
-    inp.style.cssText = 'width:100%;padding:13px 15px;border:2px solid #E2E8F0;border-radius:12px;font-size:18px;font-family:Nunito,sans-serif;font-weight:700;color:#0F172A;text-align:center;';
-    inp.addEventListener('input', function() { guardarNumero(p.id, this.value); });
-    numDiv.appendChild(lbl);
-    numDiv.appendChild(inp);
-    wrap.appendChild(numDiv);
-  }
-
-  // Micrófono (tipo mixto)
-  if (p.tipo === 'mixto') {
-    const micDiv = document.createElement('div');
-    micDiv.className = 'mic-checkin';
-    micDiv.id = 'mic-checkin-btn';
-    micDiv.innerHTML = '<div class="mic-checkin-icono">🎙️</div><div class="mic-checkin-texto">O toca para contarme con tu voz</div>';
-    micDiv.addEventListener('click', toggleMicCheckin);
-    const transDiv = document.createElement('div');
-    transDiv.className = 'transcripcion-mini';
-    transDiv.id = 'trans-mini';
-    transDiv.innerHTML = '<div class="trans-mini-label">Esto escuché — ¿está bien?</div>' +
-      '<textarea class="trans-mini-texto" id="trans-mini-texto" rows="2"></textarea>' +
-      '<div class="trans-mini-acciones">' +
-      '<button class="btn-usar" id="btn-usar-trans">✓ Usar esta respuesta</button>' +
-      '<button class="btn-rehace" onclick="rehacerVoz()">Repetir</button></div>';
-    wrap.appendChild(micDiv);
-    wrap.appendChild(transDiv);
-  }
-
+  // Contenedor
+  var cont = document.getElementById('pregunta-contenido');
   cont.innerHTML = '';
-  cont.appendChild(wrap);
 
-  // Botón usar transcripción (necesita referencia a p.id)
-  const btnUsar = document.getElementById('btn-usar-trans');
-  if (btnUsar) btnUsar.addEventListener('click', function() { usarTrans(p.id); });
-  if(respuestas[p.id]){const idx=p.opciones.findIndex(o=>o.valor===respuestas[p.id].valor);if(idx>=0)document.getElementById('op-'+idx)?.classList.add('seleccionada');}
-  window.scrollTo(0,0);
-}
+  // Tarjeta pregunta
+  var card = document.createElement('div');
+  card.className = 'pregunta-wrap';
 
-function mostrarMasOpciones(){
-  const ex=document.getElementById('opciones-extra');
-  const vw=document.getElementById('ver-mas-wrap');
-  if(ex){ex.style.display='flex';ex.style.flexDirection='column';ex.style.gap='9px';}
-  if(vw)vw.style.display='none';
-}
+  var emojiDiv = document.createElement('div');
+  emojiDiv.className = 'pregunta-emoji';
+  emojiDiv.textContent = p.emoji;
+  card.appendChild(emojiDiv);
 
-function selOp(idx,valor,textoOp,pregId){
-  document.querySelectorAll('.opcion').forEach(o=>o.classList.remove('seleccionada'));
-  const opEl=document.getElementById('op-'+idx);
-  opEl.classList.add('seleccionada');
-  opEl.style.transform='scale(1.02)';
-  setTimeout(()=>{opEl.style.transform='scale(1)';opEl.style.transition='transform 0.15s';},150);
-  if(navigator.vibrate)navigator.vibrate(40);
-  const p=PREGUNTAS[preguntaActual];
-  respuestas[pregId]={valor,texto:textoOp,emoji:p.opciones[idx].emoji};
-  const btn=document.getElementById('btn-siguiente');
-  btn.disabled=false;btn.textContent=preguntaActual===PREGUNTAS.length-1?'Ver resumen →':'Siguiente →';
-  const tm=document.getElementById('trans-mini');if(tm)tm.classList.remove('visible');
-}
+  if (p.condicion) {
+    var badge = document.createElement('div');
+    badge.style.textAlign = 'center';
+    badge.style.marginBottom = '8px';
+    var badgeSpan = document.createElement('span');
+    badgeSpan.className = 'pregunta-badge';
+    badgeSpan.textContent = 'Para: ' + p.condicion;
+    badge.appendChild(badgeSpan);
+    card.appendChild(badge);
+  }
 
-function siguiente(){
-  if(preguntaActual<PREGUNTAS.length-1){preguntaActual++;renderPregunta();}
-  else mostrarResumen();
-}
+  var textoDiv = document.createElement('div');
+  textoDiv.className = 'pregunta-texto';
+  textoDiv.textContent = p.texto;
+  card.appendChild(textoDiv);
 
-function saltar(){
-  const p=PREGUNTAS[preguntaActual];
-  respuestas[p.id]={valor:'saltada',texto:'Sin respuesta',emoji:'—'};
-  siguiente();
-}
+  var subDiv = document.createElement('div');
+  subDiv.className = 'pregunta-sub';
+  subDiv.textContent = p.sub;
+  card.appendChild(subDiv);
 
-function toggleMicCheckin(){if(grabandoCheckin)detenerMicCheckin();else iniciarMicCheckin();}
-function iniciarMicCheckin(){
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){alert('Usa Chrome para el micrófono');return;}
-  grabandoCheckin=true;textoVozCheckin='';
-  const btn=document.getElementById('mic-checkin-btn');
-  btn.classList.add('grabando');btn.querySelector('.mic-checkin-icono').textContent='⏹️';btn.querySelector('.mic-checkin-texto').textContent='Escuchando... toca para detener';
-  recognition=new SR();recognition.lang='es-CL';recognition.continuous=false;recognition.interimResults=false;
-  recognition.onresult=(e)=>{textoVozCheckin=e.results[0][0].transcript;};
-  recognition.onend=()=>{
-    grabandoCheckin=false;
-    const b=document.getElementById('mic-checkin-btn');
-    if(b){b.classList.remove('grabando');b.querySelector('.mic-checkin-icono').textContent='🎙️';b.querySelector('.mic-checkin-texto').textContent='O toca para contarme con tu voz';}
-    if(textoVozCheckin){const tm=document.getElementById('trans-mini');const tt=document.getElementById('trans-mini-texto');if(tm&&tt){tt.value=textoVozCheckin;tm.classList.add('visible');}}
-  };
-  recognition.onerror=()=>{grabandoCheckin=false;const b=document.getElementById('mic-checkin-btn');if(b){b.classList.remove('grabando');b.querySelector('.mic-checkin-icono').textContent='🎙️';b.querySelector('.mic-checkin-texto').textContent='O toca para contarme con tu voz';}};
-  recognition.start();
-}
-function detenerMicCheckin(){grabandoCheckin=false;if(recognition){try{recognition.stop();}catch(e){}}}
-function usarTrans(pregId){
-  const txt=document.getElementById('trans-mini-texto').value.trim();if(!txt)return;
-  respuestas[pregId]={valor:'voz',texto:txt,emoji:'🎙️'};
-  document.getElementById('trans-mini').classList.remove('visible');
-  document.querySelectorAll('.opcion').forEach(o=>o.classList.remove('seleccionada'));
-  const btn=document.getElementById('btn-siguiente');btn.disabled=false;btn.textContent=preguntaActual===PREGUNTAS.length-1?'Ver resumen →':'Siguiente →';
-  mostrarToast('✓ Respuesta guardada',true);
-}
-function rehacerVoz(){document.getElementById('trans-mini').classList.remove('visible');textoVozCheckin='';}
-function guardarNumero(pregId, val){
-  if(!respuestas[pregId]) respuestas[pregId]={valor:'no_medida',texto:'No se midió',emoji:'🤷'};
-  respuestas[pregId].numero=val;
-}
+  // Opciones principales (máx 4 si tiene extra)
+  var opsPrincipales = (p.tieneExtra) ? p.opciones.slice(0, 4) : p.opciones;
+  var opsExtra = (p.tieneExtra) ? p.opciones.slice(4) : [];
 
-function mostrarResumen(){
-  document.getElementById('pregunta-contenido').style.display='none';
-  document.getElementById('nav-btns').style.display='none';
-  document.getElementById('progreso-wrap').style.display='none';
-  document.getElementById('aviso-momento').style.display='none';
-  document.getElementById('resumen').classList.add('visible');
-  document.getElementById('resumen-items').innerHTML=PREGUNTAS.map((p,i)=>{
-    const r=respuestas[p.id];
-    const sinResp=!r||r.valor==='saltada';
-    return`<div class="resumen-item" onclick="irAPregunta(${i})" style="cursor:pointer;">
-      <div class="resumen-item-emoji">${sinResp?'—':r.emoji}</div>
-      <div style="flex:1;"><div class="resumen-pregunta">${p.texto}</div>
-      <div class="resumen-respuesta" style="${sinResp?'color:var(--gris-muted)':''}">${sinResp?'Sin respuesta':r.texto}</div></div>
-      <div style="font-size:18px;color:#94A3B8;align-self:center;margin-left:8px;">✏️</div>
-    </div>`;
-  }).join('');
-  window.scrollTo(0,0);
-}
-
-function irAPregunta(idx){
-  preguntaActual=idx;
-  document.getElementById('resumen').classList.remove('visible');
-  document.getElementById('pregunta-contenido').style.display='block';
-  document.getElementById('nav-btns').style.display='flex';
-  document.getElementById('progreso-wrap').style.display='block';
-  document.getElementById('aviso-momento').style.display='flex';
-  renderPregunta();
-}
-
-function volverEditar(){
-  preguntaActual=0;
-  document.getElementById('resumen').classList.remove('visible');
-  document.getElementById('pregunta-contenido').style.display='block';
-  document.getElementById('nav-btns').style.display='flex';
-  document.getElementById('progreso-wrap').style.display='block';
-  document.getElementById('aviso-momento').style.display='flex';
-  renderPregunta();
-}
-
-const NEUTROS=['pendiente_noche','extra','cambio','no_medida'];
-const TEXTOS_VALOR={'pendiente_noche':'Remedios del día tomados — los de la tarde/noche los toma más tarde','sin_remedio':'No pudo tomar el remedio porque no lo tenía disponible','extra':'Tomó medicamento extra por dolor o emergencia','exceso':'Durmió en exceso, le costó levantarse','no_medida':'No se midió hoy'};
-
-function evaluarDia(){
-  const vals=Object.values(respuestas).map(r=>r.valor).filter(v=>!NEUTROS.includes(v));
-  if(vals.some(v=>['muy_mal','fuerte','ninguno','sin_remedio','alerta','brote','problema'].includes(v)))return'rojo';
-  if(vals.some(v=>['mal','moderado','triste','exceso','bajo','muy_bajo','alta','baja','peor','severa','dolor'].includes(v)))return'naranja';
-  if(vals.some(v=>['regular','leve','algunos','molestia','nocturia','moderada'].includes(v)))return'amarillo';
-  return'verde';
-}
-
-function guardarTodo(){
-  const ahora=new Date();
-  const fechaStr=ahora.toDateString();
-  const hora2=ahora.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
-  const textoResumen=PREGUNTAS.filter(p=>respuestas[p.id]&&respuestas[p.id].valor!=='saltada')
-    .map(p=>{const r=respuestas[p.id];return p.texto+': '+(TEXTOS_VALOR[r.valor]||r.texto);}).join('. ');
-  const cats=[];
-  Object.entries(respuestas).forEach(([id,r])=>{
-    if(r.valor==='saltada'||NEUTROS.includes(r.valor))return;
-    if(['mal','muy_mal','exceso'].includes(r.valor)&&id==='sueno')cats.push('sueno');
-    if(['leve','moderado','fuerte','peor','brote','severa','dolor'].includes(r.valor)&&['dolor','fibromialgia','artrosis','postop'].includes(id))cats.push('dolor');
-    if(['triste','muy_mal','bajo','muy_bajo'].includes(r.valor)&&['animo','depresion'].includes(id))cats.push('animo');
-    if(['algunos','sin_remedio','ninguno'].includes(r.valor)&&id==='medicamentos')cats.push('med');
-    if(['alta','baja'].includes(r.valor)&&['presion','diabetes'].includes(id))cats.push('presion');
-    if(['molestia','irritacion','problema'].includes(r.valor)&&id==='colostomia')cats.push('mov');
-    if(['leve','moderado','nocturia'].includes(r.valor)&&id==='prostata')cats.push('mov');
+  opsPrincipales.forEach(function(o, i) {
+    card.appendChild(crearOpcion(o, i, p.id));
   });
-  const registro={id:Date.now(),texto:textoResumen,categorias:[...new Set(cats)],hora:hora2,fecha:fechaStr,tipo:'checkin',detalle:respuestas,numeros:Object.fromEntries(Object.entries(respuestas).filter(([,r])=>r.numero).map(([k,r])=>[k,r.numero]))};
-  const key='misalud_registros_'+perfil.id;
-  const registros=JSON.parse(localStorage.getItem(key)||'[]');
-  registros.push(registro);
-  localStorage.setItem(key,JSON.stringify(registros));
-  localStorage.setItem('misalud_checkin_'+perfil.id+'_'+fechaStr,'1');
-  localStorage.setItem('misalud_dia_'+perfil.id+'_'+fechaStr,evaluarDia());
-  // Pantalla de cierre — usar pantalla separada, nunca reemplazar el div resumen
-  document.getElementById('pregunta-contenido').style.display='none';
-  document.getElementById('nav-btns').style.display='none';
-  document.getElementById('progreso-wrap').style.display='none';
-  document.getElementById('aviso-momento').style.display='none';
+
+  // Opciones extra
+  if (opsExtra.length > 0) {
+    var verMas = document.createElement('div');
+    verMas.className = 'ver-mas-link';
+    verMas.textContent = 'Ver más opciones ↓';
+    verMas.onclick = function() {
+      verMas.style.display = 'none';
+      extraCont.style.display = 'block';
+    };
+    card.appendChild(verMas);
+
+    var extraCont = document.createElement('div');
+    extraCont.style.display = 'none';
+    opsExtra.forEach(function(o, i) {
+      extraCont.appendChild(crearOpcion(o, i + 4, p.id));
+    });
+    card.appendChild(extraCont);
+  }
+
+  // Micrófono si es mixto
+  if (p.tipo === 'mixto') {
+    var micBtn = document.createElement('div');
+    micBtn.className = 'mic-checkin';
+    micBtn.id = 'mic-btn';
+    micBtn.innerHTML = '<span class="mic-checkin-icono">🎙️</span><span class="mic-checkin-texto">O toca para contarme con tu voz</span>';
+    micBtn.onclick = toggleMic;
+    card.appendChild(micBtn);
+
+    var transBox = document.createElement('div');
+    transBox.className = 'transcripcion-mini';
+    transBox.id = 'trans-box';
+    transBox.innerHTML =
+      '<div class="trans-mini-label">Esto escuché, ¿está bien?</div>' +
+      '<textarea class="trans-mini-texto" id="trans-texto" rows="2"></textarea>' +
+      '<div class="trans-mini-acciones">' +
+      '<button class="btn-usar" id="btn-usar">Usar esta respuesta</button>' +
+      '<button class="btn-rehace" id="btn-rehacer">Repetir</button>' +
+      '</div>';
+    card.appendChild(transBox);
+  }
+
+  cont.appendChild(card);
+
+  // Event listeners después de insertar en DOM
+  if (p.tipo === 'mixto') {
+    var btnUsar = document.getElementById('btn-usar');
+    var btnRehacer = document.getElementById('btn-rehacer');
+    if (btnUsar) btnUsar.onclick = function() { usarVoz(p.id); };
+    if (btnRehacer) btnRehacer.onclick = function() {
+      document.getElementById('trans-box').classList.remove('visible');
+      textoVoz = '';
+    };
+  }
+
+  // Marcar selección previa
+  if (respuestas[p.id]) {
+    var idx = p.opciones.findIndex(function(o){ return o.valor === respuestas[p.id].valor; });
+    if (idx >= 0) {
+      var opEl = document.getElementById('op-' + idx);
+      if (opEl) opEl.classList.add('seleccionada');
+    }
+  }
+
+  window.scrollTo(0, 0);
+}
+
+function crearOpcion(o, i, pregId) {
+  var div = document.createElement('div');
+  div.className = 'opcion';
+  div.id = 'op-' + i;
+
+  var emojiSpan = document.createElement('span');
+  emojiSpan.className = 'opcion-emoji';
+  emojiSpan.textContent = o.emoji;
+  div.appendChild(emojiSpan);
+
+  var infoDiv = document.createElement('div');
+  var textoDiv = document.createElement('div');
+  textoDiv.className = 'opcion-texto';
+  textoDiv.textContent = o.texto;
+  infoDiv.appendChild(textoDiv);
+  if (o.sub) {
+    var subDiv = document.createElement('div');
+    subDiv.className = 'opcion-sub';
+    subDiv.textContent = o.sub;
+    infoDiv.appendChild(subDiv);
+  }
+  div.appendChild(infoDiv);
+
+  // Closure limpio
+  (function(opcion, idx) {
+    div.onclick = function() {
+      document.querySelectorAll('.opcion').forEach(function(el){ el.classList.remove('seleccionada'); });
+      div.classList.add('seleccionada');
+      if (navigator.vibrate) navigator.vibrate(30);
+      respuestas[pregId] = { valor: opcion.valor, texto: opcion.texto, emoji: opcion.emoji };
+      document.getElementById('btn-siguiente').disabled = false;
+    };
+  })(o, i);
+
+  return div;
+}
+
+// ── NAVEGACIÓN ────────────────────────────────────────────────
+function siguiente() {
+  if (!respuestas[PREGUNTAS[preguntaActual].id]) return;
+  if (preguntaActual < PREGUNTAS.length - 1) {
+    preguntaActual++;
+    renderPregunta();
+  } else {
+    mostrarResumen();
+  }
+}
+
+function saltar() {
+  if (preguntaActual < PREGUNTAS.length - 1) {
+    preguntaActual++;
+    renderPregunta();
+  } else {
+    mostrarResumen();
+  }
+}
+
+// ── RESUMEN ───────────────────────────────────────────────────
+function mostrarResumen() {
+  document.getElementById('pregunta-contenido').style.display = 'none';
+  document.getElementById('nav-btns').style.display = 'none';
+  document.getElementById('progreso-wrap').style.display = 'none';
+  document.getElementById('aviso-momento').style.display = 'none';
+  var res = document.getElementById('resumen');
+  res.classList.add('visible');
+  var items = document.getElementById('resumen-items');
+  items.innerHTML = '';
+  PREGUNTAS.forEach(function(p, i) {
+    var r = respuestas[p.id];
+    var div = document.createElement('div');
+    div.className = 'resumen-item';
+    div.innerHTML =
+      '<div class="resumen-item-emoji">' + (r ? r.emoji : '—') + '</div>' +
+      '<div style="flex:1;">' +
+      '<div class="resumen-pregunta">' + p.texto + '</div>' +
+      '<div class="resumen-respuesta" style="' + (!r ? 'color:#94A3B8' : '') + '">' + (r ? r.texto : 'Sin respuesta') + '</div>' +
+      '</div>' +
+      '<div style="font-size:16px;color:#94A3B8;align-self:center;">✏️</div>';
+    div.onclick = function() { irAPregunta(i); };
+    items.appendChild(div);
+  });
+  window.scrollTo(0, 0);
+}
+
+function irAPregunta(idx) {
+  preguntaActual = idx;
   document.getElementById('resumen').classList.remove('visible');
-  const cierre = document.getElementById('pantalla-cierre');
-  cierre.style.display='block';
-  cierre.innerHTML = '<div style="text-align:center;padding:40px 20px;">' +
+  document.getElementById('pregunta-contenido').style.display = 'block';
+  document.getElementById('nav-btns').style.display = 'flex';
+  document.getElementById('progreso-wrap').style.display = 'block';
+  document.getElementById('aviso-momento').style.display = 'flex';
+  renderPregunta();
+}
+
+function volverEditar() {
+  preguntaActual = 0;
+  document.getElementById('resumen').classList.remove('visible');
+  document.getElementById('pregunta-contenido').style.display = 'block';
+  document.getElementById('nav-btns').style.display = 'flex';
+  document.getElementById('progreso-wrap').style.display = 'block';
+  document.getElementById('aviso-momento').style.display = 'flex';
+  renderPregunta();
+}
+
+// ── GUARDAR ───────────────────────────────────────────────────
+var NEUTROS = ['pendiente_noche','extra','cambio','no_medida'];
+
+function evaluarDia() {
+  var vals = Object.values(respuestas).map(function(r){ return r.valor; }).filter(function(v){ return NEUTROS.indexOf(v) < 0; });
+  if (vals.some(function(v){ return ['muy_mal','fuerte','ninguno','sin_remedio','alerta','brote','problema'].indexOf(v) >= 0; })) return 'rojo';
+  if (vals.some(function(v){ return ['mal','moderado','triste','exceso','bajo','muy_bajo','alta','baja','peor','severa','dolor'].indexOf(v) >= 0; })) return 'naranja';
+  if (vals.some(function(v){ return ['regular','leve','algunos','molestia','nocturia','moderada'].indexOf(v) >= 0; })) return 'amarillo';
+  return 'verde';
+}
+
+function guardarTodo() {
+  var ahora = new Date();
+  var hora2 = ahora.toLocaleTimeString('es-CL', {hour:'2-digit', minute:'2-digit'});
+  var resumenTexto = PREGUNTAS
+    .filter(function(p){ return respuestas[p.id] && respuestas[p.id].valor !== 'saltada'; })
+    .map(function(p){ return p.texto + ': ' + respuestas[p.id].texto; })
+    .join('. ');
+
+  var cats = [];
+  Object.entries(respuestas).forEach(function(entry) {
+    var id = entry[0], r = entry[1];
+    if (NEUTROS.indexOf(r.valor) >= 0) return;
+    if (['mal','muy_mal','exceso'].indexOf(r.valor) >= 0 && id === 'sueno') cats.push('sueno');
+    if (['leve','moderado','fuerte','peor','brote','severa','dolor'].indexOf(r.valor) >= 0 && ['dolor','fibromialgia','artrosis','postop'].indexOf(id) >= 0) cats.push('dolor');
+    if (['triste','muy_mal','bajo','muy_bajo'].indexOf(r.valor) >= 0 && ['animo','depresion'].indexOf(id) >= 0) cats.push('animo');
+    if (['algunos','sin_remedio','ninguno'].indexOf(r.valor) >= 0 && id === 'medicamentos') cats.push('med');
+    if (['alta','baja'].indexOf(r.valor) >= 0 && ['presion','diabetes'].indexOf(id) >= 0) cats.push('presion');
+  });
+
+  var registro = {
+    id: Date.now(),
+    texto: resumenTexto,
+    categorias: cats.filter(function(v, i, a){ return a.indexOf(v) === i; }),
+    hora: hora2,
+    fecha: hoy,
+    tipo: 'checkin',
+    detalle: respuestas
+  };
+
+  var key = 'misalud_registros_' + perfil.id;
+  var registros = JSON.parse(localStorage.getItem(key) || '[]');
+  registros.push(registro);
+  localStorage.setItem(key, JSON.stringify(registros));
+  localStorage.setItem(checkinKey, '1');
+  localStorage.setItem('misalud_dia_' + perfil.id + '_' + hoy, evaluarDia());
+
+  // Pantalla de cierre
+  document.getElementById('resumen').classList.remove('visible');
+  var cierre = document.getElementById('pantalla-cierre');
+  cierre.style.display = 'block';
+  cierre.innerHTML =
+    '<div style="text-align:center;padding:48px 20px;">' +
     '<div style="font-size:72px;margin-bottom:20px;">🌿</div>' +
-    '<div style="font-family:Nunito,sans-serif;font-weight:900;font-size:26px;color:#0F172A;margin-bottom:10px;">¡Gracias, '+nombreCorto+'!</div>' +
+    '<div style="font-family:Nunito,sans-serif;font-weight:900;font-size:26px;color:#0F172A;margin-bottom:10px;">Gracias, ' + nombreCorto + '</div>' +
     '<div style="font-size:16px;color:#64748B;line-height:1.7;margin-bottom:20px;">Tu check-in quedó guardado.<br>Esta información ayuda mucho a tu médico.</div>' +
-    '<div style="font-size:13px;color:#94A3B8;margin-bottom:20px;" id="countdown-txt">Volviendo al inicio en 3 segundos...</div>' +
-    '<button onclick="window.location.href='home.html'" style="width:100%;padding:18px;border-radius:14px;border:none;background:#22C55E;color:#fff;font-family:Nunito,sans-serif;font-weight:800;font-size:18px;cursor:pointer;margin-bottom:12px;">Ir al inicio ahora 🏠</button>' +
-    '<button onclick="window.location.href='historial.html'" style="width:100%;padding:14px;border-radius:14px;border:1.5px solid #E2E8F0;background:#fff;color:#64748B;font-family:Nunito,sans-serif;font-weight:700;font-size:15px;cursor:pointer;">Ver mis registros</button>' +
+    '<div style="font-size:14px;color:#94A3B8;margin-bottom:24px;" id="countdown-txt">Volviendo al inicio en 3 segundos...</div>' +
+    '<button onclick="window.location.href=\'home.html\'" style="width:100%;padding:18px;border-radius:14px;border:none;background:#22C55E;color:#fff;font-family:Nunito,sans-serif;font-weight:800;font-size:18px;cursor:pointer;margin-bottom:12px;">Ir al inicio ahora 🏠</button>' +
+    '<button onclick="window.location.href=\'historial.html\'" style="width:100%;padding:14px;border-radius:14px;border:1.5px solid #E2E8F0;background:#fff;color:#64748B;font-family:Nunito,sans-serif;font-weight:700;font-size:15px;cursor:pointer;">Ver mis registros</button>' +
     '</div>';
-  window.scrollTo(0,0);
-  let secs = 3;
-  const countdown = setInterval(() => {
+  window.scrollTo(0, 0);
+
+  var secs = 3;
+  var iv = setInterval(function() {
     secs--;
-    const el = document.getElementById('countdown-txt');
-    if (el) el.textContent = secs > 0 ? 'Volviendo al inicio en '+secs+' segundo'+(secs!==1?'s':'')+'...' : 'Redirigiendo...';
-    if (secs <= 0) { clearInterval(countdown); window.location.href = 'home.html'; }
+    var el = document.getElementById('countdown-txt');
+    if (el) el.textContent = secs > 0 ? 'Volviendo al inicio en ' + secs + ' segundo' + (secs !== 1 ? 's' : '') + '...' : 'Redirigiendo...';
+    if (secs <= 0) { clearInterval(iv); window.location.href = 'home.html'; }
   }, 1000);
 }
 
-function mostrarToast(msg,ok){
-  const t=document.getElementById('toast');t.textContent=msg;
-  t.className='toast'+(ok?' verde':'')+' show';
-  setTimeout(()=>t.classList.remove('show'),2800);
+// ── MICRÓFONO ─────────────────────────────────────────────────
+function toggleMic() {
+  if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+    mostrarToast('Abre en Chrome para usar el micrófono', false);
+    return;
+  }
+  if (grabando) {
+    grabando = false;
+    if (recognition) { try { recognition.stop(); } catch(e) {} }
+  } else {
+    grabando = true;
+    textoVoz = '';
+    var micBtn = document.getElementById('mic-btn');
+    if (micBtn) micBtn.classList.add('grabando');
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SR();
+    recognition.lang = 'es-CL';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.onresult = function(e) {
+      textoVoz = e.results[0][0].transcript;
+    };
+    recognition.onend = function() {
+      grabando = false;
+      var micBtn2 = document.getElementById('mic-btn');
+      if (micBtn2) micBtn2.classList.remove('grabando');
+      if (textoVoz) {
+        var tt = document.getElementById('trans-texto');
+        var tb = document.getElementById('trans-box');
+        if (tt) tt.value = textoVoz;
+        if (tb) tb.classList.add('visible');
+      }
+    };
+    recognition.onerror = function() {
+      grabando = false;
+      var micBtn3 = document.getElementById('mic-btn');
+      if (micBtn3) micBtn3.classList.remove('grabando');
+    };
+    recognition.start();
+  }
 }
 
-try {
-  renderPregunta();
-} catch(err) {
-  document.getElementById('pregunta-contenido').innerHTML =
-    '<div style="padding:20px;background:#FEE2E2;border-radius:12px;font-size:13px;color:#991B1B;">' +
-    '<strong>Error:</strong> ' + err.message + '</div>';
-  console.error('renderPregunta error:', err);
+function usarVoz(pregId) {
+  var tt = document.getElementById('trans-texto');
+  var tb = document.getElementById('trans-box');
+  if (!tt || !tt.value.trim()) return;
+  var p = PREGUNTAS[preguntaActual];
+  respuestas[pregId] = { valor: 'voz', texto: tt.value.trim(), emoji: '🎙️' };
+  if (tb) tb.classList.remove('visible');
+  document.getElementById('btn-siguiente').disabled = false;
+  mostrarToast('Respuesta guardada', true);
 }
+
+// ── TOAST ─────────────────────────────────────────────────────
+function mostrarToast(msg, ok) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (ok ? ' verde' : '') + ' show';
+  setTimeout(function(){ t.classList.remove('show'); }, 2800);
+}
+
+// ── INICIO ────────────────────────────────────────────────────
+renderPregunta();
 </script>
 </body>
 </html>
