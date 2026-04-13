@@ -308,6 +308,12 @@ function horaDelDia() {
   return 'Buenas noches';
 }
 
+// ── AUTO-LOGIN: si ya hay sesión activa, ir directo al home ──
+const _sesionActiva = JSON.parse(localStorage.getItem('misalud_usuario_actual') || 'null');
+if (_sesionActiva) {
+  window.location.href = 'home.html';
+}
+
 // Configurar inputs de dígitos
 const digitos = Array.from({length: 6}, (_, i) => document.getElementById('d' + i));
 
