@@ -105,7 +105,7 @@ body { font-family: 'Nunito Sans', sans-serif; background: var(--gris-bg); color
 <div class="toast" id="toast"></div>
 <script>
 const perfil = JSON.parse(localStorage.getItem('misalud_usuario_actual') || 'null');
-if (!perfil) window.location.href = 'index.html';
+if (!perfil) { window.location.href = 'index.html'; throw new Error('Sin perfil'); }
 
 // Si ya hizo check-in hoy Y tiene registros reales, redirigir
 const _hoy = new Date().toDateString();
@@ -539,7 +539,14 @@ function mostrarToast(msg,ok){
   setTimeout(()=>t.classList.remove('show'),2800);
 }
 
-renderPregunta();
+try {
+  renderPregunta();
+} catch(err) {
+  document.getElementById('pregunta-contenido').innerHTML =
+    '<div style="padding:20px;background:#FEE2E2;border-radius:12px;font-size:13px;color:#991B1B;">' +
+    '<strong>Error:</strong> ' + err.message + '</div>';
+  console.error('renderPregunta error:', err);
+}
 </script>
 </body>
 </html>
