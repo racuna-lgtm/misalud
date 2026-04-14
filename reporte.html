@@ -266,6 +266,7 @@ body {
   body { border-left: 1px solid var(--gris-borde); border-right: 1px solid var(--gris-borde); }
 }
 </style>
+<script src="firebase.js"></script>
 </head>
 <body>
 
@@ -892,7 +893,35 @@ function mostrarToast(msg, ok) {
   setTimeout(() => t.classList.remove('show'), 2800);
 }
 
-renderReporte();
+
+// ── SINCRONIZAR DESDE FIREBASE ────────────────────────────────
+async function sincronizarDesdeFirebase() {
+  if (!perfil) return;
+  try {
+    // Sincronizar registros
+    const regsFirebase = await fbObtenerRegistros(String(perfil.id));
+    if (regsFirebase.length > 0) {
+      const key = 'misalud_registros_' + perfil.id;
+      const regsLocal = JSON.parse(localStorage.getItem(key) || '[]');
+      // Fusionar: usar Firebase como fuente de verdad, agregar locales que no estén
+      const idsFirebase = new Set(regsFirebase.map(r => String(r.id)));
+      const soloLocales = regsLocal.filter(r => !idsFirebase.has(String(r.id)));
+      const fusionados = [...regsFirebase, ...soloLocales]
+        .sort((a, b) => b.id - a.id);
+      localStorage.setItem(key, JSON.stringify(fusionados));
+      // Subir locales que no están en Firebase
+      for (const r of soloLocales) {
+        try { await fbGuardarRegistro(String(perfil.id), r); } catch(e) {}
+      }
+    }
+  } catch(e) {
+    console.log('Sync Firebase:', e.message);
+  }
+}
+sincronizarDesdeFirebase().then(function() {
+  if (typeof renderReporte === 'function') renderReporte();
+  else if (typeof render === 'function') render();
+});
 </script>
 </body>
 </html>
