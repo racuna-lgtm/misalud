@@ -314,6 +314,12 @@ if (_sesionActiva) {
   window.location.href = 'home.html';
 }
 
+// Cargar firebase.js dinámicamente
+const _fbScript = document.createElement('script');
+_fbScript.type = 'module';
+_fbScript.src = 'firebase.js';
+document.head.appendChild(_fbScript);
+
 // Configurar inputs de dígitos
 const digitos = Array.from({length: 6}, (_, i) => document.getElementById('d' + i));
 
@@ -378,7 +384,7 @@ function mostrarError(msg) {
   actualizarBoton();
 }
 
-function verificarCodigo() {
+async function verificarCodigo() {
   const codigo = digitos.map(d => d.value).join('');
   if (codigo.length < 6) return;
 
@@ -386,20 +392,32 @@ function verificarCodigo() {
   btn.innerHTML = '<span class="loading"></span>';
   btn.disabled = true;
 
-  setTimeout(() => {
+  // Buscar en Firebase primero, fallback a localStorage
+  let perfil = null;
+  try {
+    perfil = await fbBuscarPorCodigo(codigo);
+  } catch(e) {
+    // Firebase no disponible — usar localStorage
     const perfiles = JSON.parse(localStorage.getItem('misalud_perfiles') || '[]');
-    const perfil = perfiles.find(p => p.codigo === codigo && p.activo);
+    perfil = perfiles.find(p => p.codigo === codigo && p.activo) || null;
+  }
 
-    if (perfil) {
-      // Guardar sesión
-      localStorage.setItem('misalud_usuario_actual', JSON.stringify(perfil));
-      mostrarBienvenida(perfil, perfiles.indexOf(perfil));
-    } else {
-      btn.innerHTML = 'Entrar';
-      btn.disabled = false;
-      mostrarError('Código incorrecto. Verifica los números e intenta de nuevo.');
-    }
-  }, 800);
+  // Si no encontró en Firebase, intentar localStorage
+  if (!perfil) {
+    const perfiles = JSON.parse(localStorage.getItem('misalud_perfiles') || '[]');
+    perfil = perfiles.find(p => p.codigo === codigo && p.activo) || null;
+  }
+
+  if (perfil) {
+    localStorage.setItem('misalud_usuario_actual', JSON.stringify(perfil));
+    const perfiles = JSON.parse(localStorage.getItem('misalud_perfiles') || '[]');
+    const idx = Math.max(0, perfiles.findIndex(p => p.codigo === codigo));
+    mostrarBienvenida(perfil, idx);
+  } else {
+    btn.innerHTML = 'Entrar';
+    btn.disabled = false;
+    mostrarError('Código incorrecto. Verifica los números e intenta de nuevo.');
+  }
 }
 
 function mostrarBienvenida(perfil, idx) {
