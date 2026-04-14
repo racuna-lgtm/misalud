@@ -273,6 +273,7 @@ body { font-family: 'Nunito Sans', sans-serif; background: var(--gris-bg); color
   .topbar { padding: 0 16px; }
 }
 </style>
+<script type="module" src="firebase.js"></script>
 </head>
 <body>
 
@@ -472,7 +473,18 @@ const CONDICIONES_HOMBRE = [
   "Sarcopenia","Disfunción eréctil","Incontinencia urinaria"
 ];
 
-let perfiles = JSON.parse(localStorage.getItem('misalud_perfiles') || '[]');
+let perfiles = [];
+// Cargar perfiles desde Firebase al iniciar
+async function iniciarAdmin() {
+  try {
+    perfiles = await fbObtenerPerfiles();
+  } catch(e) {
+    // fallback a localStorage si Firebase no carga
+    perfiles = JSON.parse(localStorage.getItem('misalud_perfiles') || '[]');
+  }
+  render();
+}
+iniciarAdmin();
 let editandoId = null;
 
 function generarCodigo() {
@@ -541,7 +553,7 @@ function cerrarModalOverlay(e) {
   if (e.target === document.getElementById('modal')) cerrarModal();
 }
 
-function guardarPerfil() {
+async function guardarPerfil() {
   const nombre = document.getElementById('f-nombre').value.trim();
   const edad = document.getElementById('f-edad').value;
   const sexo = document.getElementById('f-sexo').value;
@@ -564,6 +576,8 @@ function guardarPerfil() {
   };
 
   perfiles.push(perfil);
+  // Guardar en Firebase + localStorage (doble respaldo)
+  try { await fbGuardarPerfil(perfil); } catch(e) { console.warn('Firebase:', e); }
   localStorage.setItem('misalud_perfiles', JSON.stringify(perfiles));
 
   document.getElementById('codigo-display').textContent = codigo;
@@ -574,16 +588,21 @@ function guardarPerfil() {
   actualizarStats();
 }
 
-function toggleActivo(id) {
+async function toggleActivo(id) {
   perfiles = perfiles.map(p => p.id === id ? {...p, activo: !p.activo} : p);
+  try { 
+    const p = perfiles.find(x => x.id === id);
+    if(p) await fbGuardarPerfil(p);
+  } catch(e) { console.warn('Firebase:', e); }
   localStorage.setItem('misalud_perfiles', JSON.stringify(perfiles));
   renderTabla();
   actualizarStats();
   mostrarToast('Estado actualizado');
 }
 
-function eliminarPerfil(id) {
+async function eliminarPerfil(id) {
   if (!confirm('¿Eliminar este perfil? Se perderán todos sus registros.')) return;
+  try { await fbEliminarPerfil(String(id)); } catch(e) { console.warn('Firebase:', e); }
   perfiles = perfiles.filter(p => p.id !== id);
   localStorage.setItem('misalud_perfiles', JSON.stringify(perfiles));
   renderTabla();
