@@ -363,6 +363,7 @@ body {
   body { border-left: 1px solid var(--gris-borde); border-right: 1px solid var(--gris-borde); }
 }
 </style>
+<script src="firebase.js"></script>
 </head>
 <body>
 
@@ -899,6 +900,29 @@ function mostrarToast(msg, ok = true) {
 }
 
 renderRegistrosHoy();
+
+// ── SYNC FIREBASE AL ENTRAR AL HOME ──────────────────────────
+async function syncHomeFirebase() {
+  if (!perfil) return;
+  try {
+    const regsFirebase = await fbObtenerRegistros(String(perfil.id));
+    if (regsFirebase.length > 0) {
+      const key = 'misalud_registros_' + perfil.id;
+      const regsLocal = JSON.parse(localStorage.getItem(key) || '[]');
+      const idsFirebase = new Set(regsFirebase.map(r => String(r.id)));
+      const soloLocales = regsLocal.filter(r => !idsFirebase.has(String(r.id)));
+      const fusionados = [...regsFirebase, ...soloLocales].sort((a,b) => b.id - a.id);
+      localStorage.setItem(key, JSON.stringify(fusionados));
+    }
+    // Sync perfil actualizado desde Firebase
+    const perfilesFirebase = await fbObtenerPerfiles();
+    const perfilActualizado = perfilesFirebase.find(p => String(p.id) === String(perfil.id));
+    if (perfilActualizado) {
+      localStorage.setItem('misalud_usuario_actual', JSON.stringify(perfilActualizado));
+    }
+  } catch(e) { console.log('Sync home:', e.message); }
+}
+syncHomeFirebase();
 </script>
 
 <!-- MODAL VISITA MÉDICA -->
