@@ -500,7 +500,7 @@ function evaluarDia() {
   return 'verde';
 }
 
-function guardarTodo() {
+async function guardarTodo() {
   var ahora = new Date();
   var hora2 = ahora.toLocaleTimeString('es-CL', {hour:'2-digit', minute:'2-digit'});
   var resumenTexto = PREGUNTAS
@@ -537,9 +537,9 @@ function guardarTodo() {
   localStorage.setItem('misalud_dia_' + perfil.id + '_' + hoy, evaluarDia());
   // Guardar en Firebase también
   try {
-    fbGuardarRegistro(String(perfil.id), registro);
-    fbGuardarCheckinFlag(String(perfil.id), hoy);
-    fbGuardarCheckinDia(String(perfil.id), hoy, evaluarDia());
+    await fbGuardarRegistro(String(perfil.id), registro);
+    await fbGuardarCheckinFlag(String(perfil.id), hoy);
+    await fbGuardarCheckinDia(String(perfil.id), hoy, evaluarDia());
   } catch(e) { console.warn('Firebase checkin:', e); }
 
   // Pantalla de cierre
