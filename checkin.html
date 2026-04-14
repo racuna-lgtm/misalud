@@ -65,6 +65,7 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--gris-bg);color:var(--
 .toast.verde{background:var(--verde-oscuro);}
 @media(min-width:480px){body{border-left:1px solid var(--gris-borde);border-right:1px solid var(--gris-borde);}}
 </style>
+<script type="module" src="firebase.js"></script>
 </head>
 <body>
 
@@ -534,6 +535,12 @@ function guardarTodo() {
   localStorage.setItem(key, JSON.stringify(registros));
   localStorage.setItem(checkinKey, '1');
   localStorage.setItem('misalud_dia_' + perfil.id + '_' + hoy, evaluarDia());
+  // Guardar en Firebase también
+  try {
+    fbGuardarRegistro(String(perfil.id), registro);
+    fbGuardarCheckinFlag(String(perfil.id), hoy);
+    fbGuardarCheckinDia(String(perfil.id), hoy, evaluarDia());
+  } catch(e) { console.warn('Firebase checkin:', e); }
 
   // Pantalla de cierre
   document.getElementById('resumen').classList.remove('visible');
