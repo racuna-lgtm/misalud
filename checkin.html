@@ -135,6 +135,8 @@ var condiciones = (perfil.condiciones || []).map(function(c){ return c.toLowerCa
 var hora = new Date().getHours();
 var esTarde = hora >= 14, esNoche = hora >= 20;
 var nombreCorto = perfil.nombre.split(' ')[0];
+var esMasc = perfil.sexo === 'm';
+function gen(f, m) { return esMasc ? m : f; }
 
 var avisoIcono='🌅', avisoTexto='Una vez al día · ideal hacerlo en la mañana';
 var avisoColor='#FFF7ED', avisoTxt='#9A3412', avisoBorde='#FED7AA', saludo='buenos días';
@@ -162,15 +164,15 @@ var tienePostop   = tiene(['postoperatorio','operada','operado','cirugia','recup
 // ── BANCO DE PREGUNTAS ────────────────────────────────────────
 var BANCO = {
 sueno:{id:'sueno',emoji:'🌙',texto:(esTarde||esNoche)?'¿Cómo dormiste la noche pasada?':'¿Cómo dormiste anoche?',sub:'Tu descanso afecta todo lo demás',tipo:'opciones',opciones:[
-  {emoji:'😴',texto:'Dormí muy bien',sub:'Descansé de corrido, me desperté con energía',valor:'bien'},
+  {emoji:'😴',texto:'Dormí muy bien',sub:gen('Descansé de corrido, me desperté con energía','Descansé de corrido, me desperté con energía'),valor:'bien'},
   {emoji:'😐',texto:'Más o menos',sub:'Algunos despertares pero dormí algo',valor:'regular'},
   {emoji:'😫',texto:'Dormí mal',sub:'Me desperté varias veces o tuve pesadillas',valor:'mal'},
   {emoji:'😰',texto:'Casi no dormí',sub:'Insomnio, dolor o ansiedad no me dejaron dormir',valor:'muy_mal'},
-  {emoji:'🛌',texto:'Dormí demasiado',sub:'No me pude levantar, mucho sueño todo el día',valor:'exceso'},
+  {emoji:'🛌',texto:'Dormí demasiado',sub:gen('No me pude levantar, mucho sueño todo el día','No me pude levantar, mucho sueño todo el día'),valor:'exceso'},
 ]},
 dolor:{id:'dolor',emoji:'⚡',texto:'¿Cómo está tu cuerpo hoy?',sub:'Cualquier molestia o dolor que tengas ahora',tipo:'mixto',opciones:[
   {emoji:'✅',texto:'Sin dolor ni molestias',sub:'Me siento bien físicamente',valor:'sin_dolor'},
-  {emoji:'😬',texto:'Molestia leve',sub:'Algo incómoda pero puedo hacer mis cosas',valor:'leve'},
+  {emoji:'😬',texto:'Molestia leve',sub:gen('Algo incómoda pero puedo hacer mis cosas','Algo incómodo pero puedo hacer mis cosas'),valor:'leve'},
   {emoji:'😣',texto:'Dolor moderado',sub:'Me limita en algunas actividades del día',valor:'moderado'},
   {emoji:'😭',texto:'Dolor fuerte',sub:'Me cuesta bastante hacer cosas normales',valor:'fuerte'},
 ]},
@@ -181,16 +183,16 @@ fibromialgia:{id:'fibromialgia',emoji:'🌡️',texto:'¿Cómo están los puntos
   {emoji:'😰',texto:'Brote fuerte hoy',sub:'Muy difícil de manejar, peor que lo habitual',valor:'brote'},
 ]},
 animo:{id:'animo',emoji:'💙',texto:'¿Cómo está tu ánimo?',sub:'No hay respuesta correcta, solo cuéntame',tipo:'opciones',opciones:[
-  {emoji:'😊',texto:'Bien, tranquila',sub:'Me siento en paz y con energía',valor:'bien'},
+  {emoji:'😊',texto:gen('Bien, tranquila','Bien, tranquilo'),sub:gen('Me siento en paz y con energía','Me siento en paz y con energía'),valor:'bien'},
   {emoji:'😌',texto:'Regular nomás',sub:'Ni muy bien ni muy mal',valor:'regular'},
-  {emoji:'😔',texto:'Triste o irritable',sub:'Decaída, de mal humor o con poca gana de nada',valor:'triste'},
-  {emoji:'😢',texto:'Muy mal',sub:'Muy angustiada, ansiosa o sin fuerzas',valor:'muy_mal'},
+  {emoji:'😔',texto:gen('Triste o irritable','Triste o irritable'),sub:gen('Decaída, de mal humor o con poca gana de nada','Decaído, de mal humor o con poca gana de nada'),valor:'triste'},
+  {emoji:'😢',texto:'Muy mal',sub:gen('Muy angustiada, ansiosa o sin fuerzas','Muy angustiado, ansioso o sin fuerzas'),valor:'muy_mal'},
 ]},
 depresion:{id:'depresion',emoji:'🫂',texto:'¿Cómo estuvo tu energía y motivación?',sub:'Comparado con los últimos días',tipo:'opciones',condicion:'Depresión / ansiedad',opciones:[
-  {emoji:'⚡',texto:'Con energía y ganas',sub:'Me sentí motivada hoy',valor:'bien'},
-  {emoji:'😐',texto:'Con algo de energía',sub:'Pude hacer cosas aunque con esfuerzo',valor:'regular'},
-  {emoji:'😔',texto:'Sin energía ni ganas',sub:'Me costó mucho hacer cualquier cosa',valor:'bajo'},
-  {emoji:'🛌',texto:'Muy apagada',sub:'No quise hacer nada, me quedé en cama',valor:'muy_bajo'},
+  {emoji:'⚡',texto:'Con energía y ganas',sub:gen('Me sentí motivada hoy','Me sentí motivado hoy'),valor:'bien'},
+  {emoji:'😐',texto:'Con algo de energía',sub:gen('Pude hacer cosas aunque con esfuerzo','Pude hacer cosas aunque con esfuerzo'),valor:'regular'},
+  {emoji:'😔',texto:'Sin energía ni ganas',sub:gen('Me costó mucho hacer cualquier cosa','Me costó mucho hacer cualquier cosa'),valor:'bajo'},
+  {emoji:'🛌',texto:gen('Muy apagada','Muy apagado'),sub:gen('No quise hacer nada, me quedé en cama','No quise hacer nada, me quedé en cama'),valor:'muy_bajo'},
 ]},
 medicamentos:{id:'medicamentos',emoji:'💊',texto:'¿Cómo vas con tus remedios?',sub:esNoche?'Los de hoy en total':'Los que debías tomar hasta este momento',tipo:'opciones',opciones:[
   {emoji:'✅',texto:esNoche?'Tomé todos mis remedios':'Tomé los que me tocaban hasta ahora',sub:'Todo en orden',valor:'todos'},
@@ -204,7 +206,7 @@ medicamentos:{id:'medicamentos',emoji:'💊',texto:'¿Cómo vas con tus remedios
 presion:{id:'presion',emoji:'📊',texto:'¿Cómo está tu presión hoy?',sub:'Si te la mediste, cuéntame',tipo:'mixto',condicion:'Hipertensión',opciones:[
   {emoji:'✅',texto:'Normal, dentro del rango',sub:'La presión estuvo bien controlada',valor:'normal'},
   {emoji:'📈',texto:'Alta, salió elevada',sub:'Por encima de lo normal para mí',valor:'alta'},
-  {emoji:'📉',texto:'Baja, me sentí mareada',sub:'Mareos, debilidad o vista borrosa',valor:'baja'},
+  {emoji:'📉',texto:gen('Baja, me sentí mareada','Bajo, me sentí mareado'),sub:gen('Mareos, debilidad o vista borrosa','Mareos, debilidad o vista borrosa'),valor:'baja'},
   {emoji:'🤷',texto:'No me la medí hoy',sub:'No tuve cómo o no pude',valor:'no_medida'},
 ]},
 diabetes:{id:'diabetes',emoji:'🩸',texto:'¿Cómo estuvo tu azúcar hoy?',sub:'Si te la mediste, cuéntame',tipo:'mixto',condicion:'Diabetes',opciones:[
