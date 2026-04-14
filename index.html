@@ -247,6 +247,7 @@ body {
   .codigo-wrap { gap: 7px; }
 }
 </style>
+<script src="firebase.js"></script>
 </head>
 <body>
 
@@ -314,11 +315,7 @@ if (_sesionActiva) {
   window.location.href = 'home.html';
 }
 
-// Cargar firebase.js dinámicamente
-const _fbScript = document.createElement('script');
-_fbScript.type = 'module';
-_fbScript.src = 'firebase.js';
-document.head.appendChild(_fbScript);
+// Firebase cargado via tag en head
 
 // Configurar inputs de dígitos
 const digitos = Array.from({length: 6}, (_, i) => document.getElementById('d' + i));
