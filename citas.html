@@ -518,11 +518,145 @@ function toggleMic() {
 function usarVoz() {
   var texto = document.getElementById('trans-texto').value.trim();
   if (!texto) return;
-  // Intentar extraer datos del texto de voz
-  document.getElementById('cita-notas').value = texto;
+
+  var t = texto.toLowerCase();
+  var hoy = new Date();
+  var anio = hoy.getFullYear();
+
+  // ── EXTRAER FECHA ─────────────────────────────────────────
+  var fechaEncontrada = null;
+
+  // "el lunes/martes/... próximo" o "el lunes/martes..."
+  var diasSemana = ['domingo','lunes','martes','miércoles','miercoles','jueves','viernes','sábado','sabado'];
+  for (var i = 0; i < diasSemana.length; i++) {
+    if (t.includes(diasSemana[i])) {
+      var diaObj = new Date(hoy);
+      var diasSemanaNum = [0,1,2,3,3,4,5,6,6]; // índice normalizado
+      var targetDia = diasSemanaNum[i];
+      var diff = targetDia - diaObj.getDay();
+      if (diff <= 0) diff += 7;
+      diaObj.setDate(diaObj.getDate() + diff);
+      fechaEncontrada = diaObj;
+      break;
+    }
+  }
+
+  // "el 21" / "día 21" / "el 21 de mayo" etc.
+  var mesesNombres = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  var matchDia = t.match(/(?:el|día|dia)\s+(\d{1,2})(?:\s+de\s+(\w+))?/);
+  if (matchDia) {
+    var numDia = parseInt(matchDia[1]);
+    var mesEncontrado = hoy.getMonth();
+    if (matchDia[2]) {
+      var idxMes = mesesNombres.indexOf(matchDia[2].toLowerCase());
+      if (idxMes >= 0) mesEncontrado = idxMes;
+    }
+    if (numDia >= 1 && numDia <= 31) {
+      var candidata = new Date(anio, mesEncontrado, numDia);
+      if (candidata < hoy) candidata.setFullYear(anio + 1);
+      fechaEncontrada = candidata;
+    }
+  }
+
+  // "mañana"
+  if (t.includes('mañana') || t.includes('manana')) {
+    var man = new Date(hoy); man.setDate(man.getDate() + 1);
+    fechaEncontrada = man;
+  }
+
+  // ── EXTRAER HORA ──────────────────────────────────────────
+  var horaEncontrada = '';
+  var matchHora = t.match(/(\d{1,2})(?::(\d{2}))?\s*(?:de la\s+)?(mañana|tarde|noche|am|pm)?(?:\s*horas?)?/);
+  if (matchHora) {
+    var h = parseInt(matchHora[1]);
+    var min = matchHora[2] ? matchHora[2] : '00';
+    var periodo = matchHora[3] || '';
+    if (periodo === 'tarde' || periodo === 'noche' || periodo === 'pm') {
+      if (h < 12) h += 12;
+    }
+    if (periodo === 'mañana' || periodo === 'am') {
+      if (h === 12) h = 0;
+    }
+    if (h >= 0 && h <= 23) {
+      horaEncontrada = String(h).padStart(2,'0') + ':' + min.padStart(2,'0');
+    }
+  }
+  // "a las 10" sin más contexto
+  var matchSimple = t.match(/a las\s+(\d{1,2})/);
+  if (matchSimple && !horaEncontrada) {
+    var hs = parseInt(matchSimple[1]);
+    horaEncontrada = String(hs).padStart(2,'0') + ':00';
+  }
+
+  // ── EXTRAER ESPECIALIDAD ──────────────────────────────────
+  var especialidades = [
+    ['cardiol','Cardiología'],['psicol','Psicología'],['psiqui','Psiquiatría'],
+    ['traumat','Traumatología'],['neurol','Neurología'],['reumato','Reumatología'],
+    ['oftalm','Oftalmología'],['otorrin','Otorrinolaringología'],['dermat','Dermatología'],
+    ['ginecol','Ginecología'],['urolog','Urología'],['gastro','Gastroenterología'],
+    ['endocrin','Endocrinología'],['salud mental','Psicología'],
+    ['terapeuta ocupacional','Terapia ocupacional'],['terapia ocupacional','Terapia ocupacional'],
+    ['médico general','Médico general'],['medico general','Médico general'],
+    ['general','Médico general'],['kinesiol','Kinesiología'],['nutricion','Nutrición'],
+    ['dentist','Odontología'],['dental','Odontología'],
+  ];
+  var especEncontrada = '';
+  for (var j = 0; j < especialidades.length; j++) {
+    if (t.includes(especialidades[j][0])) {
+      especEncontrada = especialidades[j][1];
+      break;
+    }
+  }
+
+  // ── EXTRAER LUGAR ─────────────────────────────────────────
+  var lugarEncontrado = '';
+  var matchLugar = t.match(/(?:en|en el|en la)\s+([^,\.]+?)(?:\s+para|\s+a las|\s+el|\s+martes|\s+lunes|\s+miércoles|\s+jueves|\s+viernes|$)/);
+  if (matchLugar) lugarEncontrado = matchLugar[1].trim();
+
+  // ── RELLENAR FORMULARIO ───────────────────────────────────
+  if (fechaEncontrada) {
+    var yyyy = fechaEncontrada.getFullYear();
+    var mm = String(fechaEncontrada.getMonth()+1).padStart(2,'0');
+    var dd = String(fechaEncontrada.getDate()).padStart(2,'0');
+    document.getElementById('cita-fecha').value = yyyy+'-'+mm+'-'+dd;
+  }
+  if (horaEncontrada) document.getElementById('cita-hora').value = horaEncontrada;
+  if (lugarEncontrado && lugarEncontrado.length > 2) document.getElementById('cita-lugar').value = lugarEncontrado;
+  document.getElementById('cita-notas').value = texto; // guardar texto completo en notas
+
+  // Seleccionar especialidad si se encontró
+  if (especEncontrada) {
+    especSeleccionada = especEncontrada;
+    document.querySelectorAll('.espec-opt').forEach(function(el){ el.classList.remove('sel'); });
+    var encontrada = false;
+    document.querySelectorAll('.espec-opt').forEach(function(el){
+      if (el.textContent.toLowerCase().includes(especEncontrada.toLowerCase().substring(0,6))) {
+        el.classList.add('sel'); encontrada = true;
+      }
+    });
+    if (!encontrada) {
+      document.querySelectorAll('.espec-opt').forEach(function(el){
+        if (el.textContent.includes('Otra')) el.classList.add('sel');
+      });
+      document.getElementById('espec-otra').style.display = 'block';
+      document.getElementById('espec-otra').value = especEncontrada;
+    }
+  }
+
   document.getElementById('trans-box').classList.remove('visible');
-  mostrarToast('Voz guardada en notas', true);
+
+  // Mostrar resumen de lo que entendió
+  var resumen = '✓ Entendí: ';
+  if (especEncontrada) resumen += especEncontrada + ' · ';
+  if (fechaEncontrada) resumen += fechaEncontrada.toLocaleDateString('es-CL',{weekday:'long',day:'numeric',month:'long'}) + ' · ';
+  if (horaEncontrada) resumen += horaEncontrada + ' hrs';
+  mostrarToast(resumen, true);
+
+  // Si falta algo crítico, avisar
+  if (!fechaEncontrada) mostrarToast('⚠ No entendí la fecha — complétala abajo', false);
+  if (!horaEncontrada) mostrarToast('⚠ No entendí la hora — complétala abajo', false);
 }
+
 function rehacerVoz() {
   document.getElementById('trans-box').classList.remove('visible');
   textoVoz = '';
