@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MiSalud — Mis citas</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="firebase.js"></script>
+<style>
+:root{
+  --verde:#22C55E;--verde-claro:#DCFCE7;--verde-oscuro:#16A34A;
+  --azul:#3B82F6;--azul-claro:#EFF6FF;--azul-oscuro:#1D4ED8;
+  --naranja:#F97316;--naranja-claro:#FFF7ED;
+  --gris-bg:#F8FAFC;--gris-borde:#E2E8F0;--gris-texto:#64748B;--gris-muted:#94A3B8;--negro:#0F172A;
+  --rojo:#EF4444;--rojo-claro:#FEE2E2;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Nunito Sans',sans-serif;background:var(--gris-bg);color:var(--negro);min-height:100vh;max-width:480px;margin:0 auto;padding-bottom:100px;}
+
+.header{background:#fff;padding:14px 18px;border-bottom:1px solid var(--gris-borde);display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50;}
+.btn-back{width:40px;height:40px;border-radius:12px;border:1px solid var(--gris-borde);background:var(--gris-bg);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;text-decoration:none;color:var(--negro);flex-shrink:0;}
+.header-titulo{font-family:'Nunito',sans-serif;font-weight:800;font-size:17px;flex:1;}
+
+.body{padding:16px;}
+
+/* TABS */
+.tabs{display:flex;gap:8px;margin-bottom:16px;}
+.tab{flex:1;padding:10px;border-radius:12px;border:1.5px solid var(--gris-borde);background:#fff;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;text-align:center;transition:all 0.15s;color:var(--gris-texto);}
+.tab.activo{background:var(--azul-oscuro);border-color:var(--azul-oscuro);color:#fff;}
+
+/* PRÓXIMAS CITAS */
+.cita-card{background:#fff;border-radius:16px;border:1px solid var(--gris-borde);margin-bottom:12px;overflow:hidden;cursor:pointer;transition:all 0.15s;}
+.cita-card:active{transform:scale(0.98);}
+.cita-card.urgente{border-left:4px solid var(--naranja);}
+.cita-card.hoy{border-left:4px solid var(--verde);}
+.cita-card.realizada{opacity:0.6;}
+.cita-header{display:flex;gap:12px;padding:14px 16px;align-items:flex-start;}
+.cita-fecha-box{background:var(--azul-claro);border-radius:12px;padding:8px 10px;text-align:center;flex-shrink:0;min-width:52px;}
+.cita-dia{font-family:'Nunito',sans-serif;font-weight:900;font-size:22px;color:var(--azul-oscuro);line-height:1;}
+.cita-mes{font-size:10px;font-weight:700;color:var(--azul-oscuro);text-transform:uppercase;letter-spacing:0.04em;}
+.cita-info{flex:1;}
+.cita-especialidad{font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;color:var(--negro);margin-bottom:3px;}
+.cita-hora{font-size:12px;color:var(--gris-texto);margin-bottom:3px;}
+.cita-lugar{font-size:12px;color:var(--gris-muted);}
+.cita-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0;}
+.badge-proxima{background:var(--azul-claro);color:var(--azul-oscuro);}
+.badge-hoy{background:var(--verde-claro);color:var(--verde-oscuro);}
+.badge-urgente{background:#FFF7ED;color:#C2410C;}
+.badge-realizada{background:#F1F5F9;color:var(--gris-muted);}
+.cita-extras{padding:0 16px 12px;display:flex;gap:8px;flex-wrap:wrap;}
+.cita-extra-tag{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--gris-bg);color:var(--gris-texto);}
+.dias-restantes{font-size:12px;font-weight:700;color:var(--naranja);margin-top:4px;}
+
+/* CALENDARIO */
+.cal-wrap{background:#fff;border-radius:16px;border:1px solid var(--gris-borde);padding:16px;margin-bottom:16px;}
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.cal-mes-titulo{font-family:'Nunito',sans-serif;font-weight:800;font-size:17px;}
+.cal-nav{width:34px;height:34px;border-radius:10px;border:1px solid var(--gris-borde);background:var(--gris-bg);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.cal-dia-label{font-size:10px;font-weight:700;color:var(--gris-muted);text-align:center;padding:4px 0;text-transform:uppercase;}
+.cal-dia{aspect-ratio:1;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--gris-texto);cursor:pointer;position:relative;transition:all 0.15s;}
+.cal-dia.hoy{background:var(--verde-claro);color:var(--verde-oscuro);font-weight:800;}
+.cal-dia.tiene-cita{background:var(--azul-claro);color:var(--azul-oscuro);font-weight:800;}
+.cal-dia.tiene-cita.hoy{background:var(--verde);color:#fff;}
+.cal-dia.pasado{opacity:0.4;}
+.cal-dia.vacio{pointer-events:none;}
+.cal-dot{width:5px;height:5px;border-radius:50%;background:var(--azul-oscuro);margin-top:1px;}
+.cal-dia.hoy .cal-dot{background:#fff;}
+
+/* BTN NUEVA CITA FLOTANTE */
+.btn-flotante{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--azul-oscuro);color:#fff;border:none;border-radius:20px;padding:15px 28px;font-family:'Nunito',sans-serif;font-weight:800;font-size:16px;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(29,78,216,0.35);z-index:50;transition:all 0.15s;max-width:320px;width:90%;}
+.btn-flotante:active{transform:translateX(-50%) scale(0.97);}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,0.55);z-index:200;align-items:flex-end;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:94vh;overflow-y:auto;}
+.modal-handle{width:40px;height:4px;background:var(--gris-borde);border-radius:10px;margin:12px auto 0;}
+.modal-header{padding:14px 18px 12px;border-bottom:1px solid var(--gris-borde);display:flex;align-items:center;justify-content:space-between;}
+.modal-titulo{font-family:'Nunito',sans-serif;font-weight:800;font-size:17px;}
+.modal-close{width:30px;height:30px;border-radius:8px;border:1px solid var(--gris-borde);background:var(--gris-bg);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;}
+.modal-body{padding:16px 18px 32px;}
+.fl{font-size:11px;font-weight:700;color:var(--gris-texto);text-transform:uppercase;letter-spacing:0.04em;display:block;margin-bottom:6px;}
+.fi,.fs{width:100%;padding:12px 14px;border:1.5px solid var(--gris-borde);border-radius:12px;font-size:15px;font-family:'Nunito Sans',sans-serif;color:var(--negro);background:#fff;transition:border 0.15s;}
+.fi:focus,.fs:focus{outline:none;border-color:var(--azul);}
+.ft{width:100%;padding:12px 14px;border:1.5px solid var(--gris-borde);border-radius:12px;font-size:14px;font-family:'Nunito Sans',sans-serif;color:var(--negro);resize:none;background:#fff;}
+.ft:focus{outline:none;border-color:var(--azul);}
+.fg{margin-bottom:14px;}
+.fg-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+
+/* VOZ */
+.mic-btn{display:flex;align-items:center;gap:12px;padding:13px 15px;border:2px dashed var(--gris-borde);border-radius:14px;cursor:pointer;background:var(--gris-bg);transition:all 0.15s;margin-bottom:14px;}
+.mic-btn.grabando{border-color:var(--verde);background:var(--verde-claro);}
+.mic-icono{font-size:24px;}
+.mic-texto{font-size:13px;font-weight:600;color:var(--gris-texto);}
+.mic-btn.grabando .mic-texto{color:var(--verde-oscuro);}
+.trans-box{display:none;background:#fff;border:1.5px solid var(--verde);border-radius:12px;padding:12px;margin-bottom:12px;}
+.trans-box.visible{display:block;}
+.trans-label{font-size:11px;font-weight:700;color:var(--verde-oscuro);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px;}
+.trans-area{width:100%;border:none;background:transparent;font-size:14px;font-family:'Nunito Sans',sans-serif;color:var(--negro);resize:none;outline:none;}
+.trans-btns{display:flex;gap:8px;margin-top:8px;}
+.btn-usar{flex:1;padding:9px;border-radius:8px;border:none;background:var(--verde);color:#fff;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;}
+.btn-rehacer{padding:9px 12px;border-radius:8px;border:1.5px solid var(--gris-borde);background:#fff;color:var(--gris-texto);font-size:13px;cursor:pointer;}
+
+/* ESPECIALIDADES */
+.espec-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:14px;}
+.espec-opt{padding:10px 12px;border-radius:10px;border:1.5px solid var(--gris-borde);background:#fff;cursor:pointer;font-size:13px;font-weight:600;color:var(--gris-texto);text-align:center;transition:all 0.15s;}
+.espec-opt.sel{border-color:var(--azul-oscuro);background:var(--azul-claro);color:var(--azul-oscuro);}
+
+/* FOTOS */
+.foto-btns{display:flex;gap:8px;margin-bottom:8px;}
+.btn-foto{flex:1;padding:10px;border-radius:10px;border:1.5px solid var(--gris-borde);background:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;color:var(--azul-oscuro);display:flex;align-items:center;justify-content:center;gap:5px;}
+.fotos-wrap{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+.foto-thumb{position:relative;width:72px;height:72px;}
+.foto-thumb img{width:72px;height:72px;object-fit:cover;border-radius:10px;}
+.foto-del{position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:5px;background:rgba(0,0,0,0.6);color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+
+/* GUARDAR */
+.btn-guardar{width:100%;padding:16px;border-radius:14px;border:none;background:var(--azul-oscuro);color:#fff;font-family:'Nunito',sans-serif;font-weight:800;font-size:17px;cursor:pointer;margin-top:8px;}
+.btn-guardar:hover{background:var(--azul);}
+
+/* DETALLE MODAL */
+.det-seccion{margin-bottom:14px;}
+.det-label{font-size:11px;font-weight:700;color:var(--gris-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px;}
+.det-valor{font-size:14px;color:var(--negro);font-weight:600;line-height:1.5;}
+.btn-realizada{width:100%;padding:14px;border-radius:14px;border:none;background:var(--verde);color:#fff;font-family:'Nunito',sans-serif;font-weight:800;font-size:16px;cursor:pointer;margin-bottom:10px;}
+.btn-eliminar-cita{width:100%;padding:12px;border-radius:14px;border:1.5px solid var(--rojo-claro);background:#fff;color:var(--rojo);font-family:'Nunito',sans-serif;font-weight:700;font-size:14px;cursor:pointer;}
+.btn-editar-cita{width:100%;padding:12px;border-radius:14px;border:1.5px solid var(--gris-borde);background:#fff;color:var(--gris-texto);font-family:'Nunito',sans-serif;font-weight:700;font-size:14px;cursor:pointer;margin-bottom:8px;}
+
+/* EMPTY */
+.empty{text-align:center;padding:40px 20px;color:var(--gris-muted);}
+.empty-icon{font-size:52px;margin-bottom:14px;}
+
+/* VISOR FOTO */
+.visor-foto{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:300;align-items:center;justify-content:center;}
+.visor-foto.open{display:flex;}
+.visor-foto img{max-width:95vw;max-height:90vh;object-fit:contain;border-radius:10px;}
+.visor-close{position:absolute;top:20px;right:20px;width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+
+/* TOAST */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(40px);background:var(--negro);color:#fff;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:700;opacity:0;transition:all 0.3s;z-index:400;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.toast.ok{background:var(--verde-oscuro);}
+
+@media(min-width:480px){body{border-left:1px solid var(--gris-borde);border-right:1px solid var(--gris-borde);}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="home.html" class="btn-back">←</a>
+  <div class="header-titulo">Mis citas médicas</div>
+  <span id="conteo-header" style="font-size:12px;color:var(--gris-muted);"></span>
+</div>
+
+<div class="body">
+  <div class="tabs">
+    <div class="tab activo" id="tab-lista" onclick="showTab('lista')">📋 Próximas</div>
+    <div class="tab" id="tab-cal" onclick="showTab('cal')">📅 Calendario</div>
+    <div class="tab" id="tab-pasadas" onclick="showTab('pasadas')">✓ Realizadas</div>
+  </div>
+
+  <div id="panel-lista"></div>
+  <div id="panel-cal" style="display:none;"></div>
+  <div id="panel-pasadas" style="display:none;"></div>
+</div>
+
+<button class="btn-flotante" onclick="abrirModalNueva()">
+  🎙️ Nueva cita
+</button>
+
+<!-- MODAL NUEVA CITA -->
+<div class="modal-overlay" id="modal-nueva" onclick="cerrarOverlay(event,'modal-nueva')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <span class="modal-titulo" id="modal-nueva-titulo">Nueva cita médica</span>
+      <button class="modal-close" onclick="cerrarModal('modal-nueva')">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- VOZ -->
+      <div class="mic-btn" id="mic-btn" onclick="toggleMic()">
+        <span class="mic-icono">🎙️</span>
+        <div>
+          <div class="mic-texto" id="mic-texto">Toca para dictar la cita por voz</div>
+          <div style="font-size:11px;color:var(--gris-muted);margin-top:2px;">Ej: "Cardiólogo el martes 20 a las 10 en la Clínica Las Condes"</div>
+        </div>
+      </div>
+      <div class="trans-box" id="trans-box">
+        <div class="trans-label">Esto escuché — ¿está bien?</div>
+        <textarea class="trans-area" id="trans-texto" rows="2"></textarea>
+        <div class="trans-btns">
+          <button class="btn-usar" onclick="usarVoz()">✓ Usar</button>
+          <button class="btn-rehacer" onclick="rehacerVoz()">Repetir</button>
+        </div>
+      </div>
+
+      <!-- ESPECIALIDAD -->
+      <div class="fg">
+        <label class="fl">Especialidad</label>
+        <div class="espec-grid" id="espec-grid">
+          <div class="espec-opt" onclick="selEspec('Médico general',this)">👨‍⚕️ Médico general</div>
+          <div class="espec-opt" onclick="selEspec('Cardiología',this)">❤️ Cardiología</div>
+          <div class="espec-opt" onclick="selEspec('Traumatología',this)">🦴 Traumatología</div>
+          <div class="espec-opt" onclick="selEspec('Psicología',this)">🧠 Psicología</div>
+          <div class="espec-opt" onclick="selEspec('Neurología',this)">🔬 Neurología</div>
+          <div class="espec-opt" onclick="selEspec('Reumatología',this)">💊 Reumatología</div>
+          <div class="espec-opt" onclick="selEspec('Oftalmología',this)">👁️ Oftalmología</div>
+          <div class="espec-opt" onclick="selEspec('Otra',this)">➕ Otra</div>
+        </div>
+        <input class="fi" id="espec-otra" placeholder="Escribe la especialidad..." style="display:none;margin-top:6px;">
+      </div>
+
+      <!-- FECHA Y HORA -->
+      <div class="fg-row">
+        <div>
+          <label class="fl">Fecha</label>
+          <input type="date" class="fi" id="cita-fecha">
+        </div>
+        <div>
+          <label class="fl">Hora</label>
+          <input type="time" class="fi" id="cita-hora">
+        </div>
+      </div>
+
+      <!-- MÉDICO Y LUGAR -->
+      <div class="fg">
+        <label class="fl">Médico / profesional (opcional)</label>
+        <input class="fi" id="cita-medico" placeholder="Ej: Dr. Martínez, Psic. González...">
+      </div>
+      <div class="fg">
+        <label class="fl">Lugar (clínica, consultorio)</label>
+        <input class="fi" id="cita-lugar" placeholder="Ej: Clínica Las Condes, Consultorio...">
+      </div>
+
+      <!-- NOTAS -->
+      <div class="fg">
+        <label class="fl">Notas o recordatorios (opcional)</label>
+        <textarea class="ft" id="cita-notas" rows="2" placeholder="Ej: Llevar exámenes anteriores, ir en ayunas..."></textarea>
+      </div>
+
+      <!-- FOTOS (documentos, recetas) -->
+      <div class="fg">
+        <label class="fl">Documentos o indicaciones (opcional)</label>
+        <div class="foto-btns">
+          <button class="btn-foto" onclick="abrirCamaraDoc()">📷 Fotografiar</button>
+          <button class="btn-foto" onclick="abrirGaleriaDoc()">🖼 Galería</button>
+        </div>
+        <input type="file" id="file-doc-cam" accept="image/*" capture="environment" onchange="procesarFotoDoc(this)" style="display:none;">
+        <input type="file" id="file-doc-gal" accept="image/*" onchange="procesarFotoDoc(this)" style="display:none;">
+        <div class="fotos-wrap" id="fotos-doc-wrap"></div>
+        <div style="font-size:11px;color:var(--gris-muted);">Recetas, indicaciones, derivaciones...</div>
+      </div>
+
+      <button class="btn-guardar" onclick="guardarCita()">Guardar cita</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETALLE CITA -->
+<div class="modal-overlay" id="modal-detalle" onclick="cerrarOverlay(event,'modal-detalle')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <span class="modal-titulo" id="det-titulo">Detalle de cita</span>
+      <button class="modal-close" onclick="cerrarModal('modal-detalle')">✕</button>
+    </div>
+    <div class="modal-body" id="det-body"></div>
+  </div>
+</div>
+
+<!-- VISOR FOTO -->
+<div class="visor-foto" id="visor-foto">
+  <button class="visor-close" onclick="document.getElementById('visor-foto').classList.remove('open')">✕</button>
+  <img id="visor-img" src="">
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var perfil = JSON.parse(localStorage.getItem('misalud_usuario_actual') || 'null');
+if (!perfil) window.location.href = 'index.html';
+
+var KEY_CITAS = 'misalud_citas_' + perfil.id;
+var tabActual = 'lista';
+var especSeleccionada = '';
+var fotosDoc = [];
+var recognition = null, grabando = false, textoVoz = '';
+var citaEditandoId = null;
+var calMes = new Date().getMonth();
+var calAnio = new Date().getFullYear();
+
+function getCitas() {
+  return JSON.parse(localStorage.getItem(KEY_CITAS) || '[]');
+}
+function saveCitas(citas) {
+  localStorage.setItem(KEY_CITAS, JSON.stringify(citas));
+}
+
+// ── TABS ──────────────────────────────────────────────────────
+function showTab(tab) {
+  tabActual = tab;
+  ['lista','cal','pasadas'].forEach(function(t) {
+    document.getElementById('tab-'+t).classList.toggle('activo', t === tab);
+    document.getElementById('panel-'+t).style.display = t === tab ? 'block' : 'none';
+  });
+  render();
+}
+
+// ── RENDER PRINCIPAL ──────────────────────────────────────────
+function render() {
+  var citas = getCitas().sort(function(a,b){ return new Date(a.fechaISO) - new Date(b.fechaISO); });
+  var hoy = new Date(); hoy.setHours(0,0,0,0);
+  var proximas = citas.filter(function(c){ return !c.realizada && new Date(c.fechaISO) >= hoy; });
+  var pasadas = citas.filter(function(c){ return c.realizada || new Date(c.fechaISO) < hoy; });
+
+  document.getElementById('conteo-header').textContent = proximas.length + ' próxima' + (proximas.length !== 1 ? 's' : '');
+
+  if (tabActual === 'lista') renderLista(proximas, hoy);
+  if (tabActual === 'cal') renderCalendario(citas);
+  if (tabActual === 'pasadas') renderPasadas(pasadas);
+}
+
+function renderLista(citas, hoy) {
+  var cont = document.getElementById('panel-lista');
+  if (citas.length === 0) {
+    cont.innerHTML = '<div class="empty"><div class="empty-icon">🗓️</div><div style="font-family:Nunito,sans-serif;font-weight:700;font-size:16px;margin-bottom:6px;">Sin citas próximas</div><div style="font-size:13px;line-height:1.6;">Toca el botón azul para agregar<br>tu primera cita.</div></div>';
+    return;
+  }
+  cont.innerHTML = citas.map(function(c) {
+    var fecha = new Date(c.fechaISO);
+    fecha.setHours(12,0,0,0);
+    var diff = Math.ceil((fecha - hoy) / (1000*60*60*24));
+    var dia = fecha.getDate();
+    var mes = fecha.toLocaleDateString('es-CL', {month:'short'}).replace('.','');
+    var claseCard = diff === 0 ? 'hoy' : diff <= 3 ? 'urgente' : '';
+    var badge = diff === 0 ? '<span class="cita-badge badge-hoy">Hoy</span>' :
+                diff === 1 ? '<span class="cita-badge badge-urgente">Mañana</span>' :
+                diff <= 3 ? '<span class="cita-badge badge-urgente">En '+diff+' días</span>' :
+                '<span class="cita-badge badge-proxima">En '+diff+' días</span>';
+    var diasTxt = diff > 3 ? '' : '';
+    return '<div class="cita-card '+claseCard+'" onclick="abrirDetalle(\''+c.id+'\')">' +
+      '<div class="cita-header">' +
+      '<div class="cita-fecha-box"><div class="cita-dia">'+dia+'</div><div class="cita-mes">'+mes+'</div></div>' +
+      '<div class="cita-info">' +
+      '<div class="cita-especialidad">'+c.especialidad+'</div>' +
+      '<div class="cita-hora">🕐 '+c.hora+(c.medico?' · '+c.medico:'')+'</div>' +
+      (c.lugar?'<div class="cita-lugar">📍 '+c.lugar+'</div>':'') +
+      '</div>' + badge + '</div>' +
+      (c.notas || c.fotos && c.fotos.length > 0 ? '<div class="cita-extras">' +
+      (c.notas?'<span class="cita-extra-tag">📝 '+c.notas.substring(0,40)+(c.notas.length>40?'...':'')+'</span>':'') +
+      (c.fotos && c.fotos.length>0?'<span class="cita-extra-tag">📎 '+c.fotos.length+' doc.</span>':'') +
+      '</div>':'') + '</div>';
+  }).join('');
+}
+
+function renderCalendario(citas) {
+  var cont = document.getElementById('panel-cal');
+  var hoy = new Date();
+  var primerDia = new Date(calAnio, calMes, 1).getDay();
+  var diasMes = new Date(calAnio, calMes+1, 0).getDate();
+  // Días con cita
+  var diasConCita = {};
+  citas.forEach(function(c) {
+    var f = new Date(c.fechaISO); f.setHours(12,0,0,0);
+    if (f.getMonth() === calMes && f.getFullYear() === calAnio) {
+      diasConCita[f.getDate()] = (diasConCita[f.getDate()] || []);
+      diasConCita[f.getDate()].push(c);
+    }
+  });
+  var meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var dias = ['Do','Lu','Ma','Mi','Ju','Vi','Sá'];
+  var html = '<div class="cal-wrap">' +
+    '<div class="cal-header">' +
+    '<div class="cal-nav" onclick="cambiarMes(-1)">‹</div>' +
+    '<div class="cal-mes-titulo">'+meses[calMes]+' '+calAnio+'</div>' +
+    '<div class="cal-nav" onclick="cambiarMes(1)">›</div>' +
+    '</div>' +
+    '<div class="cal-grid">' +
+    dias.map(function(d){ return '<div class="cal-dia-label">'+d+'</div>'; }).join('') +
+    Array(primerDia).fill('<div class="cal-dia vacio"></div>').join('');
+  for (var d = 1; d <= diasMes; d++) {
+    var esHoy = d === hoy.getDate() && calMes === hoy.getMonth() && calAnio === hoy.getFullYear();
+    var tieneCita = diasConCita[d];
+    var esPasado = new Date(calAnio, calMes, d) < new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+    var clases = 'cal-dia' + (esHoy?' hoy':'') + (tieneCita?' tiene-cita':'') + (esPasado&&!esHoy?' pasado':'');
+    var dStr = String(d);
+    html += '<div class="'+clases+'" onclick="'+(tieneCita?'abrirDiaCalendario('+d+')':'')+'">'+dStr+(tieneCita?'<div class="cal-dot"></div>':'')+'</div>';
+  }
+  html += '</div></div>';
+
+  // Lista de citas del mes
+  var citasMes = citas.filter(function(c){
+    var f = new Date(c.fechaISO); f.setHours(12,0,0,0);
+    return f.getMonth() === calMes && f.getFullYear() === calAnio;
+  }).sort(function(a,b){ return new Date(a.fechaISO)-new Date(b.fechaISO); });
+
+  if (citasMes.length > 0) {
+    html += '<div style="margin-top:4px;">' +
+      citasMes.map(function(c){
+        var f = new Date(c.fechaISO); f.setHours(12,0,0,0);
+        return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--gris-bg);cursor:pointer;" onclick="abrirDetalle(\''+c.id+'\')">' +
+          '<div style="width:36px;height:36px;border-radius:10px;background:var(--azul-claro);display:flex;align-items:center;justify-content:center;font-family:Nunito,sans-serif;font-weight:800;font-size:14px;color:var(--azul-oscuro);flex-shrink:0;">'+f.getDate()+'</div>' +
+          '<div><div style="font-weight:700;font-size:14px;">'+c.especialidad+'</div>' +
+          '<div style="font-size:12px;color:var(--gris-texto);">'+c.hora+(c.lugar?' · '+c.lugar:'')+'</div></div>' +
+          (c.realizada?'<span style="margin-left:auto;font-size:11px;font-weight:700;color:var(--verde-oscuro);background:var(--verde-claro);padding:2px 8px;border-radius:20px;">✓ Realizada</span>':'') +
+          '</div>';
+      }).join('') + '</div>';
+  }
+  cont.innerHTML = html;
+}
+
+function renderPasadas(citas) {
+  var cont = document.getElementById('panel-pasadas');
+  if (citas.length === 0) {
+    cont.innerHTML = '<div class="empty"><div class="empty-icon">✅</div><div style="font-size:14px;">Sin citas realizadas aún</div></div>';
+    return;
+  }
+  var sorted = [...citas].sort(function(a,b){ return new Date(b.fechaISO)-new Date(a.fechaISO); });
+  cont.innerHTML = sorted.map(function(c){
+    var fecha = new Date(c.fechaISO); fecha.setHours(12,0,0,0);
+    var fechaStr = fecha.toLocaleDateString('es-CL',{day:'numeric',month:'long',year:'numeric'});
+    return '<div class="cita-card realizada" onclick="abrirDetalle(\''+c.id+'\')">' +
+      '<div class="cita-header">' +
+      '<div class="cita-fecha-box" style="background:#F1F5F9;"><div class="cita-dia" style="color:var(--gris-texto);">'+fecha.getDate()+'</div>' +
+      '<div class="cita-mes" style="color:var(--gris-muted);">'+fecha.toLocaleDateString('es-CL',{month:'short'}).replace('.','')+'</div></div>' +
+      '<div class="cita-info"><div class="cita-especialidad">'+c.especialidad+'</div>' +
+      '<div class="cita-hora">'+fechaStr+'</div>' +
+      (c.examenesSolicitados?'<div style="font-size:11px;color:var(--naranja);font-weight:600;margin-top:3px;">🔬 '+c.examenesSolicitados+'</div>':'') +
+      '</div><span class="cita-badge badge-realizada">✓ Realizada</span></div></div>';
+  }).join('');
+}
+
+// ── CALENDARIO NAV ────────────────────────────────────────────
+function cambiarMes(dir) {
+  calMes += dir;
+  if (calMes > 11) { calMes = 0; calAnio++; }
+  if (calMes < 0) { calMes = 11; calAnio--; }
+  renderCalendario(getCitas());
+}
+
+function abrirDiaCalendario(dia) {
+  var citas = getCitas().filter(function(c){
+    var f = new Date(c.fechaISO); f.setHours(12,0,0,0);
+    return f.getDate() === dia && f.getMonth() === calMes && f.getFullYear() === calAnio;
+  });
+  if (citas.length === 1) abrirDetalle(citas[0].id);
+}
+
+// ── MODAL NUEVA CITA ──────────────────────────────────────────
+function abrirModalNueva() {
+  citaEditandoId = null;
+  fotosDoc = [];
+  especSeleccionada = '';
+  document.getElementById('modal-nueva-titulo').textContent = 'Nueva cita médica';
+  document.getElementById('cita-fecha').value = '';
+  document.getElementById('cita-hora').value = '';
+  document.getElementById('cita-medico').value = '';
+  document.getElementById('cita-lugar').value = '';
+  document.getElementById('cita-notas').value = '';
+  document.getElementById('espec-otra').style.display = 'none';
+  document.getElementById('espec-otra').value = '';
+  document.getElementById('fotos-doc-wrap').innerHTML = '';
+  document.querySelectorAll('.espec-opt').forEach(function(el){ el.classList.remove('sel'); });
+  document.getElementById('trans-box').classList.remove('visible');
+  document.getElementById('modal-nueva').classList.add('open');
+}
+
+function cerrarModal(id) { document.getElementById(id).classList.remove('open'); }
+function cerrarOverlay(e, id) { if(e.target.classList.contains('modal-overlay')) cerrarModal(id); }
+
+// ── ESPECIALIDAD ──────────────────────────────────────────────
+function selEspec(espec, el) {
+  document.querySelectorAll('.espec-opt').forEach(function(o){ o.classList.remove('sel'); });
+  el.classList.add('sel');
+  especSeleccionada = espec;
+  var otraInput = document.getElementById('espec-otra');
+  otraInput.style.display = espec === 'Otra' ? 'block' : 'none';
+  if (espec === 'Otra') { otraInput.focus(); especSeleccionada = ''; }
+}
+
+// ── VOZ ───────────────────────────────────────────────────────
+function toggleMic() {
+  if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+    mostrarToast('Abre en Chrome para usar el micrófono', false); return;
+  }
+  if (grabando) {
+    grabando = false;
+    if (recognition) { try { recognition.stop(); } catch(e) {} }
+  } else {
+    grabando = true; textoVoz = '';
+    var micBtn = document.getElementById('mic-btn');
+    micBtn.classList.add('grabando');
+    document.getElementById('mic-texto').textContent = 'Escuchando... toca para detener';
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SR();
+    recognition.lang = 'es-CL'; recognition.continuous = false; recognition.interimResults = false;
+    recognition.onresult = function(e) { textoVoz = e.results[0][0].transcript; };
+    recognition.onend = function() {
+      grabando = false;
+      document.getElementById('mic-btn').classList.remove('grabando');
+      document.getElementById('mic-texto').textContent = 'Toca para dictar la cita por voz';
+      if (textoVoz) {
+        document.getElementById('trans-texto').value = textoVoz;
+        document.getElementById('trans-box').classList.add('visible');
+      }
+    };
+    recognition.onerror = function() {
+      grabando = false;
+      document.getElementById('mic-btn').classList.remove('grabando');
+      document.getElementById('mic-texto').textContent = 'Toca para dictar la cita por voz';
+    };
+    recognition.start();
+  }
+}
+
+function usarVoz() {
+  var texto = document.getElementById('trans-texto').value.trim();
+  if (!texto) return;
+  // Intentar extraer datos del texto de voz
+  document.getElementById('cita-notas').value = texto;
+  document.getElementById('trans-box').classList.remove('visible');
+  mostrarToast('Voz guardada en notas', true);
+}
+function rehacerVoz() {
+  document.getElementById('trans-box').classList.remove('visible');
+  textoVoz = '';
+}
+
+// ── FOTOS DOCUMENTOS ──────────────────────────────────────────
+function abrirCamaraDoc() { document.getElementById('file-doc-cam').click(); }
+function abrirGaleriaDoc() { document.getElementById('file-doc-gal').click(); }
+function procesarFotoDoc(input) {
+  var file = input.files[0]; if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    fotosDoc.push(e.target.result);
+    renderFotosDoc();
+  };
+  reader.readAsDataURL(file);
+  input.value = '';
+}
+function renderFotosDoc() {
+  var wrap = document.getElementById('fotos-doc-wrap');
+  wrap.innerHTML = fotosDoc.map(function(f, i) {
+    return '<div class="foto-thumb"><img src="'+f+'" onclick="verFoto(\''+f+'\')"><div class="foto-del" onclick="fotosDoc.splice('+i+',1);renderFotosDoc()">✕</div></div>';
+  }).join('');
+}
+function verFoto(src) {
+  document.getElementById('visor-img').src = src;
+  document.getElementById('visor-foto').classList.add('open');
+}
+
+// ── GUARDAR CITA ──────────────────────────────────────────────
+async function guardarCita() {
+  var espec = especSeleccionada || document.getElementById('espec-otra').value.trim();
+  var fecha = document.getElementById('cita-fecha').value;
+  var hora = document.getElementById('cita-hora').value;
+
+  if (!espec) { mostrarToast('Selecciona la especialidad', false); return; }
+  if (!fecha) { mostrarToast('Indica la fecha de la cita', false); return; }
+  if (!hora) { mostrarToast('Indica la hora de la cita', false); return; }
+
+  var citas = getCitas();
+  var id = citaEditandoId || Date.now().toString();
+
+  var cita = {
+    id: id,
+    especialidad: espec,
+    fechaISO: fecha,
+    hora: hora,
+    medico: document.getElementById('cita-medico').value.trim(),
+    lugar: document.getElementById('cita-lugar').value.trim(),
+    notas: document.getElementById('cita-notas').value.trim(),
+    fotos: fotosDoc.slice(),
+    realizada: false,
+    examenesSolicitados: '',
+    creado: new Date().toISOString()
+  };
+
+  if (citaEditandoId) {
+    var idx = citas.findIndex(function(c){ return c.id === citaEditandoId; });
+    if (idx >= 0) { cita.realizada = citas[idx].realizada; citas[idx] = cita; }
+  } else {
+    citas.push(cita);
+  }
+
+  saveCitas(citas);
+  // Firebase
+  try { await fbGuardarCita(String(perfil.id), cita); } catch(e) { console.warn('Firebase cita:', e); }
+
+  cerrarModal('modal-nueva');
+  render();
+  mostrarToast(citaEditandoId ? '✓ Cita actualizada' : '✓ Cita guardada', true);
+}
+
+// ── DETALLE CITA ──────────────────────────────────────────────
+function abrirDetalle(id) {
+  var c = getCitas().find(function(x){ return x.id === id; });
+  if (!c) return;
+  var fecha = new Date(c.fechaISO); fecha.setHours(12,0,0,0);
+  var fechaStr = fecha.toLocaleDateString('es-CL', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+
+  document.getElementById('det-titulo').textContent = c.especialidad;
+  var body = document.getElementById('det-body');
+  body.innerHTML =
+    '<div class="det-seccion"><div class="det-label">Fecha y hora</div>' +
+    '<div class="det-valor" style="font-size:16px;">📅 '+fechaStr+'<br>🕐 '+c.hora+'</div></div>' +
+    (c.medico?'<div class="det-seccion"><div class="det-label">Profesional</div><div class="det-valor">👨‍⚕️ '+c.medico+'</div></div>':'') +
+    (c.lugar?'<div class="det-seccion"><div class="det-label">Lugar</div><div class="det-valor">📍 '+c.lugar+'</div></div>':'') +
+    (c.notas?'<div class="det-seccion"><div class="det-label">Notas</div><div class="det-valor">📝 '+c.notas+'</div></div>':'') +
+    (c.fotos && c.fotos.length>0?'<div class="det-seccion"><div class="det-label">Documentos</div><div style="display:flex;gap:8px;flex-wrap:wrap;">'+
+      c.fotos.map(function(f){ return '<img src="'+f+'" style="width:80px;height:80px;object-fit:cover;border-radius:10px;cursor:pointer;" onclick="verFoto(\''+f+'\')">'; }).join('') +
+    '</div></div>':'') +
+    (c.realizada && c.examenesSolicitados?'<div class="det-seccion"><div class="det-label">Exámenes solicitados</div><div class="det-valor">🔬 '+c.examenesSolicitados+'</div></div>':'') +
+    (!c.realizada?
+      '<button class="btn-realizada" onclick="marcarRealizada(\''+id+'\')">✓ Marcar como realizada</button>' +
+      '<button class="btn-editar-cita" onclick="editarCita(\''+id+'\')">✏️ Editar cita</button>'
+    :'') +
+    '<button class="btn-eliminar-cita" onclick="eliminarCita(\''+id+'\')">🗑 Eliminar cita</button>';
+
+  document.getElementById('modal-detalle').classList.add('open');
+}
+
+function marcarRealizada(id) {
+  var html = '<div style="padding:8px 0;">' +
+    '<div style="font-family:Nunito,sans-serif;font-weight:700;font-size:15px;margin-bottom:12px;">¿Te solicitaron exámenes?</div>' +
+    '<textarea id="examenes-input" class="ft" rows="2" placeholder="Ej: Hemograma, Ecocardiograma, Rx columna..."></textarea>' +
+    '<div style="display:flex;gap:8px;margin-top:12px;">' +
+    '<button onclick="confirmarRealizada(\''+id+'\',false)" style="flex:1;padding:12px;border-radius:12px;border:1.5px solid var(--gris-borde);background:#fff;font-family:Nunito,sans-serif;font-weight:700;cursor:pointer;font-size:13px;">Sin exámenes</button>' +
+    '<button onclick="confirmarRealizada(\''+id+'\',true)" style="flex:1;padding:12px;border-radius:12px;border:none;background:var(--verde);color:#fff;font-family:Nunito,sans-serif;font-weight:700;cursor:pointer;font-size:13px;">Guardar</button>' +
+    '</div></div>';
+  document.getElementById('det-body').innerHTML = html;
+}
+
+async function confirmarRealizada(id, conExamenes) {
+  var citas = getCitas();
+  var idx = citas.findIndex(function(c){ return c.id === id; });
+  if (idx < 0) return;
+  citas[idx].realizada = true;
+  if (conExamenes) {
+    var examInput = document.getElementById('examenes-input');
+    if (examInput) citas[idx].examenesSolicitados = examInput.value.trim();
+  }
+  saveCitas(citas);
+  try { await fbGuardarCita(String(perfil.id), citas[idx]); } catch(e) {}
+  cerrarModal('modal-detalle');
+  render();
+  mostrarToast('✓ Cita marcada como realizada', true);
+}
+
+function editarCita(id) {
+  var c = getCitas().find(function(x){ return x.id === id; });
+  if (!c) return;
+  cerrarModal('modal-detalle');
+  citaEditandoId = id;
+  fotosDoc = c.fotos ? c.fotos.slice() : [];
+  especSeleccionada = c.especialidad;
+  document.getElementById('modal-nueva-titulo').textContent = 'Editar cita';
+  document.getElementById('cita-fecha').value = c.fechaISO;
+  document.getElementById('cita-hora').value = c.hora;
+  document.getElementById('cita-medico').value = c.medico || '';
+  document.getElementById('cita-lugar').value = c.lugar || '';
+  document.getElementById('cita-notas').value = c.notas || '';
+  // Seleccionar especialidad
+  var encontrada = false;
+  document.querySelectorAll('.espec-opt').forEach(function(el){
+    if (el.textContent.includes(c.especialidad)) { el.classList.add('sel'); encontrada = true; }
+    else el.classList.remove('sel');
+  });
+  if (!encontrada) {
+    document.querySelectorAll('.espec-opt').forEach(function(el){ if(el.textContent.includes('Otra')) el.classList.add('sel'); });
+    document.getElementById('espec-otra').style.display = 'block';
+    document.getElementById('espec-otra').value = c.especialidad;
+  }
+  renderFotosDoc();
+  document.getElementById('modal-nueva').classList.add('open');
+}
+
+async function eliminarCita(id) {
+  if (!confirm('¿Eliminar esta cita?')) return;
+  var citas = getCitas().filter(function(c){ return c.id !== id; });
+  saveCitas(citas);
+  try { await fbEliminarCita(id); } catch(e) {}
+  cerrarModal('modal-detalle');
+  render();
+  mostrarToast('Cita eliminada', false);
+}
+
+// ── FIREBASE CITAS ────────────────────────────────────────────
+async function fbGuardarCita(perfilId, cita) {
+  var db = await inicializarFirebase();
+  await db.collection('citas').doc(String(cita.id)).set(Object.assign({}, cita, {perfilId: perfilId}));
+}
+async function fbEliminarCita(id) {
+  var db = await inicializarFirebase();
+  await db.collection('citas').doc(String(id)).delete();
+}
+
+// ── TOAST ─────────────────────────────────────────────────────
+function mostrarToast(msg, ok) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast' + (ok?' ok':'') + ' show';
+  setTimeout(function(){ t.classList.remove('show'); }, 2800);
+}
+
+// ── INICIO ────────────────────────────────────────────────────
+// Sincronizar citas desde Firebase
+async function syncCitas() {
+  try {
+    var db = await inicializarFirebase();
+    var snap = await db.collection('citas').where('perfilId','==',String(perfil.id)).get();
+    if (!snap.empty) {
+      var citasFirebase = snap.docs.map(function(d){ return d.data(); });
+      var citasLocal = getCitas();
+      var idsFirebase = new Set(citasFirebase.map(function(c){ return String(c.id); }));
+      var soloLocales = citasLocal.filter(function(c){ return !idsFirebase.has(String(c.id)); });
+      var fusionadas = citasFirebase.concat(soloLocales);
+      saveCitas(fusionadas);
+    }
+  } catch(e) { console.log('Sync citas:', e); }
+  render();
+}
+
+syncCitas();
+</script>
+</body>
+</html>
