@@ -207,7 +207,9 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--gris-bg);color:var(--
           <div class="espec-opt" onclick="selEspec('Neurología',this)">🔬 Neurología</div>
           <div class="espec-opt" onclick="selEspec('Reumatología',this)">💊 Reumatología</div>
           <div class="espec-opt" onclick="selEspec('Oftalmología',this)">👁️ Oftalmología</div>
-          <div class="espec-opt" onclick="selEspec('Otra',this)">➕ Otra</div>
+          <div class="espec-opt" onclick="selEspec('Terapia ocupacional',this)">🙌 Ter. ocupacional</div>
+          <div class="espec-opt" onclick="selEspec('Retiro de medicamentos',this)" style="grid-column:span 2;background:#FFF7ED;border-color:#FED7AA;">💊 Retiro de medicamentos</div>
+          <div class="espec-opt" onclick="selEspec('Otra',this)">➕ Otra especialidad</div>
         </div>
         <input class="fi" id="espec-otra" placeholder="Escribe la especialidad..." style="display:none;margin-top:6px;">
       </div>
@@ -288,6 +290,7 @@ var especSeleccionada = '';
 var fotosDoc = [];
 var recognition = null, grabando = false, textoVoz = '';
 var citaEditandoId = null;
+var fotosExamen = [];
 var calMes = new Date().getMonth();
 var calAnio = new Date().getFullYear();
 
@@ -541,20 +544,29 @@ function usarVoz() {
     }
   }
 
-  // "el 21" / "día 21" / "el 21 de mayo" etc.
+  // "el 21", "el 30 de mayo", "30 de mayo", "día 21", etc.
   var mesesNombres = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-  var matchDia = t.match(/(?:el|día|dia)\s+(\d{1,2})(?:\s+de\s+(\w+))?/);
-  if (matchDia) {
-    var numDia = parseInt(matchDia[1]);
-    var mesEncontrado = hoy.getMonth();
-    if (matchDia[2]) {
-      var idxMes = mesesNombres.indexOf(matchDia[2].toLowerCase());
-      if (idxMes >= 0) mesEncontrado = idxMes;
-    }
-    if (numDia >= 1 && numDia <= 31) {
-      var candidata = new Date(anio, mesEncontrado, numDia);
+  // Patrón 1: número + "de" + mes (ej: "30 de mayo", "el 30 de mayo")
+  var matchConMes = t.match(/(?:el\s+)?(\d{1,2})\s+de\s+(\w+)/);
+  if (matchConMes) {
+    var numDia = parseInt(matchConMes[1]);
+    var idxMes = mesesNombres.indexOf(matchConMes[2].toLowerCase());
+    if (numDia >= 1 && numDia <= 31 && idxMes >= 0) {
+      var candidata = new Date(anio, idxMes, numDia);
       if (candidata < hoy) candidata.setFullYear(anio + 1);
       fechaEncontrada = candidata;
+    }
+  }
+  // Patrón 2: "el 21" / "día 21" sin mes
+  if (!fechaEncontrada) {
+    var matchDia = t.match(/(?:el|día|dia)\s+(\d{1,2})(?!\s*(?:horas?|am|pm|:))/);
+    if (matchDia) {
+      var numDia2 = parseInt(matchDia[1]);
+      if (numDia2 >= 1 && numDia2 <= 31) {
+        var candidata2 = new Date(anio, hoy.getMonth(), numDia2);
+        if (candidata2 <= hoy) candidata2.setMonth(candidata2.getMonth() + 1);
+        fechaEncontrada = candidata2;
+      }
     }
   }
 
@@ -566,26 +578,33 @@ function usarVoz() {
 
   // ── EXTRAER HORA ──────────────────────────────────────────
   var horaEncontrada = '';
-  var matchHora = t.match(/(\d{1,2})(?::(\d{2}))?\s*(?:de la\s+)?(mañana|tarde|noche|am|pm)?(?:\s*horas?)?/);
-  if (matchHora) {
-    var h = parseInt(matchHora[1]);
-    var min = matchHora[2] ? matchHora[2] : '00';
-    var periodo = matchHora[3] || '';
-    if (periodo === 'tarde' || periodo === 'noche' || periodo === 'pm') {
-      if (h < 12) h += 12;
-    }
-    if (periodo === 'mañana' || periodo === 'am') {
-      if (h === 12) h = 0;
+  // Buscar "a las X" primero — más específico
+  var matchALas = t.match(/a las\s+(\d{1,2})(?::(\d{2}))?(?:\s*(?:de la\s+)?(mañana|tarde|noche|am|pm))?/);
+  if (matchALas) {
+    var h = parseInt(matchALas[1]);
+    var min = matchALas[2] ? matchALas[2] : '00';
+    var periodo = matchALas[3] || '';
+    if (periodo === 'mañana' || periodo === 'am') { if (h === 12) h = 0; }
+    else if (periodo === 'tarde' || periodo === 'noche' || periodo === 'pm') { if (h < 12) h += 12; }
+    else {
+      // Sin contexto: si es 1-8, asumir tarde (PM) — en Chile nadie dice "a las 2" para las 2am
+      if (h >= 1 && h <= 8) h += 12;
     }
     if (h >= 0 && h <= 23) {
       horaEncontrada = String(h).padStart(2,'0') + ':' + min.padStart(2,'0');
     }
   }
-  // "a las 10" sin más contexto
-  var matchSimple = t.match(/a las\s+(\d{1,2})/);
-  if (matchSimple && !horaEncontrada) {
-    var hs = parseInt(matchSimple[1]);
-    horaEncontrada = String(hs).padStart(2,'0') + ':00';
+  // Fallback: número con contexto explícito
+  if (!horaEncontrada) {
+    var matchHora = t.match(/(\d{1,2})(?::(\d{2}))?\s*(?:de la\s+)?(mañana|tarde|noche)/);
+    if (matchHora) {
+      var h2 = parseInt(matchHora[1]);
+      var min2 = matchHora[2] ? matchHora[2] : '00';
+      var per2 = matchHora[3] || '';
+      if (per2 === 'tarde' || per2 === 'noche') { if (h2 < 12) h2 += 12; }
+      if (per2 === 'mañana') { if (h2 === 12) h2 = 0; }
+      horaEncontrada = String(h2).padStart(2,'0') + ':' + min2.padStart(2,'0');
+    }
   }
 
   // ── EXTRAER ESPECIALIDAD ──────────────────────────────────
@@ -596,6 +615,7 @@ function usarVoz() {
     ['ginecol','Ginecología'],['urolog','Urología'],['gastro','Gastroenterología'],
     ['endocrin','Endocrinología'],['salud mental','Psicología'],
     ['terapeuta ocupacional','Terapia ocupacional'],['terapia ocupacional','Terapia ocupacional'],
+    ['retiro de medic','Retiro de medicamentos'],['retirar medic','Retiro de medicamentos'],['buscar medic','Retiro de medicamentos'],['retirar receta','Retiro de medicamentos'],
     ['médico general','Médico general'],['medico general','Médico general'],
     ['general','Médico general'],['kinesiol','Kinesiología'],['nutricion','Nutrición'],
     ['dentist','Odontología'],['dental','Odontología'],
@@ -730,6 +750,20 @@ async function guardarCita() {
 }
 
 // ── DETALLE CITA ──────────────────────────────────────────────
+function renderExamenesSolicitados(c) {
+  if (!c.realizada || !c.examenesSolicitados) return '';
+  var html = '<div class="det-seccion"><div class="det-label">Exámenes solicitados</div>' +
+    '<div class="det-valor">🔬 ' + c.examenesSolicitados + '</div>';
+  if (c.fotosExamenes && c.fotosExamenes.length > 0) {
+    html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">';
+    c.fotosExamenes.forEach(function(f) {
+      html += '<img src="' + f + '" style="width:80px;height:80px;object-fit:cover;border-radius:10px;cursor:pointer;" onclick="verFoto(this.src)">';
+    });
+    html += '</div>';
+  }
+  return html + '</div>';
+}
+
 function abrirDetalle(id) {
   var c = getCitas().find(function(x){ return x.id === id; });
   if (!c) return;
@@ -747,7 +781,7 @@ function abrirDetalle(id) {
     (c.fotos && c.fotos.length>0?'<div class="det-seccion"><div class="det-label">Documentos</div><div style="display:flex;gap:8px;flex-wrap:wrap;">'+
       c.fotos.map(function(f){ return '<img src="'+f+'" style="width:80px;height:80px;object-fit:cover;border-radius:10px;cursor:pointer;" onclick="verFoto(\''+f+'\')">'; }).join('') +
     '</div></div>':'') +
-    (c.realizada && c.examenesSolicitados?'<div class="det-seccion"><div class="det-label">Exámenes solicitados</div><div class="det-valor">🔬 '+c.examenesSolicitados+'</div></div>':'') +
+    renderExamenesSolicitados(c) +
     (!c.realizada?
       '<button class="btn-realizada" onclick="marcarRealizada(\''+id+'\')">✓ Marcar como realizada</button>' +
       '<button class="btn-editar-cita" onclick="editarCita(\''+id+'\')">✏️ Editar cita</button>'
@@ -758,14 +792,42 @@ function abrirDetalle(id) {
 }
 
 function marcarRealizada(id) {
+  fotosExamen = [];
   var html = '<div style="padding:8px 0;">' +
     '<div style="font-family:Nunito,sans-serif;font-weight:700;font-size:15px;margin-bottom:12px;">¿Te solicitaron exámenes?</div>' +
     '<textarea id="examenes-input" class="ft" rows="2" placeholder="Ej: Hemograma, Ecocardiograma, Rx columna..."></textarea>' +
-    '<div style="display:flex;gap:8px;margin-top:12px;">' +
+    '<div style="margin-top:10px;margin-bottom:4px;font-size:11px;font-weight:700;color:var(--gris-texto);text-transform:uppercase;letter-spacing:0.04em;">Foto de la orden (opcional)</div>' +
+    '<div style="display:flex;gap:8px;margin-bottom:8px;">' +
+    '<button onclick="document.getElementById(\'file-exam-cam\').click()" style="flex:1;padding:9px;border-radius:10px;border:1.5px solid var(--gris-borde);background:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:Nunito,sans-serif;color:var(--azul-oscuro);">📷 Fotografiar</button>' +
+    '<button onclick="document.getElementById(\'file-exam-gal\').click()" style="flex:1;padding:9px;border-radius:10px;border:1.5px solid var(--gris-borde);background:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:Nunito,sans-serif;color:var(--gris-texto);">🖼 Galería</button>' +
+    '</div>' +
+    '<input type="file" id="file-exam-cam" accept="image/*" capture="environment" style="display:none;" onchange="procesarFotoExamen(this)">' +
+    '<input type="file" id="file-exam-gal" accept="image/*" style="display:none;" onchange="procesarFotoExamen(this)">' +
+    '<div id="fotos-examen-wrap" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;"></div>' +
+    '<div style="display:flex;gap:8px;margin-top:4px;">' +
     '<button onclick="confirmarRealizada(\''+id+'\',false)" style="flex:1;padding:12px;border-radius:12px;border:1.5px solid var(--gris-borde);background:#fff;font-family:Nunito,sans-serif;font-weight:700;cursor:pointer;font-size:13px;">Sin exámenes</button>' +
     '<button onclick="confirmarRealizada(\''+id+'\',true)" style="flex:1;padding:12px;border-radius:12px;border:none;background:var(--verde);color:#fff;font-family:Nunito,sans-serif;font-weight:700;cursor:pointer;font-size:13px;">Guardar</button>' +
     '</div></div>';
   document.getElementById('det-body').innerHTML = html;
+}
+
+function procesarFotoExamen(input) {
+  var file = input.files[0]; if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    fotosExamen.push(e.target.result);
+    var wrap = document.getElementById('fotos-examen-wrap');
+    if (wrap) {
+      wrap.innerHTML = fotosExamen.map(function(f,i){
+        return '<div style="position:relative;width:72px;height:72px;">' +
+          '<img src="'+f+'" style="width:72px;height:72px;object-fit:cover;border-radius:10px;cursor:pointer;" onclick="verFoto(this.src)">' +
+          '<div onclick="fotosExamen.splice('+i+',1);procesarFotoExamen({files:[]})" style="position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:5px;background:rgba(0,0,0,0.6);color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;">✕</div>' +
+          '</div>';
+      }).join('');
+    }
+  };
+  reader.readAsDataURL(file);
+  input.value = '';
 }
 
 async function confirmarRealizada(id, conExamenes) {
@@ -776,6 +838,10 @@ async function confirmarRealizada(id, conExamenes) {
   if (conExamenes) {
     var examInput = document.getElementById('examenes-input');
     if (examInput) citas[idx].examenesSolicitados = examInput.value.trim();
+    if (fotosExamen.length > 0) {
+      citas[idx].fotosExamenes = fotosExamen.slice();
+      fotosExamen = [];
+    }
   }
   saveCitas(citas);
   try { await fbGuardarCita(String(perfil.id), citas[idx]); } catch(e) {}
