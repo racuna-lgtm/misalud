@@ -101,6 +101,22 @@ body{font-family:'Nunito Sans',sans-serif;background:var(--gris-bg);color:var(--
 
 @media(min-width:480px){body{border-left:1px solid var(--gris-borde);border-right:1px solid var(--gris-borde);}}
 </style>
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#22C55E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="MiSalud">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js')
+        .then(function () { console.log('[MiSalud] service worker OK'); })
+        .catch(function (e) { console.warn('[MiSalud] service worker falló:', e); });
+    });
+  }
+</script>
 </head>
 <body>
 
